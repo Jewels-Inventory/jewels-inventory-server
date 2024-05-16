@@ -1,11 +1,10 @@
-import type { Owner } from '$lib/database/models';
+import type { Owner } from './models';
 import { Collection, MongoClient, ObjectId } from 'mongodb';
-import { env } from '$env/dynamic/private';
 
 async function executeInOwners<T>(cb: (collection: Collection<Owner>) => Promise<T>) {
-	const client = new MongoClient(env.MONGO_URI);
+	const client = new MongoClient(process.env.MONGO_URI as string);
 	try {
-		const db = client.db(env.MONGO_DATABASE);
+		const db = client.db(process.env.MONGO_DATABASE);
 		const collection = db.collection<Owner>('owners');
 
 		return await cb(collection);
@@ -19,20 +18,25 @@ export async function getOwners() {
 		const owners = await collection.find().toArray();
 
 		return owners.map((owner) => ({
-			_id: (owner._id as ObjectId)?.toHexString(),
-			email: owner.email as string,
-			name: owner.name as string,
-			devices: owner.devices,
-			tokens: owner.tokens
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
 		}));
 	});
 }
 
 export async function getOwner(id: string) {
 	return await executeInOwners(async (collection) => {
-		return await collection.findOne<Owner>({
+		const owner = await collection.findOne<Owner>({
 			_id: ObjectId.createFromHexString(id)
 		});
+		if (!owner) {
+			return null;
+		}
+
+		return {
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		};
 	});
 }
 
@@ -44,6 +48,8 @@ export async function createOwner(owner: Owner) {
 
 export async function updateOwner(owner: Owner) {
 	return await executeInOwners(async (collection) => {
+		owner._id = ObjectId.createFromHexString(owner._id as string);
+
 		await collection.updateOne(
 			{
 				_id: owner._id
@@ -65,8 +71,106 @@ export async function deleteOwner(id: string) {
 
 export async function getOwnerByToken(token: string) {
 	return await executeInOwners(async (collection) => {
-		return await collection.findOne({
+		const owner = await collection.findOne({
 			tokens: token
 		});
+		if (!owner) {
+			return null;
+		}
+
+		return {
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		};
+	});
+}
+
+export async function getOwnerByEmail(email: string) {
+	return await executeInOwners(async (collection) => {
+		const owner = await collection.findOne<Owner>({
+			email
+		});
+		if (!owner) {
+			return null;
+		}
+
+		return {
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		};
+	});
+}
+
+export async function getOwnerBySession(sessionToken: string) {
+	return await executeInOwners(async (collection) => {
+		const owner = await collection.findOne({
+			'sessions.sessionToken': sessionToken
+		});
+		if (!owner) {
+			return null;
+		}
+
+		return {
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		};
+	});
+}
+
+export async function getOwnerByOidcId(oidcId: string) {
+	return await executeInOwners(async (collection) => {
+		const owner = await collection.findOne({
+			oidcId
+		});
+		if (!owner) {
+			return null;
+		}
+
+		return {
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		};
+	});
+}
+
+export async function createSession(sessionToken: string, userId: string, expires: Date) {
+	const owner = await getOwnerByOidcId(userId);
+	if (owner) {
+		if (!owner.sessions) {
+			owner.sessions = [];
+		}
+
+		owner.sessions.push({
+			sessionToken,
+			expires
+		});
+
+		await updateOwner(owner);
+	}
+}
+
+export async function deleteSession(sessionToken: string) {
+	const owner = await getOwnerBySession(sessionToken);
+	if (owner) {
+		if (!owner.sessions) {
+			owner.sessions = [];
+		}
+
+		owner.sessions = owner.sessions.filter((s) => s.sessionToken !== sessionToken);
+
+		await updateOwner(owner);
+	}
+}
+
+export async function getAdmins() {
+	return await executeInOwners(async (collection) => {
+		const owners = await collection.find({
+			roles: 'admin'
+		}).toArray();
+
+		return owners.map((owner) => ({
+			...owner,
+			_id: (owner._id as ObjectId)?.toHexString()
+		}));
 	});
 }

@@ -1,11 +1,20 @@
 import type { ObjectId } from 'mongodb';
 
+export type Session = {
+	expires: Date;
+	sessionToken: string;
+};
+
 export type Owner = {
 	_id?: string | ObjectId;
+	oidcId?: string;
 	name: string;
 	email: string;
 	devices: Device[];
 	tokens: string[];
+	roles: string[];
+	sessions: Session[];
+	profilePicture?: string;
 };
 
 export type Cpu = {

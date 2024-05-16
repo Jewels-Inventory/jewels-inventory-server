@@ -54,54 +54,62 @@
 </div>
 <table class="cosmo-table">
 	<thead>
-		<tr>
-			<th>Besitzer</th>
-			<th>Name</th>
-			<th>Model</th>
-			<th>Hersteller</th>
-			<th>Betriebssystem</th>
-			<th>Prozessor</th>
-			<th>Speicherplatz</th>
-			<th>Arbeitsspeicher</th>
-			<th>Aktionen</th>
-		</tr>
+	<tr>
+		<th>Besitzer</th>
+		<th>Name</th>
+		<th>Model</th>
+		<th>Hersteller</th>
+		<th>Betriebssystem</th>
+		<th>Prozessor</th>
+		<th>Speicherplatz</th>
+		<th>Arbeitsspeicher</th>
+		<th>Aktionen</th>
+	</tr>
 	</thead>
 	<tbody>
-		{#each data.owners as owner}
-			{#each owner.devices.filter((d) => d.type === Type.Computer) as device}
-				<tr>
-					<td>{owner.name}</td>
-					<td>{device.hostname}</td>
-					<td>{device.model}</td>
-					<td>{device.manufacturer}</td>
-					<td>{device.os?.name} {device.os?.version ?? ''}</td>
-					<td>
-						{#if device.cpu}
-							{device.cpu.model}
-						{/if}
-					</td>
-					<td>{device.storage} GB</td>
-					<td>{device.ram} GB</td>
-					<td>
-						<button
-							class="cosmo-button is--small"
-							on:click={() => openDetailsDevice(device, owner)}
-						>
-							Details
-						</button>
-						<button class="cosmo-button is--small" on:click={() => openEditDevice(device, owner)}>
-							Bearbeiten
-						</button>
-						<button
-							class="cosmo-button is--small is--negative"
-							on:click={() => openDeleteDevice(device, owner)}
-						>
-							Löschen
-						</button>
-					</td>
-				</tr>
-			{/each}
+	{#each data.owners as owner}
+		{#each owner.devices.filter((d) => d.type === Type.Computer) as device}
+			<tr>
+				<td>{owner.name}</td>
+				<td>{device.hostname}</td>
+				<td>{device.model}</td>
+				<td>{device.manufacturer}</td>
+				<td>{device.os?.name} {device.os?.version ?? ''}</td>
+				<td>
+					{#if device.cpu}
+						{device.cpu.model}
+					{/if}
+				</td>
+				<td>
+					{#if device.storage}
+						{device.storage} GB
+					{/if}
+				</td>
+				<td>
+					{#if device.ram}
+						{device.ram} GB
+					{/if}
+				</td>
+				<td>
+					<button
+						class="cosmo-button is--small"
+						on:click={() => openDetailsDevice(device, owner)}
+					>
+						Details
+					</button>
+					<button class="cosmo-button is--small" on:click={() => openEditDevice(device, owner)}>
+						Bearbeiten
+					</button>
+					<button
+						class="cosmo-button is--small is--negative"
+						on:click={() => openDeleteDevice(device, owner)}
+					>
+						Löschen
+					</button>
+				</td>
+			</tr>
 		{/each}
+	{/each}
 	</tbody>
 </table>
 {#if deleteOpen}
@@ -132,7 +140,7 @@
 					<select id="createOwner" class="cosmo-select" name="ownerId" required>
 						{#each data.owners as owner}
 							<option selected={owner._id === selectedOwner?._id} value={owner._id}
-								>{owner.name}</option
+							>{owner.name}</option
 							>
 						{/each}
 					</select>
@@ -157,7 +165,7 @@
 						required
 					/>
 					<label for="createOperatingSystemVersion" class="cosmo-label"
-						>Betriebssystem Version</label
+					>Betriebssystem Version</label
 					>
 					<input
 						id="createOperatingSystemVersion"

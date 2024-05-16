@@ -73,8 +73,16 @@
 					<td>{device.model}</td>
 					<td>{device.manufacturer}</td>
 					<td>{device.os?.name ?? ''} {device.os?.version ?? ''}</td>
-					<td>{device.storage} GB</td>
-					<td>{device.ram} GB</td>
+					<td>
+						{#if device.storage}
+							{device.storage} GB
+						{/if}
+					</td>
+					<td>
+						{#if device.ram}
+							{device.ram} GB
+						{/if}
+					</td>
 					<td>{device.eol?.toLocaleDateString() ?? ''}</td>
 					<td>
 						<button
