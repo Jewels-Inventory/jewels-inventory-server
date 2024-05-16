@@ -1,10 +1,11 @@
 import type { Owner } from '$lib/database/models';
 import { Collection, MongoClient, ObjectId } from 'mongodb';
+import { env } from '$env/dynamic/private';
 
 async function executeInOwners<T>(cb: (collection: Collection<Owner>) => Promise<T>) {
-	const client = new MongoClient(process.env.MONGO_URI);
+	const client = new MongoClient(env.MONGO_URI);
 	try {
-		const db = client.db(process.env.MONGO_DATABASE);
+		const db = client.db(env.MONGO_DATABASE);
 		const collection = db.collection<Owner>('owners');
 
 		return await cb(collection);

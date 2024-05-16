@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { getOwnerByToken, updateOwner } from '$lib/database/client';
-import type { Device } from '$lib/database/models';
+import { type Device, Type } from '$lib/database/models';
 
-export async function POST({ request }) {
+export async function POST({ request, params }) {
 	const body = (await request.json()) as Device;
 
 	const authorizationHeader = request.headers.get('Authorization');
@@ -28,6 +28,24 @@ export async function POST({ request }) {
 				status: 404
 			}
 		);
+	}
+
+	if (typeof body.eol === 'string') {
+		body.eol = new Date(Date.parse(body.eol as string));
+	}
+	switch (params.type) {
+		case 'phone':
+			body.type = Type.PhoneOrTablet;
+			break;
+		case 'computer':
+			body.type = Type.Computer;
+			break;
+		case 'watch':
+			body.type = Type.Smartwatch;
+			break;
+		case 'other':
+			body.type = Type.Other;
+			break;
 	}
 
 	const device = owner.devices.findIndex((d) => d.id === body.id);

@@ -55,7 +55,7 @@ export type Device = {
 	os?: OperatingSystem;
 	storage?: number;
 	ram?: number;
-	eol?: Date | null;
+	eol?: Date | string | null;
 	cpu?: Cpu;
 	bios?: Bios;
 	mainboard?: Mainboard;
