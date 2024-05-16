@@ -13,7 +13,7 @@ async function executeInOwners<T>(cb: (collection: Collection<Owner>) => Promise
 	}
 }
 
-export async function getOwners(): Promise<Owner[]> {
+export async function getOwners() {
 	return await executeInOwners(async (collection) => {
 		const owners = await collection.find().toArray();
 
@@ -27,7 +27,7 @@ export async function getOwners(): Promise<Owner[]> {
 	});
 }
 
-export async function getOwner(id: string): Promise<Owner | null> {
+export async function getOwner(id: string) {
 	return await executeInOwners(async (collection) => {
 		return await collection.findOne<Owner>({
 			_id: ObjectId.createFromHexString(id)
@@ -35,13 +35,13 @@ export async function getOwner(id: string): Promise<Owner | null> {
 	});
 }
 
-export async function createOwner(owner: Owner): Promise<void> {
+export async function createOwner(owner: Owner) {
 	return await executeInOwners(async (collection) => {
 		await collection.insertOne(owner);
 	});
 }
 
-export async function updateOwner(owner: Owner): Promise<void> {
+export async function updateOwner(owner: Owner) {
 	return await executeInOwners(async (collection) => {
 		await collection.updateOne(
 			{
@@ -54,11 +54,18 @@ export async function updateOwner(owner: Owner): Promise<void> {
 	});
 }
 
-export async function deleteOwner(id: string): Promise<void> {
+export async function deleteOwner(id: string) {
 	return await executeInOwners(async (collection) => {
-		const res = await collection.deleteOne({
+		await collection.deleteOne({
 			_id: ObjectId.createFromHexString(id)
 		});
-		console.log(res);
+	});
+}
+
+export async function getOwnerByToken(token: string) {
+	return await executeInOwners(async (collection) => {
+		return await collection.findOne({
+			tokens: token
+		});
 	});
 }
