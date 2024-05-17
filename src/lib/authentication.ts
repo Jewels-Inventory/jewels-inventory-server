@@ -202,6 +202,7 @@ const JewelsAdapter: Adapter = {
 
 export const { handle, signIn } = SvelteKitAuth({
 	adapter: JewelsAdapter,
+	trustHost: true,
 	providers: [
 		ZITADEL({
 			issuer: env.AUTH_ISSUER,
