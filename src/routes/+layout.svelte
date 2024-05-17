@@ -59,8 +59,8 @@
 					{#if $page.data.owner?.roles?.includes('admin') && activeRoute === '/devices/[[type]]'}
 						<a
 							class="cosmo-menu__item"
-							class:is--active={!activeParams.type || activeParams.type === 'phones'}
-							href="/devices/phones">Smartphones & Tablets</a
+							class:is--active={!activeParams.type || activeParams.type === 'phone'}
+							href="/devices/phone">Smartphones & Tablets</a
 						>
 						<a
 							class="cosmo-menu__item"
@@ -69,8 +69,8 @@
 						>
 						<a
 							class="cosmo-menu__item"
-							class:is--active={activeParams.type === 'watches'}
-							href="/devices/watches">Smartwatches</a
+							class:is--active={activeParams.type === 'watch'}
+							href="/devices/watch">Smartwatches</a
 						>
 						<a
 							class="cosmo-menu__item"

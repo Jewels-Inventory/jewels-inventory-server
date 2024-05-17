@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { type Device, type Owner, Type } from '$lib/database/models';
 	import { enhance } from '$app/forms';
-	import { page } from '$app/stores';
 
 	export let data;
 	export let form;
@@ -15,6 +14,8 @@
 
 	let selectedDevice: Device;
 	let selectedDeviceOwner: Owner;
+
+	$: selectedDeviceType = selectedDevice?.type;
 
 	function openDeleteDevice(device: Device, owner: Owner) {
 		deleteOpen = true;
@@ -212,9 +213,21 @@
 					{/if}
 					{#if [Type.Computer, Type.PhoneOrTablet, Type.Smartwatch].includes(data.deviceType)}
 						<label for="createStorage" class="cosmo-label">Speicherplatz in GB</label>
-						<input id="createStorage" class="cosmo-input" type="number" name="storage" required />
+						<input
+							id="createStorage"
+							class="cosmo-input"
+							type="number"
+							name="storage"
+							required={data.deviceType === Type.Computer}
+						/>
 						<label for="createRam" class="cosmo-label">Arbeitsspeicher in GB</label>
-						<input id="createRam" class="cosmo-input" type="number" name="ram" required />
+						<input
+							id="createRam"
+							class="cosmo-input"
+							type="number"
+							name="ram"
+							required={data.deviceType === Type.Computer}
+						/>
 					{/if}
 					{#if data.deviceType === Type.Computer}
 						<span class="cosmo-input__header">Prozessor</span>
@@ -274,6 +287,7 @@
 			<h1 class="cosmo-modal__title">Gerät bearbeiten</h1>
 			<div class="cosmo-modal__content">
 				<div class="cosmo-input__group">
+					<input type="hidden" name="deviceId" value={selectedDevice?.id} />
 					<label for="editOwner" class="cosmo-label">Besitzer</label>
 					<select id="editOwner" class="cosmo-select" name="ownerId" required>
 						{#each data.owners as owner}
@@ -284,10 +298,24 @@
 					</select>
 					{#if data.deviceType === Type.Computer}
 						<label for="editHostname" class="cosmo-label">Name</label>
-						<input id="editHostname" class="cosmo-input" type="text" name="hostname" required />
+						<input
+							id="editHostname"
+							class="cosmo-input"
+							type="text"
+							name="hostname"
+							required
+							value={selectedDevice?.hostname}
+						/>
 					{/if}
 					<label for="editModel" class="cosmo-label">Model</label>
-					<input id="editModel" class="cosmo-input" type="text" name="model" required />
+					<input
+						id="editModel"
+						class="cosmo-input"
+						type="text"
+						name="model"
+						required
+						value={selectedDevice?.model}
+					/>
 					<label for="editManufacturer" class="cosmo-label">Hersteller</label>
 					<input
 						id="editManufacturer"
@@ -295,8 +323,9 @@
 						type="text"
 						name="manufacturer"
 						required
+						value={selectedDevice?.manufacturer}
 					/>
-					{#if [Type.Computer, Type.PhoneOrTablet].includes(data.deviceType)}
+					{#if [Type.Computer, Type.PhoneOrTablet].includes(selectedDeviceType)}
 						<label for="editOperatingSystem" class="cosmo-label">Betriebssystem</label>
 						<input
 							id="editOperatingSystem"
@@ -304,6 +333,7 @@
 							type="text"
 							name="os.name"
 							required
+							value={selectedDevice?.os?.name}
 						/>
 						<label for="editOperatingSystemVersion" class="cosmo-label"
 							>Betriebssystem Version</label
@@ -313,27 +343,69 @@
 							class="cosmo-input"
 							type="text"
 							name="os.version"
+							value={selectedDevice?.os?.version}
 						/>
 					{/if}
-					{#if [Type.Computer, Type.PhoneOrTablet, Type.Smartwatch].includes(data.deviceType)}
+					{#if [Type.Computer, Type.PhoneOrTablet, Type.Smartwatch].includes(selectedDeviceType)}
 						<label for="editStorage" class="cosmo-label">Speicherplatz in GB</label>
-						<input id="editStorage" class="cosmo-input" type="number" name="storage" required />
+						<input
+							id="editStorage"
+							class="cosmo-input"
+							type="number"
+							name="storage"
+							required={selectedDeviceType === Type.Computer}
+							value={selectedDevice?.storage}
+						/>
 						<label for="editRam" class="cosmo-label">Arbeitsspeicher in GB</label>
-						<input id="editRam" class="cosmo-input" type="number" name="ram" required />
+						<input
+							id="editRam"
+							class="cosmo-input"
+							type="number"
+							name="ram"
+							required={selectedDeviceType === Type.Computer}
+							value={selectedDevice?.ram}
+						/>
 					{/if}
-					{#if data.deviceType === Type.Computer}
+					{#if selectedDeviceType === Type.Computer}
 						<span class="cosmo-input__header">Prozessor</span>
 						<label for="editCpuManufacturer" class="cosmo-label">Hersteller</label>
-						<select id="editCpuManufacturer" class="cosmo-select" name="cpu.manufacturer" required>
+						<select
+							id="editCpuManufacturer"
+							class="cosmo-select"
+							name="cpu.manufacturer"
+							required
+							value={selectedDevice?.cpu?.manufacturer}
+						>
 							<option value="GenuineIntel">Intel</option>
 							<option value="AuthenticAMD">AMD</option>
 						</select>
 						<label for="editCpuModel" class="cosmo-label">Model</label>
-						<input id="editCpuModel" class="cosmo-input" type="text" name="cpu.model" required />
+						<input
+							id="editCpuModel"
+							class="cosmo-input"
+							type="text"
+							name="cpu.model"
+							required
+							value={selectedDevice?.cpu?.model}
+						/>
 						<label for="editCpuSpeed" class="cosmo-label">Geschwindigkeit in GHz</label>
-						<input id="editCpuSpeed" class="cosmo-input" type="number" name="cpu.speed" required />
+						<input
+							id="editCpuSpeed"
+							class="cosmo-input"
+							type="number"
+							name="cpu.speed"
+							required
+							value={selectedDevice?.cpu?.speed}
+						/>
 						<label for="editCpuCores" class="cosmo-label">Kerne</label>
-						<input id="editCpuCores" class="cosmo-input" type="number" name="cpu.cores" required />
+						<input
+							id="editCpuCores"
+							class="cosmo-input"
+							type="number"
+							name="cpu.cores"
+							required
+							value={selectedDevice?.cpu?.cores}
+						/>
 						<label for="editCpuThreads" class="cosmo-label">Threads</label>
 						<input
 							id="editCpuThreads"
@@ -341,11 +413,18 @@
 							type="number"
 							name="cpu.threads"
 							required
+							value={selectedDevice?.cpu?.threads}
 						/>
 					{/if}
-					{#if [Type.PhoneOrTablet, Type.Other, Type.Smartwatch].includes(data.deviceType)}
+					{#if [Type.PhoneOrTablet, Type.Other, Type.Smartwatch].includes(selectedDeviceType)}
 						<label for="editEol" class="cosmo-label">Supportende</label>
-						<input id="editEol" class="cosmo-input" type="date" name="eol" />
+						<input
+							id="editEol"
+							class="cosmo-input"
+							type="date"
+							name="eol"
+							value={selectedDevice?.eol?.toISOString().substring(0, 10)}
+						/>
 					{/if}
 				</div>
 			</div>

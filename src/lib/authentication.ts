@@ -10,7 +10,6 @@ import {
 	getOwnerBySession,
 	updateOwner
 } from '$lib/database/client';
-import type { ObjectId } from 'mongodb';
 import ZITADEL, { type ZitadelProfile } from '@auth/core/providers/zitadel';
 
 function parseJwt(token: string) {
@@ -18,7 +17,7 @@ function parseJwt(token: string) {
 	const jsonPayload = decodeURIComponent(
 		atob(base64)
 			.split('')
-			.map(function (c) {
+			.map(function(c) {
 				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
 			})
 			.join('')
@@ -92,7 +91,8 @@ const JewelsAdapter: Adapter = {
 		};
 	},
 	// @ts-expect-error Not needed
-	getUserByAccount() {},
+	getUserByAccount() {
+	},
 	async updateUser(user: any): Promise<AdapterUser> {
 		const profilePicture = (user as ZitadelProfile).picture;
 

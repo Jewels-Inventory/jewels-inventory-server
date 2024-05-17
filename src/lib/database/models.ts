@@ -17,6 +17,14 @@ export type Owner = {
 	profilePicture?: string;
 };
 
+export type Drive = {
+	name: string;
+	driver: string;
+	manufacturer: string;
+	model: string;
+	size: number;
+};
+
 export type Cpu = {
 	manufacturer: string;
 	model: string;
@@ -49,9 +57,9 @@ export type OperatingSystem = {
 };
 
 export enum Type {
-	PhoneOrTablet = 'phoneOrTablet',
+	PhoneOrTablet = 'phone',
 	Computer = 'computer',
-	Smartwatch = 'smartwatch',
+	Smartwatch = 'watch',
 	Other = 'other'
 }
 
@@ -69,4 +77,5 @@ export type Device = {
 	bios?: Bios;
 	mainboard?: Mainboard;
 	kernel?: Kernel;
+	drives?: Drive[];
 };

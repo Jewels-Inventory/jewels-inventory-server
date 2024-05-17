@@ -1,4 +1,4 @@
-import { getOwner, getOwnerByOidcId, updateOwner } from '$lib/database/client';
+import { getOwner, getOwnerByEmail, updateOwner } from '$lib/database/client';
 import { type Device, type Owner, Type } from '$lib/database/models';
 import type { Session, User } from '@auth/sveltekit';
 
@@ -18,10 +18,10 @@ async function getFormData<RouteId>(request: Request, routeId: RouteId, locals: 
 	const threads = formData.get('cpu.threads') as string;
 	const eol = Date.parse(formData.get('eol') as string);
 	let owner: Owner | null;
-	if (routeId === '/my-jewels/[type]') {
+	if (routeId === '/my-jewels/[[type]]') {
 		const session = (await locals.auth()) as Session;
 		const user = session.user as User;
-		owner = await getOwnerByOidcId(user.id as string);
+		owner = await getOwnerByEmail(user.email as string);
 	} else {
 		const ownerId = formData.get('ownerId') as string;
 		owner = await getOwner(ownerId);
@@ -46,12 +46,20 @@ async function getFormData<RouteId>(request: Request, routeId: RouteId, locals: 
 	};
 }
 
-export async function deleteDevice(request: Request) {
+export async function deleteDevice(request: Request, locals: App.Locals, routeId: string) {
 	const formData = await request.formData();
 	const deviceId = formData.get('selectedDevice') as string;
-	const ownerId = formData.get('selectedOwner') as string;
 
-	const owner = await getOwner(ownerId);
+	let owner: Owner | null;
+	if (routeId === '/my-jewels/[[type]]') {
+		const session = (await locals.auth()) as Session;
+		const user = session.user as User;
+		owner = await getOwnerByEmail(user.email as string);
+	} else {
+		const ownerId = formData.get('selectedOwner') as string;
+		owner = await getOwner(ownerId);
+	}
+
 	if (owner) {
 		owner.devices.splice(
 			owner.devices.findIndex((device) => device.id === deviceId),
@@ -174,20 +182,22 @@ export async function editDevice(request: Request, route: { id: string }, locals
 			version: osVersion
 		};
 	}
-	if (device.cpu) {
-		device.cpu.threads = parseInt(threads, 10);
-		device.cpu.cores = parseInt(cores, 10);
-		device.cpu.model = cpuModel;
-		device.cpu.speed = parseInt(cpuSpeed, 10);
-		device.cpu.manufacturer = cpuManufacturer;
-	} else {
-		device.cpu = {
-			manufacturer: cpuManufacturer,
-			model: cpuModel,
-			speed: parseInt(cpuSpeed, 10),
-			cores: parseInt(cores, 10),
-			threads: parseInt(threads, 10)
-		};
+	if (device.type === Type.Computer) {
+		if (device.cpu) {
+			device.cpu.threads = parseInt(threads, 10);
+			device.cpu.cores = parseInt(cores, 10);
+			device.cpu.model = cpuModel;
+			device.cpu.speed = parseInt(cpuSpeed, 10);
+			device.cpu.manufacturer = cpuManufacturer;
+		} else {
+			device.cpu = {
+				manufacturer: cpuManufacturer,
+				model: cpuModel,
+				speed: parseInt(cpuSpeed, 10),
+				cores: parseInt(cores, 10),
+				threads: parseInt(threads, 10)
+			};
+		}
 	}
 
 	await updateOwner(owner);
