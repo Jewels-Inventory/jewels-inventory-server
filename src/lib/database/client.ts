@@ -164,9 +164,11 @@ export async function deleteSession(sessionToken: string) {
 
 export async function getAdmins() {
 	return await executeInOwners(async (collection) => {
-		const owners = await collection.find({
-			roles: 'admin'
-		}).toArray();
+		const owners = await collection
+			.find({
+				roles: 'admin'
+			})
+			.toArray();
 
 		return owners.map((owner) => ({
 			...owner,

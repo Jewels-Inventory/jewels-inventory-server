@@ -7,12 +7,24 @@
 	export let form;
 
 	let createToken = false;
+	let deleteOpen = false;
 	let newToken = crypto.randomUUID();
 
 	let selectedOwner: Owner;
 
+	$: if (form?.deleteSuccess) {
+		deleteOpen = false;
+	}
+
 	$: if (form?.createSuccess) {
 		createToken = false;
+	}
+
+	function openDelete(owner: Owner) {
+		if (owner._id !== data.me._id) {
+			deleteOpen = true;
+			selectedOwner = owner;
+		}
 	}
 
 	function openCreateToken(owner: Owner) {
@@ -45,11 +57,36 @@
 					>
 						Token erstellen
 					</button>
+					<button
+						class="cosmo-button is--small is--negative"
+						on:click={() => openDelete(owner)}
+						disabled={owner._id === data.me._id}
+					>
+						Löschen
+					</button>
 				</td>
 			</tr>
 		{/each}
 	</tbody>
 </table>
+{#if deleteOpen}
+	<div class="cosmo-modal__container">
+		<form class="cosmo-modal is--negative" method="post" action="?/deleteOwner" use:enhance>
+			<input type="hidden" value={selectedOwner._id} name="id" />
+			<h1 class="cosmo-modal__title">Besitzer löschen</h1>
+			<div class="cosmo-modal__content">
+				<p>
+					Soll der Besitzer {selectedOwner.name} wirklich gelöscht werden? Es werden auch alle Geräte
+					gelöscht.
+				</p>
+			</div>
+			<div class="cosmo-modal__button-bar">
+				<button class="cosmo-button" on:click={() => (deleteOpen = false)}>Nicht löschen</button>
+				<button class="cosmo-button" type="submit">Löschen</button>
+			</div>
+		</form>
+	</div>
+{/if}
 {#if createToken}
 	<div class="cosmo-modal__container">
 		<form class="cosmo-modal" method="post" action="?/createToken" use:enhance>
@@ -83,7 +120,7 @@
 							anchorInnerFill: '#28aef0',
 							anchorOuterFill: '#28aef0',
 							moduleFill: '#28aef0',
-							backgroundFill: '#fff',
+							backgroundFill: 'transparent',
 							width: 500,
 							height: 500
 						}}

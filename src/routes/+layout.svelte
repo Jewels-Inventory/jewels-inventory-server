@@ -1,14 +1,17 @@
 <script lang="ts">
 	import '@jinyacms/cosmo/cosmo.scss';
-	import '../variables.css';
+	import '../css/variables.css';
+	import '../css/typo.css';
 	import { page } from '$app/stores';
 	import { SignIn } from '@auth/sveltekit/components';
 	import { signOut } from '@auth/sveltekit/client';
 
 	let activeRoute = '';
+	let activeParams = {};
 
 	page.subscribe((data) => {
-		activeRoute = data.url.pathname;
+		activeRoute = data.route.id as string;
+		activeParams = data.params;
 	});
 </script>
 
@@ -34,11 +37,16 @@
 			<button class="cosmo-back-button" on:click={history.back} type="button"></button>
 			<nav class="cosmo-menu__collection">
 				<div class="cosmo-menu__row is--main">
+					<a
+						class="cosmo-menu__item is--main"
+						class:is--active={activeRoute === '/my-jewels/[[type]]'}
+						href="/my-jewels">Meine Jewels</a
+					>
 					{#if $page.data.owner?.roles?.includes('admin')}
 						<a
 							class="cosmo-menu__item is--main"
-							class:is--active={activeRoute.startsWith('/devices/')}
-							href="/">Geräte</a
+							class:is--active={activeRoute === '/devices/[[type]]'}
+							href="/devices">Geräte</a
 						>
 						<a
 							class="cosmo-menu__item is--main"
@@ -48,25 +56,25 @@
 					{/if}
 				</div>
 				<div class="cosmo-menu__row is--sub">
-					{#if $page.data.owner?.roles?.includes('admin') && activeRoute.startsWith('/devices/')}
+					{#if $page.data.owner?.roles?.includes('admin') && activeRoute === '/devices/[[type]]'}
 						<a
-							class="cosmo-menu__item is--sub"
-							class:is--active={activeRoute === '/devices/phones'}
+							class="cosmo-menu__item"
+							class:is--active={!activeParams.type || activeParams.type === 'phones'}
 							href="/devices/phones">Smartphones & Tablets</a
 						>
 						<a
-							class="cosmo-menu__item is--sub"
-							class:is--active={activeRoute === '/devices/computer'}
+							class="cosmo-menu__item"
+							class:is--active={activeParams.type === 'computer'}
 							href="/devices/computer">Computer & Laptops</a
 						>
 						<a
-							class="cosmo-menu__item is--sub"
-							class:is--active={activeRoute === '/devices/watches'}
+							class="cosmo-menu__item"
+							class:is--active={activeParams.type === 'watches'}
 							href="/devices/watches">Smartwatches</a
 						>
 						<a
-							class="cosmo-menu__item is--sub"
-							class:is--active={activeRoute === '/devices/other'}
+							class="cosmo-menu__item"
+							class:is--active={activeParams.type === 'other'}
 							href="/devices/other">Sonstige</a
 						>
 					{/if}

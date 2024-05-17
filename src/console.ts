@@ -5,7 +5,7 @@ import { sendMail } from '../lib/mailer';
 import type { Device, Owner } from '$lib/database/models';
 
 const allAdmins = await getAdmins();
-const adminNames = allAdmins.map(admin => admin.name);
+const adminNames = allAdmins.map((admin) => admin.name);
 const lastEntry = adminNames.pop();
 let adminNamesAsString = adminNames.join(', ');
 if (adminNamesAsString === '') {
@@ -91,17 +91,29 @@ console.log('Check for eol');
 const owners = await getOwners();
 for (const owner of owners) {
 	console.log(`Checking devices of ${owner.name}`);
-	for (const device of owner.devices.filter(d => d.eol)) {
-		console.log(`Checking device ${device.manufacturer} ${device.model} with eol ${(device.eol as Date).toISOString()}`);
+	for (const device of owner.devices.filter((d) => d.eol)) {
+		console.log(
+			`Checking device ${device.manufacturer} ${device.model} with eol ${(device.eol as Date).toISOString()}`
+		);
 		const oneMonthBeforeEol = device.eol as Date;
 		oneMonthBeforeEol.setMonth(oneMonthBeforeEol.getMonth() - 1);
 		oneMonthBeforeEol.setHours(0, 0, 0, 0);
 		const today = new Date();
 		today.setHours(0, 0, 0, 0);
 		if (oneMonthBeforeEol.getTime() === today.getTime()) {
-			await sendMail(owner.email, `Dein ${device.model} hat bald keinen Support mehr`, getOwnerText(owner, device), getOwnerHtml(owner, device));
+			await sendMail(
+				owner.email,
+				`Dein ${device.model} hat bald keinen Support mehr`,
+				getOwnerText(owner, device),
+				getOwnerHtml(owner, device)
+			);
 			for (const admin of allAdmins) {
-				await sendMail(owner.email, `Das ${device.model} von ${owner.name} hat bald keinen Support mehr`, getAdminText(admin, owner, device), getAdminHtml(admin, owner, device));
+				await sendMail(
+					owner.email,
+					`Das ${device.model} von ${owner.name} hat bald keinen Support mehr`,
+					getAdminText(admin, owner, device),
+					getAdminHtml(admin, owner, device)
+				);
 			}
 		}
 	}

@@ -49,10 +49,10 @@ export type OperatingSystem = {
 };
 
 export enum Type {
-	PhoneOrTablet,
-	Computer,
-	Smartwatch,
-	Other
+	PhoneOrTablet = 'phoneOrTablet',
+	Computer = 'computer',
+	Smartwatch = 'smartwatch',
+	Other = 'other'
 }
 
 export type Device = {

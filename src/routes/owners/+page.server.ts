@@ -1,4 +1,10 @@
-import { getOwner, getOwnerByEmail, getOwners, updateOwner } from '$lib/database/client';
+import {
+	deleteOwner,
+	getOwner,
+	getOwnerByEmail,
+	getOwners,
+	updateOwner
+} from '$lib/database/client';
 import { redirect } from '@sveltejs/kit';
 
 export async function load(event) {
@@ -11,11 +17,20 @@ export async function load(event) {
 	const owners = await getOwners();
 
 	return {
-		owners
+		owners,
+		me: owner
 	};
 }
 
 export const actions = {
+	async deleteOwner({ request }) {
+		const formData = await request.formData();
+		const id = formData.get('id') as string;
+
+		await deleteOwner(id);
+
+		return { deleteSuccess: true };
+	},
 	async createToken({ request }) {
 		const formData = await request.formData();
 		const token = formData.get('token') as string;
