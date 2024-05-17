@@ -52,7 +52,7 @@
 <div class="cosmo-side-list">
 	<nav class="cosmo-side-list__items">
 		<a href="/my-jewels" class="cosmo-side-list__item" class:is--active={data.deviceType === '-1'}
-			>Alle Geräte</a
+		>Alle Geräte</a
 		>
 		<a
 			href="/my-jewels/phone"
@@ -109,7 +109,8 @@
 						<div class="cosmo-toolbar__group">
 							<button class="cosmo-button" on:click={() => (editOpen = true)}>Bearbeiten</button>
 							<button class="cosmo-button is--negative" on:click={() => (deleteOpen = true)}
-								>Löschen</button
+							>Löschen
+							</button
 							>
 						</div>
 					</div>
@@ -216,6 +217,13 @@
 							</dl>
 						{/if}
 					{/if}
+				</div>
+			{:else}
+				<div class="cosmo-message is--information">
+					<span class="cosmo-message__header">Keine Geräte</span>
+					<p class="cosmo-message__message">
+						Du hast noch keine Geräte erstellt.
+					</p>
 				</div>
 			{/if}
 		</div>
@@ -358,7 +366,7 @@
 										required
 									/>
 									<label for="createOperatingSystemVersion" class="cosmo-label"
-										>Betriebssystem Version</label
+									>Betriebssystem Version</label
 									>
 									<input
 										id="createOperatingSystemVersion"
@@ -493,7 +501,7 @@
 							value={selectedDevice?.os?.name}
 						/>
 						<label for="editOperatingSystemVersion" class="cosmo-label"
-							>Betriebssystem Version</label
+						>Betriebssystem Version</label
 						>
 						<input
 							id="editOperatingSystemVersion"
@@ -594,8 +602,8 @@
 {/if}
 
 <style>
-	.token {
-		display: flex;
-		justify-content: center;
-	}
+    .token {
+        display: flex;
+        justify-content: center;
+    }
 </style>
