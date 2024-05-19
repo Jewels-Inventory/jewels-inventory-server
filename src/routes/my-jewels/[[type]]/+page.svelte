@@ -170,11 +170,11 @@
 							<dl class="cosmo-list is--key-value">
 								{#if selectedDevice.storage}
 									<dt>Speicherplatz</dt>
-									<dd>{selectedDevice.storage} GB</dd>
+									<dd>{selectedDevice.storage.toFixed(2)} GB</dd>
 								{/if}
 								{#if selectedDevice.ram}
 									<dt>Arbeitsspeicher</dt>
-									<dd>{selectedDevice.ram} GB</dd>
+									<dd>{selectedDevice.ram.toFixed(2)} GB</dd>
 								{/if}
 							</dl>
 						{/if}
@@ -190,7 +190,7 @@
 									<dt>Treiber</dt>
 									<dd>{drive.driver}</dd>
 									<dt>Größe</dt>
-									<dd>{drive.size} GB</dd>
+									<dd>{drive.size.toFixed(2)} GB</dd>
 								</dl>
 							{/each}
 						{/if}

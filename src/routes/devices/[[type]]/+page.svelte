@@ -112,12 +112,12 @@
 					{#if [Type.Computer, Type.PhoneOrTablet, Type.Smartwatch].includes(data.deviceType)}
 						<td>
 							{#if device.storage}
-								{device.storage} GB
+								{device.storage.toFixed(2)} GB
 							{/if}
 						</td>
 						<td>
 							{#if device.ram}
-								{device.ram} GB
+								{device.ram.toFixed(2)} GB
 							{/if}
 						</td>
 					{/if}
@@ -503,11 +503,11 @@
 						<dl class="cosmo-list is--key-value">
 							{#if selectedDevice.storage}
 								<dt>Speicherplatz</dt>
-								<dd>{selectedDevice.storage} GB</dd>
+								<dd>{selectedDevice.storage.toFixed(2)} GB</dd>
 							{/if}
 							{#if selectedDevice.ram}
 								<dt>Arbeitsspeicher</dt>
-								<dd>{selectedDevice.ram} GB</dd>
+								<dd>{selectedDevice.ram.toFixed(2)} GB</dd>
 							{/if}
 						</dl>
 					{/if}
