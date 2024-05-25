@@ -14,6 +14,16 @@
 	let newToken = crypto.randomUUID();
 
 	let selectedDevice: Device | null;
+	let searchTerm = '';
+
+	let deviceTypeFilter = new Set([
+		Type.PhoneOrTablet,
+		Type.Computer,
+		Type.Other,
+		Type.Smartwatch
+	]);
+	let availableDeviceTypes: Set<Type> = new Set();
+	let devices = data?.devices;
 
 	$: selectedDeviceType = selectedDevice?.type as Type;
 
@@ -26,12 +36,7 @@
 	}
 
 	function openNew() {
-		if (data?.deviceType === '-1') {
-			newDeviceType = Type.PhoneOrTablet;
-		} else {
-			newDeviceType = data.deviceType as Type;
-		}
-
+		newDeviceType = Type.PhoneOrTablet;
 		newOpen = true;
 		newToken = crypto.randomUUID();
 	}
@@ -47,73 +52,108 @@
 	$: if (form?.editSuccess) {
 		editOpen = false;
 	}
+
+	$: if (data?.devices) {
+		availableDeviceTypes = new Set(data?.devices.map(d => d.type));
+	}
+
+	$: {
+		devices = data?.devices.filter(d => d.model.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) || d.hostname?.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) || d.manufacturer.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase())).filter(d => deviceTypeFilter.has(d.type));
+		if (!devices.find(d => d.id === selectedDevice?.id)) {
+			if (devices.length > 0) {
+				selectedDevice = devices[0];
+			} else {
+				selectedDevice = null;
+			}
+		}
+	}
+
+	function toggleFilter(type: Type) {
+		if (deviceTypeFilter.has(type)) {
+			deviceTypeFilter.delete(type);
+		} else {
+			deviceTypeFilter.add(type);
+		}
+
+		deviceTypeFilter = deviceTypeFilter;
+	}
 </script>
 
-<div class="cosmo-side-list">
-	<nav class="cosmo-side-list__items">
-		<a href="/my-jewels" class="cosmo-side-list__item" class:is--active={data.deviceType === '-1'}
-		>Alle Geräte</a
-		>
-		<a
-			href="/my-jewels/phone"
-			class="cosmo-side-list__item"
-			class:is--active={data.deviceType === Type.PhoneOrTablet}>Smartphones & Tablets</a
-		>
-		<a
-			href="/my-jewels/computer"
-			class="cosmo-side-list__item"
-			class:is--active={data.deviceType === Type.Computer}>Computer & Laptops</a
-		>
-		<a
-			href="/my-jewels/watch"
-			class="cosmo-side-list__item"
-			class:is--active={data.deviceType === Type.Smartwatch}>Smartwatches</a
-		>
-		<a
-			href="/my-jewels/other"
-			class="cosmo-side-list__item"
-			class:is--active={data.deviceType === Type.Other}>Sonstiges</a
-		>
-		<button class="cosmo-button is--full-width" on:click={openNew}>Gerät hinzufügen</button>
-	</nav>
-	<div class="cosmo-side-list__content">
-		<div class="cosmo-tab">
-			<div class="cosmo-tab__links">
-				{#each data?.devices ?? [] as device}
-					<a
-						class="cosmo-tab__link"
+{#if data?.devices.length}
+	<div class="device-list">
+		<div class="device-list-items">
+			<div class="device-filter-bar">
+				{#each availableDeviceTypes as type}
+					<div class="device-filter-type" class:active={deviceTypeFilter.has(type)}
+							 on:click={() => toggleFilter(type)}>
+						<div class="device-filter-bubble"></div>
+						{#if (type === Type.PhoneOrTablet)}
+							Smartphones
+						{:else if (type === Type.Smartwatch)}
+							Smartwatches
+						{:else if (type === Type.Computer)}
+							Computer
+						{:else if (type === Type.Other)}
+							Sonstiges
+						{/if}
+					</div>
+				{/each}
+			</div>
+			<input type="search" class="cosmo-input device-search-bar" placeholder="Einfach tippen zum Filtern…"
+						 bind:value={searchTerm}>
+			<div class="device-list-items-inner">
+				{#each devices as device}
+					<div
+						class="device-list-item"
 						class:is--active={selectedDevice?.id === device.id}
 						on:click={() => (selectedDevice = device)}
 					>
-						{#if device.type === Type.Computer}
-							{device.hostname}
-						{:else}
-							{device.manufacturer} {device.model}
-						{/if}
-					</a>
-				{/each}
-			</div>
-			{#if selectedDevice}
-				<div class="cosmo-tab__content">
-					<span class="cosmo-title">
-						{#if selectedDevice.type === Type.Computer}
-							{selectedDevice.hostname}
-						{:else}
-							{selectedDevice.manufacturer} {selectedDevice.model}
-						{/if}
-						{#if selectedDevice.os}
-							<small>{selectedDevice.os.name ?? ''} {selectedDevice.os.version ?? ''}</small>
-						{/if}
-					</span>
-					<div class="cosmo-toolbar">
-						<div class="cosmo-toolbar__group">
-							<button class="cosmo-button" on:click={() => (editOpen = true)}>Bearbeiten</button>
-							<button class="cosmo-button is--negative" on:click={() => (deleteOpen = true)}
-							>Löschen
-							</button
-							>
+						<span class="device-title">{device.manufacturer} {device.model}</span>
+						<span class="device-subtitle">{device.hostname}</span>
+					</div>
+				{:else}
+					<div class="cosmo-message is--information">
+						<div class="cosmo-message__header">Es wurden keine Geräte gefunden</div>
+						<div class="cosmo-message__message">
+							Zu deiner Suche haben wir keine Geräte gefunden, möchtest du eins hinzufügen?
+						</div>
+						<div class="cosmo-button__container">
+							<button class="cosmo-button is--primary" on:click={openNew}>Neues Gerät erstellen</button>
 						</div>
 					</div>
+				{/each}
+			</div>
+			<button class="cosmo-button is--circle is--primary add-button is--large" on:click={openNew}>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+						 stroke-linejoin="round">
+					<path d="M5 12h14" />
+					<path d="M12 5v14" />
+				</svg>
+			</button>
+		</div>
+		<div class="device-list-separator"></div>
+		<div class="device-list-details">
+			{#if selectedDevice}
+				<div class="cosmo-title">
+					{#if selectedDevice.type === Type.Computer}
+						{selectedDevice.hostname}
+					{:else}
+						{selectedDevice.manufacturer} {selectedDevice.model}
+					{/if}
+					{#if selectedDevice.os}
+						<small>{selectedDevice.os.name ?? ''} {selectedDevice.os.version ?? ''}</small>
+					{/if}
+				</div>
+				<div class="cosmo-toolbar">
+					<div class="cosmo-toolbar__group">
+						<button class="cosmo-button" on:click={() => (editOpen = true)}>Bearbeiten</button>
+						<button class="cosmo-button is--negative" on:click={() => (deleteOpen = true)}
+						>Löschen
+						</button
+						>
+					</div>
+				</div>
+				<div class="device-list-details-inner">
 					<h2>Gerät</h2>
 					<dl class="cosmo-list is--key-value">
 						{#if selectedDevice.hostname}
@@ -141,8 +181,6 @@
 							<dl class="cosmo-list is--key-value">
 								<dt>Version</dt>
 								<dd>{selectedDevice.kernel.version}</dd>
-								<dt>Release</dt>
-								<dd>{selectedDevice.kernel.release}</dd>
 								<dt>Architektur</dt>
 								<dd>{selectedDevice.kernel.architecture}</dd>
 							</dl>
@@ -162,7 +200,7 @@
 								<dt>Threads</dt>
 								<dd>{selectedDevice.cpu.threads}</dd>
 								<dt>Geschwindigkeit</dt>
-								<dd>{selectedDevice.cpu.speed} GHz</dd>
+								<dd>{selectedDevice.cpu.speed.toFixed(2)} GHz</dd>
 							</dl>
 						{/if}
 						{#if selectedDevice.storage || selectedDevice.ram}
@@ -180,15 +218,13 @@
 						{/if}
 						{#if selectedDevice.drives}
 							<h3>Festplatten</h3>
-							{#each selectedDevice.drives as drive}
+							{#each selectedDevice.drives.filter(d => d.size > 0) as drive}
 								<h4>{drive.name}</h4>
 								<dl class="cosmo-list is--key-value">
 									<dt>Hersteller</dt>
 									<dd>{drive.manufacturer}</dd>
 									<dt>Model</dt>
 									<dd>{drive.model}</dd>
-									<dt>Treiber</dt>
-									<dd>{drive.driver}</dd>
 									<dt>Größe</dt>
 									<dd>{drive.size.toFixed(2)} GB</dd>
 								</dl>
@@ -203,8 +239,6 @@
 								<dd>{selectedDevice.mainboard.model}</dd>
 								<dt>Version</dt>
 								<dd>{selectedDevice.mainboard.version}</dd>
-								<dt>Seriennummer</dt>
-								<dd>{selectedDevice.mainboard.serial}</dd>
 							</dl>
 						{/if}
 						{#if selectedDevice.bios}
@@ -218,17 +252,17 @@
 						{/if}
 					{/if}
 				</div>
-			{:else}
-				<div class="cosmo-message is--information">
-					<span class="cosmo-message__header">Keine Geräte</span>
-					<p class="cosmo-message__message">
-						Du hast noch keine Geräte erstellt.
-					</p>
-				</div>
 			{/if}
 		</div>
 	</div>
-</div>
+{:else}
+	<div class="cosmo-message is--information">
+		<span class="cosmo-message__header">Keine Geräte</span>
+		<p class="cosmo-message__message">
+			Du hast noch keine Geräte erstellt.
+		</p>
+	</div>
+{/if}
 {#if deleteOpen}
 	<div class="cosmo-modal__container">
 		<form class="cosmo-modal is--negative" method="post" action="?/deleteDevice" use:enhance>
@@ -601,9 +635,151 @@
 	</div>
 {/if}
 
-<style>
-    .token {
-        display: flex;
-        justify-content: center;
+<style lang="scss">
+  .token {
+    display: flex;
+    justify-content: center;
+  }
+
+  .device-list {
+    display: grid;
+    grid-template-columns: [list] 1fr [line] 0.0625rem [details] 4fr;
+    gap: 1rem;
+    height: var(--page-height);
+  }
+
+  .device-list-items {
+    grid-column: list;
+    height: var(--page-height);
+    overflow: auto;
+    display: grid;
+    align-items: start;
+    gap: 0.5rem;
+    grid-template-rows: [filter] 2rem [search] var(--control-height) [items] 1fr;
+    grid-template-columns: [data] 1fr;
+  }
+
+  .device-list-items-inner {
+    height: calc(var(--page-height) - 2rem - 0.5rem - var(--control-height) - 0.5rem);
+    overflow: auto;
+    display: grid;
+    align-items: start;
+    grid-auto-rows: min-content;
+    grid-auto-flow: row;
+    grid-row: items;
+    grid-column: data;
+  }
+
+  .device-list-item {
+    width: 100%;
+    border-bottom: 0.0625rem solid var(--control-border-color);
+    cursor: pointer;
+    display: grid;
+    grid-template-rows: auto auto;
+    padding: 1rem;
+    transition: all 0.3s;
+
+    &.is--active {
+      background: var(--primary-color);
+      color: var(--white);
+      border-bottom-color: var(--primary-color);
+      border-radius: var(--border-radius);
     }
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+
+  .device-list-separator {
+    grid-column: line;
+    height: var(--page-height);
+    width: 0.0625rem;
+    background: var(--control-border-color);
+  }
+
+  .device-list-details {
+    grid-column: details;
+    height: var(--page-height);
+    overflow: auto;
+    width: 100%;
+    display: grid;
+    grid-template-rows: [title] 2.75rem [toolbar] var(--control-height) [inner] 1fr;
+    grid-auto-rows: auto;
+		gap: 0.5rem;
+  }
+
+	.device-list-details-inner {
+		height: calc(var(--page-height) - 0.5rem - 2.75rem - 0.5rem - var(--control-height));
+    overflow: auto;
+	}
+
+  .device-title {
+    font-size: var(--h4-font-size);
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-light);
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
+
+  .device-subtitle {
+    font-size: var(--h6-font-size);
+  }
+
+  .device-filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    position: sticky;
+    flex-flow: row nowrap;
+    grid-row: filter;
+    grid-column: data;
+  }
+
+  .device-search-bar {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    grid-row: search;
+    grid-column: data;
+  }
+
+  .device-filter-bubble {
+    background: var(--primary-color);
+    border-radius: 50%;
+    height: 0.5rem;
+    width: 0.5rem;
+    transition: all 0.3s;
+
+    .active & {
+      background: var(--white);
+    }
+  }
+
+  .device-filter-type {
+    color: var(--black);
+    background: transparent;
+    border-radius: var(--border-radius);
+    position: relative;
+    padding: 0.25rem 0.5rem;
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+    border: 0.0625rem solid var(--primary-color);
+    line-height: 1.25rem;
+
+    &.active {
+      color: var(--white);
+      background: var(--primary-color);
+    }
+  }
+
+  .add-button {
+    grid-row: items;
+    grid-column: data;
+    place-self: end right;
+  }
 </style>

@@ -3,19 +3,14 @@ import type { Session, User } from '@auth/sveltekit';
 import { type Device, type Owner, Type } from '$lib/database/models';
 import { createDevice, deleteDevice, editDevice } from '$lib/devicePageHelper';
 
-export async function load({ locals, params }) {
+export async function load({ locals }) {
 	const session = (await locals.auth()) as Session;
 	const { email } = session.user as User;
 	const me = (await getOwnerByEmail(email as string)) as Owner;
-	const deviceType = params.type ? (params.type as Type) : '-1';
-	let devices: Device[] = me.devices;
-	if (deviceType !== '-1') {
-		devices = devices.filter((d) => d.type === deviceType);
-	}
+	const devices: Device[] = me.devices;
 
 	return {
 		me,
-		deviceType,
 		devices
 	};
 }

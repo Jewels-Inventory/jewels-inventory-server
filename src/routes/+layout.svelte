@@ -39,7 +39,7 @@
 				<div class="cosmo-menu__row is--main">
 					<a
 						class="cosmo-menu__item is--main"
-						class:is--active={activeRoute === '/my-jewels/[[type]]'}
+						class:is--active={activeRoute === '/my-jewels'}
 						href="/my-jewels">Meine Jewels</a
 					>
 					{#if $page.data.owner?.roles?.includes('admin')}

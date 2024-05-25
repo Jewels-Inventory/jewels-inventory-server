@@ -447,7 +447,7 @@
 				von {selectedDeviceOwner.name}
 			</h1>
 			<div class="cosmo-modal__content">
-				<h3>Gerät</h3>
+				<h2>Gerät</h2>
 				<dl class="cosmo-list is--key-value">
 					{#if selectedDevice.hostname}
 						<dt>Name</dt>
@@ -459,9 +459,9 @@
 					<dd>{selectedDevice.model}</dd>
 				</dl>
 				{#if selectedDevice.os || selectedDevice.kernel}
-					<h3>Software</h3>
+					<h2>Software</h2>
 					{#if selectedDevice.os}
-						<h4>Betriebssystem</h4>
+						<h3>Betriebssystem</h3>
 						<dl class="cosmo-list is--key-value">
 							<dt>Name</dt>
 							<dd>{selectedDevice.os.name}</dd>
@@ -470,21 +470,19 @@
 						</dl>
 					{/if}
 					{#if selectedDevice.kernel}
-						<h4>Kernel</h4>
+						<h3>Kernel</h3>
 						<dl class="cosmo-list is--key-value">
 							<dt>Version</dt>
 							<dd>{selectedDevice.kernel.version}</dd>
-							<dt>Release</dt>
-							<dd>{selectedDevice.kernel.release}</dd>
 							<dt>Architektur</dt>
 							<dd>{selectedDevice.kernel.architecture}</dd>
 						</dl>
 					{/if}
 				{/if}
 				{#if selectedDevice.cpu || selectedDevice.storage || selectedDevice.ram || selectedDevice.mainboard || selectedDevice.bios}
-					<h3>Hardware</h3>
+					<h2>Hardware</h2>
 					{#if selectedDevice.cpu}
-						<h4>Prozessor</h4>
+						<h3>Prozessor</h3>
 						<dl class="cosmo-list is--key-value">
 							<dt>Hersteller</dt>
 							<dd>{selectedDevice.cpu.manufacturer}</dd>
@@ -495,11 +493,11 @@
 							<dt>Threads</dt>
 							<dd>{selectedDevice.cpu.threads}</dd>
 							<dt>Geschwindigkeit</dt>
-							<dd>{selectedDevice.cpu.speed} GHz</dd>
+							<dd>{selectedDevice.cpu.speed.toFixed(2)} GHz</dd>
 						</dl>
 					{/if}
 					{#if selectedDevice.storage || selectedDevice.ram}
-						<h4>Speicher</h4>
+						<h3>Speicher</h3>
 						<dl class="cosmo-list is--key-value">
 							{#if selectedDevice.storage}
 								<dt>Speicherplatz</dt>
@@ -510,9 +508,23 @@
 								<dd>{selectedDevice.ram.toFixed(2)} GB</dd>
 							{/if}
 						</dl>
+						{#if selectedDevice.drives}
+							<h4>Festplatten</h4>
+							{#each selectedDevice.drives as drive}
+								<h5>{drive.name}</h5>
+								<dl class="cosmo-list is--key-value">
+									<dt>Hersteller</dt>
+									<dd>{drive.manufacturer}</dd>
+									<dt>Model</dt>
+									<dd>{drive.model}</dd>
+									<dt>Größe</dt>
+									<dd>{drive.size.toFixed(2)} GB</dd>
+								</dl>
+							{/each}
+						{/if}
 					{/if}
 					{#if selectedDevice.mainboard}
-						<h4>Mainboard</h4>
+						<h3>Mainboard</h3>
 						<dl class="cosmo-list is--key-value">
 							<dt>Hersteller</dt>
 							<dd>{selectedDevice.mainboard.manufacturer}</dd>
@@ -520,12 +532,10 @@
 							<dd>{selectedDevice.mainboard.model}</dd>
 							<dt>Version</dt>
 							<dd>{selectedDevice.mainboard.version}</dd>
-							<dt>Seriennummer</dt>
-							<dd>{selectedDevice.mainboard.serial}</dd>
 						</dl>
 					{/if}
 					{#if selectedDevice.bios}
-						<h4>BIOS/UEFI</h4>
+						<h3>BIOS/UEFI</h3>
 						<dl class="cosmo-list is--key-value">
 							<dt>Hersteller</dt>
 							<dd>{selectedDevice.bios.manufacturer}</dd>

@@ -19,7 +19,6 @@ export type Owner = {
 
 export type Drive = {
 	name: string;
-	driver: string;
 	manufacturer: string;
 	model: string;
 	size: number;
@@ -42,11 +41,9 @@ export type Mainboard = {
 	manufacturer: string;
 	version: string;
 	model: string;
-	serial: string;
 };
 
 export type Kernel = {
-	release: string;
 	version: string;
 	architecture: string;
 };
