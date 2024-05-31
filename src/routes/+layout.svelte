@@ -97,60 +97,60 @@
 {/if}
 
 <style>
-    .cosmo-page {
-        backdrop-filter: var(--modal-backdrop);
-        background: rgba(var(--white-base) var(--white-base) var(--white-base) / 90%);
-    }
+	.cosmo-page {
+		backdrop-filter: var(--modal-backdrop);
+		background: rgba(var(--white-base) var(--white-base) var(--white-base) / 90%);
+	}
 
-    .login-container {
-        position: fixed;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        width: 100vw;
-        background: var(--background);
-        background-size: cover;
-        background-position-y: bottom;
-    }
+	.login-container {
+		position: fixed;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 100vh;
+		width: 100vw;
+		background: var(--background);
+		background-size: cover;
+		background-position-y: bottom;
+	}
 
-    .login-content {
-        background: hsla(
-                var(--primary-hue),
-                var(--primary-saturation),
-                var(--primary-lightness-base),
-                0.25
-        );
-        padding: 2rem 4rem;
-        backdrop-filter: blur(24px) saturate(90%);
-        box-sizing: border-box;
-        margin-top: 1.25rem;
-        max-width: 40rem;
-        border-radius: var(--border-radius);
-        display: flex;
-        flex-flow: column;
-        gap: 1rem;
-    }
+	.login-content {
+		background: hsla(
+			var(--primary-hue),
+			var(--primary-saturation),
+			var(--primary-lightness-base),
+			0.25
+		);
+		padding: 2rem 4rem;
+		backdrop-filter: blur(24px) saturate(90%);
+		box-sizing: border-box;
+		margin-top: 1.25rem;
+		max-width: 40rem;
+		border-radius: var(--border-radius);
+		display: flex;
+		flex-flow: column;
+		gap: 1rem;
+	}
 
-    :global(.signInButton > button) {
-        background: none;
-        border: none;
-        color: var(--button-color);
-        font-size: var(--font-size);
-        cursor: pointer;
-        font-family: var(--font-family);
-    }
+	:global(.signInButton > button) {
+		background: none;
+		border: none;
+		color: var(--button-color);
+		font-size: var(--font-size);
+		cursor: pointer;
+		font-family: var(--font-family);
+	}
 
-    .cosmo-title {
-        color: var(--white);
-    }
+	.cosmo-title {
+		color: var(--white);
+	}
 
-    :global(.cosmo-modal__content) {
-        max-height: 75vh;
-        overflow: auto;
-    }
+	:global(.cosmo-modal__content) {
+		max-height: 75vh;
+		overflow: auto;
+	}
 </style>
