@@ -15,10 +15,10 @@
 	"dependencies": {
 		"express": "4.19.2",
 		"nodemailer": "6.9.13",
-		"tsx": "4.11.0"
+		"tsx": "4.12.0"
 	},
 	"devDependencies": {
-		"@auth/sveltekit": "1.1.0",
+		"@auth/sveltekit": "1.2.0",
 		"@fontsource/albert-sans": "5.0.13",
 		"@fontsource/oxygen-mono": "5.0.20",
 		"@fontsource/urbanist": "5.0.20",
@@ -30,18 +30,18 @@
 		"@types/eslint": "8.56.10",
 		"@types/express": "4.17.21",
 		"@types/nodemailer": "6.4.15",
-		"@typescript-eslint/eslint-plugin": "7.11.0",
-		"@typescript-eslint/parser": "7.11.0",
+		"@typescript-eslint/eslint-plugin": "7.12.0",
+		"@typescript-eslint/parser": "7.12.0",
 		"eslint": "8.57.0",
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-svelte": "2.39.0",
 		"mongodb": "6.7.0",
-		"prettier": "3.2.5",
-		"prettier-plugin-svelte": "3.2.3",
+		"prettier": "3.3.1",
+		"prettier-plugin-svelte": "3.2.4",
 		"sass": "1.77.4",
-		"svelte": "4.2.17",
+		"svelte": "4.2.18",
 		"svelte-check": "3.8.0",
-		"tslib": "2.6.2",
+		"tslib": "2.6.3",
 		"typescript": "5.4.5",
 		"vite": "5.2.12"
 	},

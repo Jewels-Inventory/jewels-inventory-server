@@ -701,11 +701,20 @@
 		padding: 1rem;
 		transition: all 0.3s;
 
+    &:hover {
+      background: var(--primary-color-alpha-25);
+    }
+
 		&.is--active {
 			background: var(--primary-color);
 			color: var(--white);
 			border-bottom-color: var(--primary-color);
 			border-radius: var(--border-radius);
+
+
+      &:hover {
+        background: var(--primary-color);
+      }
 		}
 
 		&:last-of-type {
