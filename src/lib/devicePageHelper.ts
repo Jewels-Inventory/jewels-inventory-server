@@ -163,12 +163,12 @@ export async function editDevice(formData: FormData, route: { id: string }, loca
 		};
 	}
 
-	device.manufacturer = manufacturer;
-	device.hostname = hostname;
-	device.model = model;
-	device.ram = parseInt(ram, 10);
-	device.storage = parseInt(storage, 10);
-	device.eol = isNaN(eol) ? null : new Date(eol);
+	device.manufacturer ??= manufacturer;
+	device.hostname ??= hostname;
+	device.model ??= model;
+	device.ram ??= parseInt(ram, 10);
+	device.storage ??= parseInt(storage, 10);
+	device.eol ??= isNaN(eol) ? null : new Date(eol);
 
 	if (device.os) {
 		device.os.name = os;
