@@ -118,7 +118,9 @@
 						on:click={() => (selectedDevice = device)}
 					>
 						<span class="device-title">{device.manufacturer} {device.model}</span>
-						<span class="device-subtitle">{device.hostname}</span>
+						{#if device.type !== Type.Other}
+							<span class="device-subtitle">{device.hostname ?? ''}</span>
+						{/if}
 					</div>
 				{:else}
 					<div class="cosmo-message is--information">
@@ -128,7 +130,8 @@
 						</div>
 						<div class="cosmo-button__container">
 							<button class="cosmo-button is--primary" on:click={openNew}
-								>Neues Gerät erstellen</button
+							>Neues Gerät erstellen
+							</button
 							>
 						</div>
 					</div>
@@ -165,7 +168,7 @@
 					<div class="cosmo-toolbar__group">
 						<button class="cosmo-button" on:click={() => (editOpen = true)}>Bearbeiten</button>
 						<button class="cosmo-button is--negative" on:click={() => (deleteOpen = true)}
-							>Löschen
+						>Löschen
 						</button>
 					</div>
 				</div>
@@ -180,8 +183,12 @@
 						<dd>{selectedDevice.manufacturer}</dd>
 						<dt>Model</dt>
 						<dd>{selectedDevice.model}</dd>
+						{#if selectedDevice.eol}
+							<dt>Supportende</dt>
+							<dd>{selectedDevice.eol?.toLocaleDateString()}</dd>
+						{/if}
 					</dl>
-					{#if selectedDevice.os || selectedDevice.kernel}
+					{#if selectedDevice.os?.name || selectedDevice.kernel?.version}
 						<h2>Software</h2>
 						{#if selectedDevice.os}
 							<h3>Betriebssystem</h3>
@@ -202,7 +209,7 @@
 							</dl>
 						{/if}
 					{/if}
-					{#if selectedDevice.cpu || selectedDevice.storage || selectedDevice.ram || selectedDevice.mainboard || selectedDevice.bios}
+					{#if selectedDevice.cpu?.cores || selectedDevice.storage || selectedDevice.ram || selectedDevice.mainboard || selectedDevice.bios}
 						<h2>Hardware</h2>
 						{#if selectedDevice.cpu}
 							<h3>Prozessor</h3>
@@ -277,7 +284,8 @@
 		<p class="cosmo-message__message">Du hast noch keine Geräte erstellt.</p>
 		<div class="cosmo-button__container">
 			<button class="cosmo-button is--primary" on:click={openNew}
-				>Neues Gerät erstellen</button
+			>Neues Gerät erstellen
+			</button
 			>
 		</div>
 	</div>
@@ -349,8 +357,8 @@
 										anchorOuterFill: '#28aef0',
 										moduleFill: '#28aef0',
 										backgroundFill: 'transparent',
-										width: 500,
-										height: 500
+										width: 320,
+										height: 320
 									}}
 									alt={newToken}
 								/>
@@ -419,7 +427,7 @@
 										required
 									/>
 									<label for="createOperatingSystemVersion" class="cosmo-label"
-										>Betriebssystem Version</label
+									>Betriebssystem Version</label
 									>
 									<input
 										id="createOperatingSystemVersion"
@@ -436,6 +444,7 @@
 										type="number"
 										name="storage"
 										required={newDeviceType === Type.Computer}
+										step="0.01"
 									/>
 									<label for="createRam" class="cosmo-label">Arbeitsspeicher in GB</label>
 									<input
@@ -444,6 +453,7 @@
 										type="number"
 										name="ram"
 										required={newDeviceType === Type.Computer}
+										step="0.01"
 									/>
 								{/if}
 								{#if newDeviceType === Type.Computer}
@@ -455,8 +465,8 @@
 										name="cpu.manufacturer"
 										required
 									>
-										<option value="GenuineIntel">Intel</option>
-										<option value="AuthenticAMD">AMD</option>
+										<option value="Intel">Intel</option>
+										<option value="AMD">AMD</option>
 									</select>
 									<label for="createCpuModel" class="cosmo-label">Model</label>
 									<input
@@ -473,6 +483,7 @@
 										type="number"
 										name="cpu.speed"
 										required
+										step="0.01"
 									/>
 									<label for="createCpuCores" class="cosmo-label">Kerne</label>
 									<input
@@ -514,7 +525,7 @@
 			<div class="cosmo-modal__content">
 				<div class="cosmo-input__group">
 					<input type="hidden" name="deviceId" value={selectedDevice?.id} />
-					{#if data.deviceType === Type.Computer}
+					{#if selectedDeviceType === Type.Computer}
 						<label for="editHostname" class="cosmo-label">Name</label>
 						<input
 							id="editHostname"
@@ -554,7 +565,7 @@
 							value={selectedDevice?.os?.name}
 						/>
 						<label for="editOperatingSystemVersion" class="cosmo-label"
-							>Betriebssystem Version</label
+						>Betriebssystem Version</label
 						>
 						<input
 							id="editOperatingSystemVersion"
@@ -571,6 +582,7 @@
 							class="cosmo-input"
 							type="number"
 							name="storage"
+							step="0.01"
 							required={selectedDeviceType === Type.Computer}
 							value={selectedDevice?.storage}
 						/>
@@ -580,6 +592,7 @@
 							class="cosmo-input"
 							type="number"
 							name="ram"
+							step="0.01"
 							required={selectedDeviceType === Type.Computer}
 							value={selectedDevice?.ram}
 						/>
@@ -594,8 +607,8 @@
 							required
 							value={selectedDevice?.cpu?.manufacturer}
 						>
-							<option value="GenuineIntel">Intel</option>
-							<option value="AuthenticAMD">AMD</option>
+							<option value="Intel">Intel</option>
+							<option value="AMD">AMD</option>
 						</select>
 						<label for="editCpuModel" class="cosmo-label">Model</label>
 						<input
@@ -611,6 +624,7 @@
 							id="editCpuSpeed"
 							class="cosmo-input"
 							type="number"
+							step="0.01"
 							name="cpu.speed"
 							required
 							value={selectedDevice?.cpu?.speed}
@@ -655,169 +669,169 @@
 {/if}
 
 <style lang="scss">
-	.token {
-		display: flex;
-		justify-content: center;
-	}
+  .token {
+    display: flex;
+    justify-content: center;
+  }
 
-	.device-list {
-		display: grid;
-		grid-template-columns: [list] 1fr [line] 0.0625rem [details] 4fr;
-		gap: 1rem;
-		height: var(--page-height);
+  .device-list {
+    display: grid;
+    grid-template-columns: [list] 1fr [line] 0.0625rem [details] 4fr;
+    gap: 1rem;
+    height: var(--page-height);
 
-		@media screen and (width <= 1920px) {
-			grid-template-columns: [list] 1fr [line] 0.0625rem [details] 2.5fr;
-		}
+    @media screen and (width <= 1920px) {
+      grid-template-columns: [list] 1fr [line] 0.0625rem [details] 2.5fr;
+    }
 
-		@media screen and (width <= 1600px) {
-			grid-template-columns: [list] 1fr [line] 0.0625rem [details] 2fr;
-		}
-	}
+    @media screen and (width <= 1600px) {
+      grid-template-columns: [list] 1fr [line] 0.0625rem [details] 2fr;
+    }
+  }
 
-	.device-list-items {
-		grid-column: list;
-		height: var(--page-height);
-		overflow: auto;
-		display: grid;
-		align-items: start;
-		gap: 0.5rem;
-		grid-template-rows: [filter] 2rem [search] var(--control-height) [items] 1fr;
-		grid-template-columns: [data] 1fr;
-	}
+  .device-list-items {
+    grid-column: list;
+    height: var(--page-height);
+    overflow: auto;
+    display: grid;
+    align-items: start;
+    gap: 0.5rem;
+    grid-template-rows: [filter] 2rem [search] var(--control-height) [items] 1fr;
+    grid-template-columns: [data] 1fr;
+  }
 
-	.device-list-items-inner {
-		height: calc(var(--page-height) - 2rem - 0.5rem - var(--control-height) - 0.5rem);
-		overflow: auto;
-		display: grid;
-		align-items: start;
-		grid-auto-rows: min-content;
-		grid-auto-flow: row;
-		grid-row: items;
-		grid-column: data;
-	}
+  .device-list-items-inner {
+    height: calc(var(--page-height) - 2rem - 0.5rem - var(--control-height) - 0.5rem);
+    overflow: auto;
+    display: grid;
+    align-items: start;
+    grid-auto-rows: min-content;
+    grid-auto-flow: row;
+    grid-row: items;
+    grid-column: data;
+  }
 
-	.device-list-item {
-		width: 100%;
-		border-bottom: 0.0625rem solid var(--control-border-color);
-		cursor: pointer;
-		display: grid;
-		grid-template-rows: auto auto;
-		padding: 1rem;
-		transition: all 0.3s;
+  .device-list-item {
+    width: 100%;
+    border-bottom: 0.0625rem solid var(--control-border-color);
+    cursor: pointer;
+    display: grid;
+    grid-template-rows: auto auto;
+    padding: 1rem;
+    transition: all 0.3s;
 
     &:hover {
       background: var(--primary-color-alpha-25);
     }
 
-		&.is--active {
-			background: var(--primary-color);
-			color: var(--white);
-			border-bottom-color: var(--primary-color);
-			border-radius: var(--border-radius);
+    &.is--active {
+      background: var(--primary-color);
+      color: var(--white);
+      border-bottom-color: var(--primary-color);
+      border-radius: var(--border-radius);
 
 
       &:hover {
         background: var(--primary-color);
       }
-		}
+    }
 
-		&:last-of-type {
-			border-bottom: none;
-		}
-	}
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
 
-	.device-list-separator {
-		grid-column: line;
-		height: var(--page-height);
-		width: 0.0625rem;
-		background: var(--control-border-color);
-	}
+  .device-list-separator {
+    grid-column: line;
+    height: var(--page-height);
+    width: 0.0625rem;
+    background: var(--control-border-color);
+  }
 
-	.device-list-details {
-		grid-column: details;
-		height: var(--page-height);
-		overflow: auto;
-		width: 100%;
-		display: grid;
-		grid-template-rows: [title] 2.75rem [toolbar] var(--control-height) [inner] 1fr;
-		grid-auto-rows: auto;
-		gap: 0.5rem;
-	}
+  .device-list-details {
+    grid-column: details;
+    height: var(--page-height);
+    overflow: auto;
+    width: 100%;
+    display: grid;
+    grid-template-rows: [title] 2.75rem [toolbar] var(--control-height) [inner] 1fr;
+    grid-auto-rows: auto;
+    gap: 0.5rem;
+  }
 
-	.device-list-details-inner {
-		height: calc(var(--page-height) - 0.5rem - 2.75rem - 0.5rem - var(--control-height));
-		overflow: auto;
-	}
+  .device-list-details-inner {
+    height: calc(var(--page-height) - 0.5rem - 2.75rem - 0.5rem - var(--control-height));
+    overflow: auto;
+  }
 
-	.device-title {
-		font-size: var(--h4-font-size);
-		font-family: var(--font-family-heading);
-		font-weight: var(--font-weight-light);
-		width: 100%;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		word-break: keep-all;
-		white-space: nowrap;
-	}
+  .device-title {
+    font-size: var(--h4-font-size);
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-light);
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: keep-all;
+    white-space: nowrap;
+  }
 
-	.device-subtitle {
-		font-size: var(--h6-font-size);
-	}
+  .device-subtitle {
+    font-size: var(--h6-font-size);
+  }
 
-	.device-filter-bar {
-		display: flex;
-		gap: 1rem;
-		margin-bottom: 0.5rem;
-		position: sticky;
-		flex-flow: row nowrap;
-		grid-row: filter;
-		grid-column: data;
-		width: 100%;
-		overflow: auto;
-	}
+  .device-filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    position: sticky;
+    flex-flow: row nowrap;
+    grid-row: filter;
+    grid-column: data;
+    width: 100%;
+    overflow: auto;
+  }
 
-	.device-search-bar {
-		margin-bottom: 0.5rem;
-		font-size: 1.25rem;
-		grid-row: search;
-		grid-column: data;
-	}
+  .device-search-bar {
+    margin-bottom: 0.5rem;
+    font-size: 1.25rem;
+    grid-row: search;
+    grid-column: data;
+  }
 
-	.device-filter-bubble {
-		background: var(--primary-color);
-		border-radius: 50%;
-		height: 0.5rem;
-		width: 0.5rem;
-		transition: all 0.3s;
+  .device-filter-bubble {
+    background: var(--primary-color);
+    border-radius: 50%;
+    height: 0.5rem;
+    width: 0.5rem;
+    transition: all 0.3s;
 
-		.active & {
-			background: var(--white);
-		}
-	}
+    .active & {
+      background: var(--white);
+    }
+  }
 
-	.device-filter-type {
-		color: var(--black);
-		background: transparent;
-		border-radius: var(--border-radius);
-		position: relative;
-		padding: 0.25rem 0.5rem;
-		align-items: center;
-		display: flex;
-		gap: 0.5rem;
-		cursor: pointer;
-		border: 0.0625rem solid var(--primary-color);
-		line-height: 1.25rem;
+  .device-filter-type {
+    color: var(--black);
+    background: transparent;
+    border-radius: var(--border-radius);
+    position: relative;
+    padding: 0.25rem 0.5rem;
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+    border: 0.0625rem solid var(--primary-color);
+    line-height: 1.25rem;
 
-		&.active {
-			color: var(--white);
-			background: var(--primary-color);
-		}
-	}
+    &.active {
+      color: var(--white);
+      background: var(--primary-color);
+    }
+  }
 
-	.add-button {
-		grid-row: items;
-		grid-column: data;
-		place-self: end right;
-	}
+  .add-button {
+    grid-row: items;
+    grid-column: data;
+    place-self: end right;
+  }
 </style>

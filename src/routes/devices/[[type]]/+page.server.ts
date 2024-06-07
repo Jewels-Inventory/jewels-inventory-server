@@ -15,10 +15,10 @@ export const actions = {
 	deleteDevice({ request, route, locals }) {
 		return deleteDevice(request, locals, route.id);
 	},
-	createDevice({ request, route, locals, params }) {
-		return createDevice(request, params.type as Type, route, locals);
+	async createDevice({ request, route, locals, params }) {
+		return await createDevice(await request.formData(), params.type as Type, route, locals);
 	},
-	editDevice({ request, route, locals }) {
-		return editDevice(request, route, locals);
+	async editDevice({ request, route, locals }) {
+		return await editDevice(await request.formData(), route, locals);
 	}
 };

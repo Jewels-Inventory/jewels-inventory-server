@@ -2,8 +2,7 @@ import { getOwner, getOwnerByEmail, updateOwner } from '$lib/database/client';
 import { type Device, type Owner, Type } from '$lib/database/models';
 import type { Session, User } from '@auth/sveltekit';
 
-async function getFormData<RouteId>(request: Request, routeId: RouteId, locals: App.Locals) {
-	const formData = await request.formData();
+async function getFormData<RouteId>(formData: FormData, routeId: RouteId, locals: App.Locals) {
 	const model = formData.get('model') as string;
 	const manufacturer = formData.get('manufacturer') as string;
 	const hostname = formData.get('hostname') as string;
@@ -18,7 +17,7 @@ async function getFormData<RouteId>(request: Request, routeId: RouteId, locals: 
 	const threads = formData.get('cpu.threads') as string;
 	const eol = Date.parse(formData.get('eol') as string);
 	let owner: Owner | null;
-	if (routeId === '/my-jewels/[[type]]') {
+	if (routeId === '/my-jewels') {
 		const session = (await locals.auth()) as Session;
 		const user = session.user as User;
 		owner = await getOwnerByEmail(user.email as string);
@@ -28,7 +27,6 @@ async function getFormData<RouteId>(request: Request, routeId: RouteId, locals: 
 	}
 
 	return {
-		formData,
 		model,
 		manufacturer,
 		hostname,
@@ -73,7 +71,7 @@ export async function deleteDevice(request: Request, locals: App.Locals, routeId
 }
 
 export async function createDevice(
-	request: Request,
+	formData: FormData,
 	type: Type,
 	route: {
 		id: string;
@@ -95,7 +93,7 @@ export async function createDevice(
 		threads,
 		eol,
 		owner
-	} = await getFormData(request, route.id, locals);
+	} = await getFormData(formData, route.id, locals);
 
 	if (!owner) {
 		return {
@@ -133,9 +131,8 @@ export async function createDevice(
 	};
 }
 
-export async function editDevice(request: Request, route: { id: string }, locals: App.Locals) {
+export async function editDevice(formData: FormData, route: { id: string }, locals: App.Locals) {
 	const {
-		formData,
 		model,
 		manufacturer,
 		hostname,
@@ -150,7 +147,7 @@ export async function editDevice(request: Request, route: { id: string }, locals
 		threads,
 		eol,
 		owner
-	} = await getFormData(request, route.id, locals);
+	} = await getFormData(formData, route.id, locals);
 	const deviceId = formData.get('deviceId') as string;
 
 	if (!owner) {

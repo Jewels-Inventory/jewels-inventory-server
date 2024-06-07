@@ -19,8 +19,8 @@ export const actions = {
 	deleteDevice({ request, route, locals }) {
 		return deleteDevice(request, locals, route.id);
 	},
-	editDevice({ request, route, locals }) {
-		return editDevice(request, route, locals);
+	async editDevice({ request, route, locals }) {
+		return await editDevice(await request.formData(), route, locals);
 	},
 	async createDevice({ request, route, locals }) {
 		const formData = await request.formData();
@@ -46,9 +46,9 @@ export const actions = {
 				newSuccess: true
 			};
 		} else {
-			const type = formData.get('type') as Type;
+			const type = formData.get('deviceType') as Type;
 
-			return await createDevice(request, type, route, locals);
+			return await createDevice(formData, type, route, locals);
 		}
 	}
 };
