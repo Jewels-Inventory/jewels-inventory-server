@@ -502,7 +502,7 @@
 			</div>
 			<div class="cosmo-modal__button-bar">
 				<button class="cosmo-button" on:click={() => (newOpen = false)}>Verwerfen</button>
-				<button class="cosmo-button" type="submit">Gerät erstellen</button>
+				<button class="cosmo-button" type="submit">Gerät speichern</button>
 			</div>
 		</form>
 	</div>
