@@ -275,6 +275,11 @@
 	<div class="cosmo-message is--information">
 		<span class="cosmo-message__header">Keine Geräte</span>
 		<p class="cosmo-message__message">Du hast noch keine Geräte erstellt.</p>
+		<div class="cosmo-button__container">
+			<button class="cosmo-button is--primary" on:click={openNew}
+				>Neues Gerät erstellen</button
+			>
+		</div>
 	</div>
 {/if}
 {#if deleteOpen}
