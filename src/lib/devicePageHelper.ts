@@ -44,12 +44,11 @@ async function getFormData<RouteId>(formData: FormData, routeId: RouteId, locals
 	};
 }
 
-export async function deleteDevice(request: Request, locals: App.Locals, routeId: string) {
-	const formData = await request.formData();
+export async function deleteDevice(formData: FormData, locals: App.Locals, routeId: string) {
 	const deviceId = formData.get('selectedDevice') as string;
 
 	let owner: Owner | null;
-	if (routeId === '/my-jewels/[[type]]') {
+	if (routeId === '/my-jewels') {
 		const session = (await locals.auth()) as Session;
 		const user = session.user as User;
 		owner = await getOwnerByEmail(user.email as string);

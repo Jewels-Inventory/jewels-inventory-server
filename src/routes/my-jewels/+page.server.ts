@@ -16,8 +16,8 @@ export async function load({ locals }) {
 }
 
 export const actions = {
-	deleteDevice({ request, route, locals }) {
-		return deleteDevice(request, locals, route.id);
+	async deleteDevice({ request, route, locals }) {
+		return await deleteDevice(await request.formData(), locals, route.id);
 	},
 	async editDevice({ request, route, locals }) {
 		return await editDevice(await request.formData(), route, locals);

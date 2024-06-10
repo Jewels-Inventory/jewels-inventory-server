@@ -12,8 +12,8 @@ export async function load({ params }) {
 }
 
 export const actions = {
-	deleteDevice({ request, route, locals }) {
-		return deleteDevice(request, locals, route.id);
+	async deleteDevice({ request, route, locals }) {
+		return await deleteDevice(await request.formData(), locals, route.id);
 	},
 	async createDevice({ request, route, locals, params }) {
 		return await createDevice(await request.formData(), params.type as Type, route, locals);
