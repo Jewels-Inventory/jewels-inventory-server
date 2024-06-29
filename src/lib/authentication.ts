@@ -27,6 +27,7 @@ function parseJwt(token: string) {
 }
 
 const JewelsAdapter: Adapter = {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async createUser(user: any) {
 		const profilePicture = user.picture;
 
@@ -92,6 +93,7 @@ const JewelsAdapter: Adapter = {
 	},
 	// @ts-expect-error Not needed
 	getUserByAccount() {},
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	async updateUser(user: any): Promise<AdapterUser> {
 		const profilePicture = (user as ZitadelProfile).picture;
 
