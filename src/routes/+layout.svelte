@@ -38,20 +38,18 @@
 			<nav class="cosmo-menu__collection">
 				<div class="cosmo-menu__row is--main">
 					<a
-						class="cosmo-menu__item is--main"
+						class="cosmo-menu__item"
 						class:is--active={activeRoute === '/my-jewels'}
 						href="/my-jewels">Meine Jewels</a
 					>
 					{#if $page.data.owner?.roles?.includes('admin')}
 						<a
-							class="cosmo-menu__item is--main"
+							class="cosmo-menu__item"
 							class:is--active={activeRoute === '/devices/[[type]]'}
 							href="/devices">Geräte</a
 						>
-						<a
-							class="cosmo-menu__item is--main"
-							class:is--active={activeRoute === '/owners'}
-							href="/owners">Besitzer</a
+						<a class="cosmo-menu__item" class:is--active={activeRoute === '/owners'} href="/owners"
+							>Besitzer</a
 						>
 					{/if}
 				</div>
