@@ -37,36 +37,36 @@
 <h1 class="cosmo-title">Besitzer</h1>
 <table class="cosmo-table">
 	<thead>
-		<tr>
-			<th>Name</th>
-			<th>Email</th>
-			<th>Geräteanzahl</th>
-			<th>Aktionen</th>
-		</tr>
+	<tr>
+		<th>Name</th>
+		<th>Email</th>
+		<th>Geräteanzahl</th>
+		<th>Aktionen</th>
+	</tr>
 	</thead>
 	<tbody>
-		{#each data.owners as owner}
-			<tr>
-				<td>{owner.name}</td>
-				<td>{owner.email}</td>
-				<td>{owner.devices.length}</td>
-				<td>
-					<button
-						class="cosmo-button is--small is--primary"
-						on:click={() => openCreateToken(owner)}
-					>
-						Token erstellen
-					</button>
-					<button
-						class="cosmo-button is--small is--negative"
-						on:click={() => openDelete(owner)}
-						disabled={owner._id === data.me._id}
-					>
-						Löschen
-					</button>
-				</td>
-			</tr>
-		{/each}
+	{#each data.owners as owner}
+		<tr>
+			<td>{owner.name}</td>
+			<td>{owner.email}</td>
+			<td>{owner.devices.length}</td>
+			<td>
+				<button
+					class="cosmo-button is--small is--primary"
+					on:click={() => openCreateToken(owner)}
+				>
+					Token erstellen
+				</button>
+				<button
+					class="cosmo-button is--small is--negative"
+					on:click={() => openDelete(owner)}
+					disabled={owner._id === data.me._id}
+				>
+					Löschen
+				</button>
+			</td>
+		</tr>
+	{/each}
 	</tbody>
 </table>
 {#if deleteOpen}
@@ -92,25 +92,11 @@
 		<form class="cosmo-modal" method="post" action="?/createToken" use:enhance>
 			<h1 class="cosmo-modal__title">Token erstellen</h1>
 			<div class="cosmo-modal__content">
-				<div class="cosmo-message is--information">
-					<h3 class="cosmo-message__header">Wozu ist das Token da?</h3>
-					<p class="cosmo-message__message">
-						Das Token ist für die Jewels App oder den Jewels Linux Client,<br />
-						um automatisiert Informationen über dein Gerät in Jewels zu speichern.<br />
-						Um die Verwendung möglichst einfach zu machen,<br />
-						kannst du den unten angezeigten QR Code einfach mit der Jewels App scannen.<br />
-						Wenn du den Linux Client benutzt, musst du die Infos unter dem QR Code eintragen.
-					</p>
-				</div>
-				<div class="cosmo-message is--warning">
-					<h3 class="cosmo-message__header">Speicher dir das Token</h3>
-					<p class="cosmo-message__message">
-						Das Token ist nach dem Speichern nicht mehr verfügbar, bitte speicher es dir ab.
-					</p>
-				</div>
-				<div class="token">
-					<img
-						use:qr={{
+				<div class="jewels-new">
+					<div>
+						<div class="token">
+							<img
+								use:qr={{
 							data: JSON.stringify({
 								token: newToken,
 								host: location.origin
@@ -121,31 +107,51 @@
 							anchorOuterFill: '#28aef0',
 							moduleFill: '#28aef0',
 							backgroundFill: 'transparent',
-							width: 500,
-							height: 500
+							width: 450,
+							height: 450
 						}}
-						alt={newToken}
-					/>
-				</div>
-				<div class="cosmo-input__group">
-					<label class="cosmo-label" for="createTokenUrl">Url</label>
-					<input
-						class="cosmo-input"
-						type="text"
-						readonly
-						id="createTokenUrl"
-						value={location.origin}
-					/>
-					<label class="cosmo-label" for="createTokenToken">Token</label>
-					<input
-						class="cosmo-input"
-						type="text"
-						readonly
-						id="createTokenToken"
-						name="token"
-						value={newToken}
-					/>
-					<input type="hidden" value={selectedOwner._id} name="ownerId" />
+								alt={newToken}
+							/>
+						</div>
+					</div>
+					<div>
+						<div class="cosmo-message is--information">
+							<h3 class="cosmo-message__header">Wozu ist das Token da?</h3>
+							<p class="cosmo-message__message">
+								Das Token ist für die Jewels App oder den Jewels Linux Client,<br />
+								um automatisiert Informationen über dein Gerät in Jewels zu speichern.<br />
+								Um die Verwendung möglichst einfach zu machen,<br />
+								kannst du den unten angezeigten QR Code einfach mit der Jewels App scannen.<br />
+								Wenn du den Linux Client benutzt, musst du die Infos unter dem QR Code eintragen.
+							</p>
+						</div>
+						<div class="cosmo-message is--warning">
+							<h3 class="cosmo-message__header">Speicher dir das Token</h3>
+							<p class="cosmo-message__message">
+								Das Token ist nach dem Speichern nicht mehr verfügbar, bitte speicher es dir ab.
+							</p>
+						</div>
+						<div class="cosmo-input__group">
+							<label class="cosmo-label" for="createTokenUrl">Url</label>
+							<input
+								class="cosmo-input"
+								type="text"
+								readonly
+								id="createTokenUrl"
+								value={location.origin}
+							/>
+							<label class="cosmo-label" for="createTokenToken">Token</label>
+							<input
+								class="cosmo-input"
+								type="text"
+								readonly
+								id="createTokenToken"
+								name="token"
+								value={newToken}
+							/>
+							<input type="hidden" value={selectedOwner._id} name="ownerId" />
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="cosmo-modal__button-bar">
@@ -157,8 +163,13 @@
 {/if}
 
 <style>
-	.token {
-		display: flex;
-		justify-content: center;
-	}
+    .token {
+        display: flex;
+        justify-content: center;
+    }
+
+    .jewels-new {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
 </style>
