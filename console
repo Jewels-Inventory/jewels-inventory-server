@@ -1,2 +1,2 @@
 #!/usr/bin/env sh
-npx src/console.ts
+npm run check-eol
