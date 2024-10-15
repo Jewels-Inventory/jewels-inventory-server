@@ -19,7 +19,7 @@
 	<title>Jewels Inventory</title>
 </svelte:head>
 
-{#if $page.data.session}
+{#if $page.data.session && activeRoute !== '/signin'}
 	<main class="cosmo-page">
 		<div class="cosmo-menu is--top">
 			{#if $page.data.session.user?.image}
