@@ -14,6 +14,6 @@ export async function load(event) {
 
 	return {
 		owner,
-		session
+		loggedIn: !!session,
 	};
 }

@@ -24,9 +24,9 @@
 		<div class="cosmo-menu is--top">
 			{#if $page.data.session.user?.image}
 				<img
-					src={$page.data.session.user.image}
+					src={$page.data.owner.profilePicture}
 					class="cosmo-profile-picture"
-					alt={$page.data.session.user.name}
+					alt={$page.data.owner.name}
 				/>
 			{:else}
 				<div class="cosmo-profile-picture"></div>
