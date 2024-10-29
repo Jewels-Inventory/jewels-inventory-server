@@ -378,12 +378,14 @@
 						>
 							<option
 								selected={selectedDevice?.cpu?.manufacturer === 'GenuineIntel'}
-								value="GenuineIntel">Intel</option
-							>
+								value="GenuineIntel"
+								>Intel
+							</option>
 							<option
 								selected={selectedDevice?.cpu?.manufacturer === 'AuthenticAMD'}
-								value="AuthenticAMD">AMD</option
-							>
+								value="AuthenticAMD"
+								>AMD
+							</option>
 						</select>
 						<label for="editCpuModel" class="cosmo-label">Model</label>
 						<input

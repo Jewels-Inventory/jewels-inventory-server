@@ -37,36 +37,36 @@
 <h1 class="cosmo-title">Besitzer</h1>
 <table class="cosmo-table">
 	<thead>
-	<tr>
-		<th>Name</th>
-		<th>Email</th>
-		<th>Geräteanzahl</th>
-		<th>Aktionen</th>
-	</tr>
+		<tr>
+			<th>Name</th>
+			<th>Email</th>
+			<th>Geräteanzahl</th>
+			<th>Aktionen</th>
+		</tr>
 	</thead>
 	<tbody>
-	{#each data.owners as owner}
-		<tr>
-			<td>{owner.name}</td>
-			<td>{owner.email}</td>
-			<td>{owner.devices.length}</td>
-			<td>
-				<button
-					class="cosmo-button is--small is--primary"
-					on:click={() => openCreateToken(owner)}
-				>
-					Token erstellen
-				</button>
-				<button
-					class="cosmo-button is--small is--negative"
-					on:click={() => openDelete(owner)}
-					disabled={owner._id === data.me._id}
-				>
-					Löschen
-				</button>
-			</td>
-		</tr>
-	{/each}
+		{#each data.owners as owner}
+			<tr>
+				<td>{owner.name}</td>
+				<td>{owner.email}</td>
+				<td>{owner.devices.length}</td>
+				<td>
+					<button
+						class="cosmo-button is--small is--primary"
+						on:click={() => openCreateToken(owner)}
+					>
+						Token erstellen
+					</button>
+					<button
+						class="cosmo-button is--small is--negative"
+						on:click={() => openDelete(owner)}
+						disabled={owner._id === data.me._id}
+					>
+						Löschen
+					</button>
+				</td>
+			</tr>
+		{/each}
 	</tbody>
 </table>
 {#if deleteOpen}
@@ -97,19 +97,19 @@
 						<div class="token">
 							<img
 								use:qr={{
-							data: JSON.stringify({
-								token: newToken,
-								host: location.origin
-							}),
-							logo: `${location.origin}/favicon.svg`,
-							shape: 'circle',
-							anchorInnerFill: '#28aef0',
-							anchorOuterFill: '#28aef0',
-							moduleFill: '#28aef0',
-							backgroundFill: 'transparent',
-							width: 450,
-							height: 450
-						}}
+									data: JSON.stringify({
+										token: newToken,
+										host: location.origin
+									}),
+									logo: `${location.origin}/favicon.svg`,
+									shape: 'circle',
+									anchorInnerFill: '#28aef0',
+									anchorOuterFill: '#28aef0',
+									moduleFill: '#28aef0',
+									backgroundFill: 'transparent',
+									width: 450,
+									height: 450
+								}}
 								alt={newToken}
 							/>
 						</div>
@@ -163,13 +163,13 @@
 {/if}
 
 <style>
-    .token {
-        display: flex;
-        justify-content: center;
-    }
+	.token {
+		display: flex;
+		justify-content: center;
+	}
 
-    .jewels-new {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
+	.jewels-new {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+	}
 </style>

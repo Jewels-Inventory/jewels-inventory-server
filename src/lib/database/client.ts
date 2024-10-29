@@ -1,4 +1,4 @@
-import type { Owner, Server } from './models';
+import type { Owner } from './models';
 import { Collection, MongoClient, ObjectId } from 'mongodb';
 
 async function executeInOwners<T>(cb: (collection: Collection<Owner>) => Promise<T>) {
