@@ -1,0 +1,67 @@
+@if (authService.isAuthenticated) {
+  <main class="cosmo-page">
+    <div class="cosmo-menu is--top">
+      <div class="cosmo-menu__row"></div>
+      <img
+        class="cosmo-profile-picture"
+        [src]="authService.identityClaims['picture']"
+        alt="Profilbild"
+        aria-hidden="true"
+      />
+      <a href="#" (click)="authService.logout()" class="cosmo-menu__item is--right">Logout</a>
+    </div>
+    <div class="cosmo-menu">
+      <button aria-label="Zurück" class="cosmo-back-button" (click)="location.back()" type="button"></button>
+      <nav class="cosmo-menu__collection">
+        <div class="cosmo-menu__row is--main">
+          <a
+            class="cosmo-menu__item"
+            routerLink="/my-jewels"
+            routerLinkActive="is--active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            #myJewelsMain="routerLinkActive"
+          >
+            Meine Jewels
+          </a>
+          @if (authService.identityClaims['roles'].includes('admin')) {
+            <a
+              class="cosmo-menu__item"
+              routerLink="/devices"
+              routerLinkActive="is--active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              #devicesMain="routerLinkActive"
+            >
+              Geräte
+            </a>
+            <a
+              class="cosmo-menu__item"
+              routerLink="/owners"
+              routerLinkActive="is--active"
+              [routerLinkActiveOptions]="{ exact: false }"
+              #ownersMain="routerLinkActive"
+            >
+              Besitzer
+            </a>
+          }
+        </div>
+        @if (authService.identityClaims['roles'].includes('admin') && router.url.includes('devices')) {
+          <div class="cosmo-menu__row is--sub">
+            <a class="cosmo-menu__item" routerLink="/devices/phones" routerLinkActive="is--active">
+              Smartphones & Tablets
+            </a>
+            <a class="cosmo-menu__item" routerLink="/devices/computer" routerLinkActive="is--active">
+              Computer & Laptops
+            </a>
+            <a class="cosmo-menu__item" routerLink="/devices/watches" routerLinkActive="is--active"> Smartwatches </a>
+            <a class="cosmo-menu__item" routerLink="/devices/other" routerLinkActive="is--active"> Sonstiges </a>
+          </div>
+        }
+      </nav>
+    </div>
+    <div class="cosmo-page__body">
+      <router-outlet />
+    </div>
+  </main>
+} @else {
+  <router-outlet />
+}
