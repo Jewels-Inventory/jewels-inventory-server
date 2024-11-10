@@ -46,8 +46,7 @@ export class MyJewelsComponent implements OnInit {
     notes: new FormControl('')
   });
 
-  constructor(private readonly myJewelsService: MyJewelsService) {
-  }
+  constructor(private readonly myJewelsService: MyJewelsService) {}
 
   get devices() {
     return (
