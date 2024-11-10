@@ -236,7 +236,7 @@
               }
             </div>
           }
-          @if ((selectedDevice.drives?.length ?? 0 > 0) && detailsTab == DetailsTab.Storage) {
+          @if ((selectedDevice.drives?.length ?? 0 > 0) && detailsTab === DetailsTab.Storage) {
             <div class="cosmo-tab__content">
               @for (drive of selectedDrives; track drive) {
                 <h4>{{ drive.name }}</h4>
@@ -311,14 +311,14 @@
 
 <app-add-jewel
   #addJewel
-  (onSubmitCode)="saveCodeJewel(addJewel, $event)"
-  (onSubmitManual)="saveManuelJewel(addJewel, $event)"
+  (saveCode)="saveCodeJewel(addJewel, $event)"
+  (saveManual)="saveManuelJewel(addJewel, $event)"
   [hasError]="addHasError"
 />
 
 <app-edit-jewel
   #editJewel
-  (onSubmit)="updateJewel(editJewel, $event)"
+  (save)="updateJewel(editJewel, $event)"
   [hasError]="editHasError"
   [device]="selectedDevice!"
 />

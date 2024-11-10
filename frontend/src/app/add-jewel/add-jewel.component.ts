@@ -31,8 +31,8 @@ export function requiredWithCondition(condition: (control: AbstractControl) => b
   styleUrl: './add-jewel.component.scss'
 })
 export class AddJewelComponent {
-  @Output() public onSubmitManual = new EventEmitter<Device>();
-  @Output() public onSubmitCode = new EventEmitter<string>();
+  @Output() public saveManual = new EventEmitter<Device>();
+  @Output() public saveCode = new EventEmitter<string>();
 
   @Input() public hasError = false;
 
@@ -158,7 +158,7 @@ export class AddJewelComponent {
 
   protected saveDevice() {
     if (this.tab === ActiveTab.Code) {
-      this.onSubmitCode.emit(this.token);
+      this.saveCode.emit(this.token);
     } else if (this.tab === ActiveTab.Manual) {
       this.formGroup.controls.ram.updateValueAndValidity();
       this.formGroup.controls.hostname.updateValueAndValidity();
@@ -172,7 +172,7 @@ export class AddJewelComponent {
           eol = new Date(Date.parse(this.formGroup.value.eol));
         }
 
-        this.onSubmitManual.emit({
+        this.saveManual.emit({
           id: crypto.randomUUID(),
           type: this.formGroup.value.type!,
           hostname: this.formGroup.value.hostname!,

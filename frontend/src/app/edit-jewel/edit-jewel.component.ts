@@ -12,7 +12,7 @@ import { CpuManufacturer, requiredWithCondition } from '../add-jewel/add-jewel.c
   styleUrl: './edit-jewel.component.scss'
 })
 export class EditJewelComponent {
-  @Output() public onSubmit = new EventEmitter<Device>();
+  @Output() public save = new EventEmitter<Device>();
 
   @Input() public hasError = false;
   @Input() public device!: Device;
@@ -107,7 +107,7 @@ export class EditJewelComponent {
         eol = new Date(Date.parse(this.formGroup.value.eol));
       }
 
-      this.onSubmit.emit({
+      this.save.emit({
         ...this.device,
         id: this.device.id,
         type: this.formGroup.value.type!,
