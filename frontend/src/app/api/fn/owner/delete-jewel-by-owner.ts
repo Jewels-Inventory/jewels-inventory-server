@@ -8,18 +8,18 @@ import { filter, map } from 'rxjs/operators';
 import { StrictHttpResponse } from '../../strict-http-response';
 import { RequestBuilder } from '../../request-builder';
 
-export interface DeleteMyJewel_1$Params {
+export interface DeleteJewelByOwner$Params {
   ownerId: string;
   deviceId: string;
 }
 
-export function deleteMyJewel_1(
+export function deleteJewelByOwner(
   http: HttpClient,
   rootUrl: string,
-  params: DeleteMyJewel_1$Params,
+  params: DeleteJewelByOwner$Params,
   context?: HttpContext
 ): Observable<StrictHttpResponse<void>> {
-  const rb = new RequestBuilder(rootUrl, deleteMyJewel_1.PATH, 'delete');
+  const rb = new RequestBuilder(rootUrl, deleteJewelByOwner.PATH, 'delete');
   if (params) {
     rb.path('ownerId', params.ownerId, {});
     rb.path('deviceId', params.deviceId, {});
@@ -33,4 +33,4 @@ export function deleteMyJewel_1(
   );
 }
 
-deleteMyJewel_1.PATH = '/api/admin/owner/{ownerId}/device/{deviceId}';
+deleteJewelByOwner.PATH = '/api/admin/owner/{ownerId}/device/{deviceId}';

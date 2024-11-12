@@ -1,32 +1,85 @@
 package api
 
 import (
-	"context"
 	"github.com/gorilla/mux"
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
-	"github.com/zitadel/zitadel-go/v3/pkg/http/middleware"
-	"github.com/zitadel/zitadel-go/v3/pkg/zitadel"
-	"jewels/config"
 	"net/http"
 )
 
 func SetupApiRouter(router *mux.Router) {
-	ctx := context.Background()
+	apiRouter := router.
+		PathPrefix("/api").
+		Subrouter()
+	devicesRouter := apiRouter.
+		PathPrefix("/device").
+		Subrouter()
+	adminRouter := apiRouter.
+		PathPrefix("/admin").
+		Subrouter()
+	myJewelsRouter := apiRouter.
+		PathPrefix("/my-jewel").
+		Subrouter()
 
-	zitadelConfig := oauth.WithIntrospection[*oauth.IntrospectionContext](oauth.ClientIDSecretIntrospectionAuthentication(config.LoadedConfiguration.OidcServerClientId, config.LoadedConfiguration.OidcServerClientSecret))
-	authZ, err := authorization.New(ctx, zitadel.New(config.LoadedConfiguration.OidcDomain), zitadelConfig)
+	apiRouter.
+		Methods("GET").
+		Path("/healthz").
+		HandlerFunc(getHealth)
 
-	if err != nil {
-		panic(err)
-	}
+	myJewelsRouter.
+		Methods("GET").
+		HandlerFunc(getMyJewels).
+		Handler(http.HandlerFunc(getMyJewels))
+	myJewelsRouter.
+		Methods("GET").
+		Path("/{id}").
+		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotImplemented)
+		}))
+	myJewelsRouter.
+		Methods("POST").
+		Handler(http.HandlerFunc(createMyJewel))
+	myJewelsRouter.
+		Methods("PUT").
+		Path("/{jewel}").
+		Handler(http.HandlerFunc(updateMyJewel))
+	myJewelsRouter.
+		Methods("DELETE").
+		Path("/{jewel}").
+		Handler(http.HandlerFunc(deleteMyJewel))
 
-	mw := middleware.New(authZ)
+	adminRouter.
+		Methods("GET").
+		Path("/owner").
+		Handler(http.HandlerFunc(getOwners))
+	adminRouter.
+		Methods("GET").
+		Path("/owner/{ownerId}/device").
+		Handler(http.HandlerFunc(getDevices))
+	adminRouter.
+		Methods("POST").
+		Path("/owner/{ownerId}/device").
+		Handler(http.HandlerFunc(createDevice))
+	adminRouter.
+		Methods("GET").
+		Path("/owner/{ownerId}/device/{deviceId}").
+		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotImplemented)
+		}))
+	adminRouter.
+		Methods("PUT").
+		Path("/owner/{ownerId}/device/{deviceId}").
+		Handler(http.HandlerFunc(updateDevice))
+	adminRouter.
+		Methods("DELETE").
+		Path("/owner/{ownerId}/device/{deviceId}").
+		Handler(http.HandlerFunc(deleteDevice))
 
-	router.Methods("GET").Path("/api/my-jewel").Handler(mw.RequireAuthorization()(createOwnerIfNotExistsMiddleware()(contentTypeJson()(http.HandlerFunc(getMyJewels)))))
-	router.Methods("POST").Path("/api/my-jewel").Handler(mw.RequireAuthorization()(createOwnerIfNotExistsMiddleware()(contentTypeJson()(http.HandlerFunc(createMyJewel)))))
-	router.Methods("PUT").Path("/api/my-jewel/{jewel}").Handler(mw.RequireAuthorization()(createOwnerIfNotExistsMiddleware()(contentTypeJson()(http.HandlerFunc(updateMyJewel)))))
-	router.Methods("DELETE").Path("/api/my-jewel/{jewel}").Handler(mw.RequireAuthorization()(createOwnerIfNotExistsMiddleware()(contentTypeJson()(http.HandlerFunc(deleteMyJewel)))))
+	devicesRouter.
+		Methods("POST").
+		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotImplemented)
+		}))
 
-	router.Methods("GET").Path("/api/healthz").HandlerFunc(getHealth)
+	myJewelsRouter.Use(login(), createOrFindUser, contentTypeJson)
+	adminRouter.Use(login("admin"), createOrFindUser, contentTypeJson)
+	devicesRouter.Use(login(), createOrFindUser, contentTypeJson)
 }

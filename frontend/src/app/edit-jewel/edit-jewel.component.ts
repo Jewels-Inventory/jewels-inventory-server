@@ -1,13 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Device } from '../api/models/device';
 import { Type } from '../api/models';
 import { CpuManufacturer, requiredWithCondition } from '../add-jewel/add-jewel.component';
 
 @Component({
   selector: 'app-edit-jewel',
-  standalone: true,
-  imports: [FormsModule, ReactiveFormsModule],
   templateUrl: './edit-jewel.component.html',
   styleUrl: './edit-jewel.component.scss'
 })

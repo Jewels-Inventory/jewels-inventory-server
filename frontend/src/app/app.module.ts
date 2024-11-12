@@ -14,9 +14,18 @@ import { ConfirmComponent } from './ui/confirm/confirm.component';
 import { AddJewelComponent } from './add-jewel/add-jewel.component';
 import { QuillConfigModule, QuillEditorComponent } from 'ngx-quill';
 import { EditJewelComponent } from './edit-jewel/edit-jewel.component';
+import { OwnersComponent } from './owners/owners.component';
+import { DeviceListComponent } from './device-list/device-list.component';
 
 @NgModule({
-  declarations: [AppComponent, MyJewelsComponent, AddJewelComponent],
+  declarations: [
+    AppComponent,
+    MyJewelsComponent,
+    AddJewelComponent,
+    EditJewelComponent,
+    DeviceListComponent,
+    OwnersComponent
+  ],
   imports: [
     ApiModule.forRoot({ rootUrl: '' }),
     BrowserModule,
@@ -30,6 +39,10 @@ import { EditJewelComponent } from './edit-jewel/edit-jewel.component';
         {
           component: MyJewelsComponent,
           path: 'my-jewels'
+        },
+        {
+          component: OwnersComponent,
+          path: 'owners'
         },
         {
           path: '**',
@@ -62,8 +75,7 @@ import { EditJewelComponent } from './edit-jewel/edit-jewel.component';
         ]
       }
     }),
-    QuillEditorComponent,
-    EditJewelComponent
+    QuillEditorComponent
   ],
   bootstrap: [AppComponent]
 })

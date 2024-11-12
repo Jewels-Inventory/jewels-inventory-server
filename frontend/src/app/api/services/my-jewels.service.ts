@@ -72,7 +72,7 @@ export class MyJewelsService extends BaseService {
   static readonly CreateMyJewelPath = '/api/my-jewel';
 
   /**
-   * Create new jewel.
+   * Creates a new jewel for the current user.
    *
    *
    *
@@ -86,7 +86,7 @@ export class MyJewelsService extends BaseService {
   }
 
   /**
-   * Create new jewel.
+   * Creates a new jewel for the current user.
    *
    *
    *

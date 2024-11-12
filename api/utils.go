@@ -1,11 +1,10 @@
 package api
 
 import (
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
+	"jewels/database"
 	"net/http"
 )
 
-func GetUserFromRequest(r *http.Request) *oauth.IntrospectionContext {
-	return authorization.Context[*oauth.IntrospectionContext](r.Context())
+func GetUserFromRequest(r *http.Request) *database.Owner {
+	return r.Context().Value("owner").(*database.Owner)
 }

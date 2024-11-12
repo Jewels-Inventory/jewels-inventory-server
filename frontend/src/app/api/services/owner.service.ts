@@ -13,18 +13,18 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { createNewDeviceForOwner } from '../fn/owner/create-new-device-for-owner';
 import { CreateNewDeviceForOwner$Params } from '../fn/owner/create-new-device-for-owner';
-import { deleteMyJewel_1 } from '../fn/owner/delete-my-jewel-1';
-import { DeleteMyJewel_1$Params } from '../fn/owner/delete-my-jewel-1';
+import { deleteJewelByOwner } from '../fn/owner/delete-jewel-by-owner';
+import { DeleteJewelByOwner$Params } from '../fn/owner/delete-jewel-by-owner';
 import { Device } from '../models/device';
 import { getAllOwners } from '../fn/owner/get-all-owners';
 import { GetAllOwners$Params } from '../fn/owner/get-all-owners';
+import { getJewelByOwner } from '../fn/owner/get-jewel-by-owner';
+import { GetJewelByOwner$Params } from '../fn/owner/get-jewel-by-owner';
 import { getJewelsByOwner } from '../fn/owner/get-jewels-by-owner';
 import { GetJewelsByOwner$Params } from '../fn/owner/get-jewels-by-owner';
-import { getMyJewel_1 } from '../fn/owner/get-my-jewel-1';
-import { GetMyJewel_1$Params } from '../fn/owner/get-my-jewel-1';
 import { Owner } from '../models/owner';
-import { updateMyJewel_1 } from '../fn/owner/update-my-jewel-1';
-import { UpdateMyJewel_1$Params } from '../fn/owner/update-my-jewel-1';
+import { updateJewelByOwner } from '../fn/owner/update-jewel-by-owner';
+import { UpdateJewelByOwner$Params } from '../fn/owner/update-jewel-by-owner';
 
 /**
  * Owner
@@ -143,8 +143,8 @@ export class OwnerService extends BaseService {
     );
   }
 
-  /** Path part for operation `getMyJewel_1()` */
-  static readonly GetMyJewel_1Path = '/api/admin/owner/{ownerId}/device/{deviceId}';
+  /** Path part for operation `getJewelByOwner()` */
+  static readonly GetJewelByOwnerPath = '/api/admin/owner/{ownerId}/device/{deviceId}';
 
   /**
    * Get jewel by id.
@@ -152,12 +152,15 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getMyJewel_1()` instead.
+   * To access only the response body, use `getJewelByOwner()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getMyJewel_1$Response(params: GetMyJewel_1$Params, context?: HttpContext): Observable<StrictHttpResponse<Device>> {
-    return getMyJewel_1(this.http, this.rootUrl, params, context);
+  getJewelByOwner$Response(
+    params: GetJewelByOwner$Params,
+    context?: HttpContext
+  ): Observable<StrictHttpResponse<Device>> {
+    return getJewelByOwner(this.http, this.rootUrl, params, context);
   }
 
   /**
@@ -166,16 +169,16 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getMyJewel_1$Response()` instead.
+   * To access the full response (for headers, for example), `getJewelByOwner$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  getMyJewel_1(params: GetMyJewel_1$Params, context?: HttpContext): Observable<Device> {
-    return this.getMyJewel_1$Response(params, context).pipe(map((r: StrictHttpResponse<Device>): Device => r.body));
+  getJewelByOwner(params: GetJewelByOwner$Params, context?: HttpContext): Observable<Device> {
+    return this.getJewelByOwner$Response(params, context).pipe(map((r: StrictHttpResponse<Device>): Device => r.body));
   }
 
-  /** Path part for operation `updateMyJewel_1()` */
-  static readonly UpdateMyJewel_1Path = '/api/admin/owner/{ownerId}/device/{deviceId}';
+  /** Path part for operation `updateJewelByOwner()` */
+  static readonly UpdateJewelByOwnerPath = '/api/admin/owner/{ownerId}/device/{deviceId}';
 
   /**
    * Update the given jewel.
@@ -183,15 +186,15 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `updateMyJewel_1()` instead.
+   * To access only the response body, use `updateJewelByOwner()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateMyJewel_1$Response(
-    params: UpdateMyJewel_1$Params,
+  updateJewelByOwner$Response(
+    params: UpdateJewelByOwner$Params,
     context?: HttpContext
   ): Observable<StrictHttpResponse<void>> {
-    return updateMyJewel_1(this.http, this.rootUrl, params, context);
+    return updateJewelByOwner(this.http, this.rootUrl, params, context);
   }
 
   /**
@@ -200,16 +203,16 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `updateMyJewel_1$Response()` instead.
+   * To access the full response (for headers, for example), `updateJewelByOwner$Response()` instead.
    *
    * This method sends `application/json` and handles request body of type `application/json`.
    */
-  updateMyJewel_1(params: UpdateMyJewel_1$Params, context?: HttpContext): Observable<void> {
-    return this.updateMyJewel_1$Response(params, context).pipe(map((r: StrictHttpResponse<void>): void => r.body));
+  updateJewelByOwner(params: UpdateJewelByOwner$Params, context?: HttpContext): Observable<void> {
+    return this.updateJewelByOwner$Response(params, context).pipe(map((r: StrictHttpResponse<void>): void => r.body));
   }
 
-  /** Path part for operation `deleteMyJewel_1()` */
-  static readonly DeleteMyJewel_1Path = '/api/admin/owner/{ownerId}/device/{deviceId}';
+  /** Path part for operation `deleteJewelByOwner()` */
+  static readonly DeleteJewelByOwnerPath = '/api/admin/owner/{ownerId}/device/{deviceId}';
 
   /**
    * Delete the given jewel.
@@ -217,15 +220,15 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `deleteMyJewel_1()` instead.
+   * To access only the response body, use `deleteJewelByOwner()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteMyJewel_1$Response(
-    params: DeleteMyJewel_1$Params,
+  deleteJewelByOwner$Response(
+    params: DeleteJewelByOwner$Params,
     context?: HttpContext
   ): Observable<StrictHttpResponse<void>> {
-    return deleteMyJewel_1(this.http, this.rootUrl, params, context);
+    return deleteJewelByOwner(this.http, this.rootUrl, params, context);
   }
 
   /**
@@ -234,11 +237,11 @@ export class OwnerService extends BaseService {
    *
    *
    * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `deleteMyJewel_1$Response()` instead.
+   * To access the full response (for headers, for example), `deleteJewelByOwner$Response()` instead.
    *
    * This method doesn't expect any request body.
    */
-  deleteMyJewel_1(params: DeleteMyJewel_1$Params, context?: HttpContext): Observable<void> {
-    return this.deleteMyJewel_1$Response(params, context).pipe(map((r: StrictHttpResponse<void>): void => r.body));
+  deleteJewelByOwner(params: DeleteJewelByOwner$Params, context?: HttpContext): Observable<void> {
+    return this.deleteJewelByOwner$Response(params, context).pipe(map((r: StrictHttpResponse<void>): void => r.body));
   }
 }

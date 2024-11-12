@@ -1,0 +1,15 @@
+<div class="cosmo-side-list">
+  <div class="cosmo-side-list__items">
+    @for (owner of owners; track owner) {
+      <a
+        (click)="selectOwner(owner)"
+        class="cosmo-side-list__item"
+        [class.is--active]="owner.id === selectedOwner?.id"
+        >{{ owner.name }}</a
+      >
+    }
+  </div>
+  <div class="cosmo-side-list__content">
+    <app-device-list />
+  </div>
+</div>

@@ -19,6 +19,7 @@ paths:
       tags:
         - my-jewels
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: getMyJewels
       summary: My Jewels
@@ -35,9 +36,10 @@ paths:
       tags:
         - my-jewels
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: createMyJewel
-      summary: Create new jewel
+      summary: Creates a new jewel for the current user
       requestBody:
         content:
           application/json:
@@ -45,7 +47,7 @@ paths:
               $ref: "#/components/schemas/CreateNewJewelBody"
       responses:
         201:
-          description: Created the new jewel successfully
+          description: Successfully created the jewel
           content:
             application/json:
               schema:
@@ -61,6 +63,7 @@ paths:
       tags:
         - my-jewels
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: getMyJewel
       summary: Get jewel by id
@@ -75,6 +78,7 @@ paths:
       tags:
         - my-jewels
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: updateMyJewel
       summary: Update the given jewel
@@ -90,6 +94,7 @@ paths:
       tags:
         - my-jewels
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: deleteMyJewel
       summary: Delete the given jewel
@@ -101,7 +106,8 @@ paths:
       tags:
         - devices
       security:
-        - ApiKey: []
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
       description: Send the automatic device information
       requestBody:
         required: true
@@ -118,28 +124,12 @@ paths:
         schema:
           $ref: "#/components/schemas/Type"
         required: true
-  /api/admin/device:
-    get:
-      tags:
-        - devices
-      security:
-        - BearerAuth: [ ]
-      operationId: getAllDevices
-      summary: Jewels of all owners
-      responses:
-        200:
-          description: All jewels of all owners
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Device"
   /api/admin/owner:
     get:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: getAllOwners
       summary: Gets all owners
@@ -163,6 +153,7 @@ paths:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: getJewelsByOwner
       summary: Gets jewels by owner
@@ -179,6 +170,7 @@ paths:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: createNewDeviceForOwner
       summary: Creates a new jewel for the onwer
@@ -210,8 +202,9 @@ paths:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
-      operationId: getMyJewel
+      operationId: getJewelByOwner
       summary: Get jewel by id
       responses:
         200:
@@ -224,8 +217,9 @@ paths:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
-      operationId: updateMyJewel
+      operationId: updateJewelByOwner
       summary: Update the given jewel
       requestBody:
         content:
@@ -239,8 +233,9 @@ paths:
       tags:
         - owner
       security:
+        - ApiKey: [ ]
         - BearerAuth: [ ]
-      operationId: deleteMyJewel
+      operationId: deleteJewelByOwner
       summary: Delete the given jewel
       responses:
         204:
@@ -401,18 +396,6 @@ components:
         - name
         - email
         - roles
-      type: object
-    Session:
-      additionalProperties: false
-      properties:
-        expires:
-          format: date-time
-          type: string
-        sessionToken:
-          type: string
-      required:
-        - expires
-        - sessionToken
       type: object
     Type:
       enum:

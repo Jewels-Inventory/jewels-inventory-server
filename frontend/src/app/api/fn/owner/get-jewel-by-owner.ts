@@ -10,24 +10,29 @@ import { RequestBuilder } from '../../request-builder';
 
 import { Device } from '../../models/device';
 
-export interface GetAllDevices$Params {}
+export interface GetJewelByOwner$Params {
+  ownerId: string;
+  deviceId: string;
+}
 
-export function getAllDevices(
+export function getJewelByOwner(
   http: HttpClient,
   rootUrl: string,
-  params?: GetAllDevices$Params,
+  params: GetJewelByOwner$Params,
   context?: HttpContext
-): Observable<StrictHttpResponse<Array<Device>>> {
-  const rb = new RequestBuilder(rootUrl, getAllDevices.PATH, 'get');
+): Observable<StrictHttpResponse<Device>> {
+  const rb = new RequestBuilder(rootUrl, getJewelByOwner.PATH, 'get');
   if (params) {
+    rb.path('ownerId', params.ownerId, {});
+    rb.path('deviceId', params.deviceId, {});
   }
 
   return http.request(rb.build({ responseType: 'json', accept: 'application/json', context })).pipe(
     filter((r: any): r is HttpResponse<any> => r instanceof HttpResponse),
     map((r: HttpResponse<any>) => {
-      return r as StrictHttpResponse<Array<Device>>;
+      return r as StrictHttpResponse<Device>;
     })
   );
 }
 
-getAllDevices.PATH = '/api/admin/device';
+getJewelByOwner.PATH = '/api/admin/owner/{ownerId}/device/{deviceId}';

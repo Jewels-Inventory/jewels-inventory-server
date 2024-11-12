@@ -26,15 +26,6 @@
           @if (authService.identityClaims['roles'].includes('admin')) {
             <a
               class="cosmo-menu__item"
-              routerLink="/devices"
-              routerLinkActive="is--active"
-              [routerLinkActiveOptions]="{ exact: false }"
-              #devicesMain="routerLinkActive"
-            >
-              Geräte
-            </a>
-            <a
-              class="cosmo-menu__item"
               routerLink="/owners"
               routerLinkActive="is--active"
               [routerLinkActiveOptions]="{ exact: false }"

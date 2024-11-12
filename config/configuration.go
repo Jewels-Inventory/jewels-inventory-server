@@ -13,6 +13,7 @@ type Configuration struct {
 	OidcServerClientId     string `env:"OIDC_SERVER_CLIENT_ID"`
 	OidcServerClientSecret string `env:"OIDC_SERVER_CLIENT_SECRET"`
 	ServerUrl              string `env:"SERVER_URL"`
+	SecretKey              string `env:"SECRET_KEY"`
 }
 
 func (c Configuration) GetRedirectUrl() string {

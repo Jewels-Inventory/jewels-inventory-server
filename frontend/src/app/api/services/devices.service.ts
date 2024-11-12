@@ -13,9 +13,6 @@ import { StrictHttpResponse } from '../strict-http-response';
 
 import { apiDeviceTypePost } from '../fn/devices/api-device-type-post';
 import { ApiDeviceTypePost$Params } from '../fn/devices/api-device-type-post';
-import { Device } from '../models/device';
-import { getAllDevices } from '../fn/devices/get-all-devices';
-import { GetAllDevices$Params } from '../fn/devices/get-all-devices';
 
 /**
  * Devices
@@ -54,41 +51,5 @@ export class DevicesService extends BaseService {
    */
   apiDeviceTypePost(params: ApiDeviceTypePost$Params, context?: HttpContext): Observable<void> {
     return this.apiDeviceTypePost$Response(params, context).pipe(map((r: StrictHttpResponse<void>): void => r.body));
-  }
-
-  /** Path part for operation `getAllDevices()` */
-  static readonly GetAllDevicesPath = '/api/admin/device';
-
-  /**
-   * Jewels of all owners.
-   *
-   *
-   *
-   * This method provides access to the full `HttpResponse`, allowing access to response headers.
-   * To access only the response body, use `getAllDevices()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getAllDevices$Response(
-    params?: GetAllDevices$Params,
-    context?: HttpContext
-  ): Observable<StrictHttpResponse<Array<Device>>> {
-    return getAllDevices(this.http, this.rootUrl, params, context);
-  }
-
-  /**
-   * Jewels of all owners.
-   *
-   *
-   *
-   * This method provides access only to the response body.
-   * To access the full response (for headers, for example), `getAllDevices$Response()` instead.
-   *
-   * This method doesn't expect any request body.
-   */
-  getAllDevices(params?: GetAllDevices$Params, context?: HttpContext): Observable<Array<Device>> {
-    return this.getAllDevices$Response(params, context).pipe(
-      map((r: StrictHttpResponse<Array<Device>>): Array<Device> => r.body)
-    );
   }
 }
