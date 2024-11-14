@@ -81,7 +81,6 @@ func main() {
 	migrate.DevicesToCollection()
 	migrate.CleanSessions()
 	migrate.RemoveOidcId()
-	migrate.CreateUniqueForJewels()
 
 	router := mux.NewRouter()
 

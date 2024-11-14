@@ -11,7 +11,7 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	vars := mux.Vars(r)
 
-	devices, err := database.FindJewelsByOwner(vars["ownerId"])
+	devices, err := database.FindJewels(vars["ownerId"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -23,7 +23,7 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 
 func deleteDevice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	err := database.DeleteMyJewel(vars["ownerId"], vars["deviceId"])
+	err := database.DeleteJewel(vars["ownerId"], vars["deviceId"])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -83,6 +83,30 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 	body.Id = vars["deviceId"]
 
 	err = database.UpdateJewel(vars["ownerId"], body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func pushDeviceData(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+
+	decoder := json.NewDecoder(r.Body)
+	var body database.Device
+
+	err := decoder.Decode(&body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	body.Type = database.DeviceType(vars["type"])
+	err = database.CreateOrUpdateJewel(GetUserFromRequest(r).Id, body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

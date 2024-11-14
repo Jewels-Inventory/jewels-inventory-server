@@ -14,7 +14,7 @@ const (
 )
 
 type Owner struct {
-	Id             *string  `json:"id" bson:"_id"`
+	Id             string   `json:"id" bson:"_id"`
 	Name           string   `json:"name"`
 	Email          string   `json:"email"`
 	Tokens         []string `json:"-" bson:"tokens"`
@@ -59,8 +59,8 @@ type OperatingSystem struct {
 }
 
 type Device struct {
+	Id           string           `json:"id" bson:"_id"`
 	OwnerId      string           `json:"-" bson:"ownerId"`
-	Id           string           `json:"id" bson:"id"`
 	Type         DeviceType       `json:"type"`
 	Hostname     *string          `json:"hostname,omitempty"`
 	Model        string           `json:"model"`

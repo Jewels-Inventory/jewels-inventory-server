@@ -75,9 +75,8 @@ func SetupApiRouter(router *mux.Router) {
 
 	devicesRouter.
 		Methods("POST").
-		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotImplemented)
-		}))
+		Path("/{type:(?:watch|computer|phone)}").
+		Handler(http.HandlerFunc(pushDeviceData))
 
 	myJewelsRouter.Use(login(), createOrFindUser, contentTypeJson)
 	adminRouter.Use(login("admin"), createOrFindUser, contentTypeJson)
