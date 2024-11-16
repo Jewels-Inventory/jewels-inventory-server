@@ -4,8 +4,51 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"jewels/database"
+	"log"
 	"net/http"
+	"strings"
+	"time"
 )
+
+func downloadAndUpdateDeviceEol(device database.Device) {
+	if strings.ToLower(device.Manufacturer) == "samsung" && device.Type != database.Computer && device.Type != database.Other {
+		res, err := http.Get("https://endoflife.date/api/samsung-mobile.json")
+		if err != nil {
+			return
+		}
+
+		type responseDevice struct {
+			Cycle string `json:"cycle"`
+			Eol   any    `json:"eol"`
+		}
+
+		decoder := json.NewDecoder(res.Body)
+		var devices []responseDevice
+		err = decoder.Decode(&devices)
+		if err != nil {
+			return
+		}
+
+		for _, d := range devices {
+			if strings.ToLower(d.Cycle) == strings.ToLower(device.Model) {
+				eolString, ok := d.Eol.(string)
+				if ok {
+					eol, err := time.Parse("2006-01-02", eolString)
+					if err != nil {
+						return
+					}
+
+					device.Eol = &eol
+					err = database.UpdateJewel(device.OwnerId, device)
+					if err != nil {
+						log.Println(err)
+						return
+					}
+				}
+			}
+		}
+	}
+}
 
 func getDevices(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
@@ -54,6 +97,8 @@ func createDevice(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		downloadAndUpdateDeviceEol(*device)
+
 		encoder := json.NewEncoder(w)
 		w.WriteHeader(http.StatusCreated)
 		encoder.Encode(device)
@@ -89,6 +134,11 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	jewel, err := database.FindJewelById(body.Id)
+	if err == nil && jewel != nil {
+		downloadAndUpdateDeviceEol(*jewel)
+	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -111,6 +161,11 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
+	}
+
+	jewel, err := database.FindJewelById(body.Id)
+	if err == nil && jewel != nil {
+		downloadAndUpdateDeviceEol(*jewel)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
