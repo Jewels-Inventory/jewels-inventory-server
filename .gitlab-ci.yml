@@ -30,6 +30,8 @@ build-angular:
 build:
   image: library/golang:1.23-alpine
   stage: build-golang
+  before_script:
+    - apk add npm
   script:
     - go vet .
     - go build -o $CI_PROJECT_DIR/jewels

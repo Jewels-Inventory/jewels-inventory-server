@@ -264,3 +264,5 @@ e2e/*.map
 # System Files
 .DS_Store/
 
+/mailing/admin.html
+/mailing/owner.html

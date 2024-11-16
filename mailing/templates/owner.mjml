@@ -1,0 +1,41 @@
+<mjml>
+    <mj-head>
+        <mj-title>
+            {{ .Title }}
+        </mj-title>
+        <mj-attributes>
+            <mj-all font-family="system-ui,-apple-system,'Segoe UI','Roboto','Ubuntu','Cantarell','Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'"/>
+            <mj-text font-weight="400" font-size="16px" color="#333333" line-height="24px"
+                     font-family="system-ui,-apple-system,'Segoe UI','Roboto','Ubuntu','Cantarell','Noto Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'"/>
+        </mj-attributes>
+    </mj-head>
+    <mj-body width="900px">
+        <mj-section background-url="cid:background" background-size="cover" background-repeat="no-repeat">
+            <mj-column>
+                <mj-image src="cid:logo" alt="" align="center" width="64px"/>
+            </mj-column>
+        </mj-section>
+        <mj-section background-color="#e3ede9">
+            <mj-column width="400px">
+                <mj-text font-size="20px" color="#333333">
+                    {{ .Title }}
+                </mj-text>
+                <mj-text>
+                    Hey {{ .Owner.Name }},
+                    <br>
+                    <br>
+                    dein {{ .Device.Manufacturer }} {{ .Device.Model }} bekommt am {{ .EolString }} das letzte Update.
+                </mj-text>
+                <mj-text>
+                    Damit dein neues Gerät wieder möglichst lange hält und dir viel Freude bereitet wende dich an
+                    {{ .AdminNames }}, um ein neues Gerät für dich zu finden 🙂
+                </mj-text>
+                <mj-text>
+                    Alles Gute und vergiss es nicht,
+                    <br>
+                    Dein Jewly der Jewels Bot
+                </mj-text>
+            </mj-column>
+        </mj-section>
+    </mj-body>
+</mjml>
