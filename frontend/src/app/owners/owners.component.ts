@@ -6,7 +6,8 @@ import { OwnerService } from '../api/services/owner.service';
 @Component({
   selector: 'app-owners',
   templateUrl: './owners.component.html',
-  styleUrl: './owners.component.scss'
+  styleUrl: './owners.component.scss',
+  standalone: false
 })
 export class OwnersComponent implements OnInit {
   @ViewChild(DeviceListComponent) protected deviceListComponent!: DeviceListComponent;

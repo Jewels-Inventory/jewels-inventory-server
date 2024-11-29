@@ -19,7 +19,8 @@ enum DetailsTab {
 @Component({
   selector: 'app-device-list',
   templateUrl: './device-list.component.html',
-  styleUrl: './device-list.component.scss'
+  styleUrl: './device-list.component.scss',
+  standalone: false
 })
 export class DeviceListComponent {
   protected owner: Owner | null = null;

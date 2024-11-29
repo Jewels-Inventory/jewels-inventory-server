@@ -28,7 +28,8 @@ export function requiredWithCondition(condition: (control: AbstractControl) => b
 @Component({
   selector: 'app-add-jewel',
   templateUrl: './add-jewel.component.html',
-  styleUrl: './add-jewel.component.scss'
+  styleUrl: './add-jewel.component.scss',
+  standalone: false
 })
 export class AddJewelComponent {
   @Output() public saveManual = new EventEmitter<Device>();

@@ -7,7 +7,8 @@ import { CpuManufacturer, requiredWithCondition } from '../add-jewel/add-jewel.c
 @Component({
   selector: 'app-edit-jewel',
   templateUrl: './edit-jewel.component.html',
-  styleUrl: './edit-jewel.component.scss'
+  styleUrl: './edit-jewel.component.scss',
+  standalone: false
 })
 export class EditJewelComponent {
   @Output() public save = new EventEmitter<Device>();
