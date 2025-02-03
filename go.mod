@@ -7,7 +7,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.1
 	github.com/wneessen/go-mail v0.6.1
-	github.com/zitadel/zitadel-go/v3 v3.3.3
+	github.com/zitadel/zitadel-go/v3 v3.4.0
 	go-simpler.org/env v0.12.0
 	go.mongodb.org/mongo-driver v1.17.2
 )
