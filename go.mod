@@ -1,13 +1,15 @@
 module jewels
 
-go 1.23.0
+go 1.23.7
+
+toolchain go1.24.1
 
 require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.9.1
 	github.com/wneessen/go-mail v0.6.2
-	github.com/zitadel/zitadel-go/v3 v3.4.3
+	github.com/zitadel/zitadel-go/v3 v3.5.0
 	go-simpler.org/env v0.12.0
 	go.mongodb.org/mongo-driver v1.17.3
 )
@@ -28,9 +30,9 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	github.com/zitadel/logging v0.6.1 // indirect
-	github.com/zitadel/oidc/v3 v3.36.0 // indirect
-	github.com/zitadel/schema v1.3.0 // indirect
+	github.com/zitadel/logging v0.6.2 // indirect
+	github.com/zitadel/oidc/v3 v3.37.0 // indirect
+	github.com/zitadel/schema v1.3.1 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.35.0 // indirect
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
