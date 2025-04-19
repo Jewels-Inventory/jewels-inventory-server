@@ -5,30 +5,30 @@ stages:
   - deploy
 
 lint-angular:
-  image: library/node:latest
+  image: oven/bun:latest
   stage: lint
   variables:
     ANGULAR_DIR: $CI_PROJECT_DIR/frontend
   script:
     - cd $ANGULAR_DIR
-    - npm install -f
-    - npm run lint
+    - bun install -f
+    - bun run lint
 
 build-angular:
-  image: library/node:latest
+  image: oven/bun:latest
   stage: build-angular
   variables:
     ANGULAR_DIR: $CI_PROJECT_DIR/frontend
   script:
     - cd $ANGULAR_DIR
-    - npm install -f
-    - npm run build
+    - bun install -f
+    - bun run build
   artifacts:
     paths:
       - $ANGULAR_DIR/dist
 
 build:
-  image: library/golang:1.23-alpine
+  image: library/golang:1.24-alpine
   stage: build-golang
   before_script:
     - apk add npm
