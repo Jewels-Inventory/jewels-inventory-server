@@ -90,6 +90,8 @@ github.com/zitadel/oidc/v3 v3.36.0 h1:C3vPUz37raRStanGztzzHufv73lvZfU1q2SSvPmhOc
 github.com/zitadel/oidc/v3 v3.36.0/go.mod h1:dApGZLvWZTHRuxmcbQlW5d2XVjVYR3vGOdq536igmTs=
 github.com/zitadel/oidc/v3 v3.37.0 h1:nYATWlnP7f18XiAbw6upUruBaqfB1kUrXrSTf1EYGO8=
 github.com/zitadel/oidc/v3 v3.37.0/go.mod h1:/xDan4OUQhguJ4Ur73OOJrtugvR164OMnidXP9xfVNw=
+github.com/zitadel/oidc/v3 v3.38.1 h1:VTf1Bv/33UbSwJnIWbfEIdpUGYKfoHetuBNIqVTcjvA=
+github.com/zitadel/oidc/v3 v3.38.1/go.mod h1:muukzAasaWmn3vBwEVMglJfuTE0PKCvLJGombPwXIRw=
 github.com/zitadel/schema v1.3.0 h1:kQ9W9tvIwZICCKWcMvCEweXET1OcOyGEuFbHs4o5kg0=
 github.com/zitadel/schema v1.3.0/go.mod h1:NptN6mkBDFvERUCvZHlvWmmME+gmZ44xzwRXwhzsbtc=
 github.com/zitadel/schema v1.3.1 h1:QT3kwiRIRXXLVAs6gCK/u044WmUVh6IlbLXUsn6yRQU=
