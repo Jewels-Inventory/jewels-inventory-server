@@ -20,65 +20,52 @@ func SetupApiRouter(router *mux.Router) {
 		Subrouter()
 
 	apiRouter.
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/healthz").
 		HandlerFunc(getHealth)
 
 	myJewelsRouter.
-		Methods("GET").
-		HandlerFunc(getMyJewels).
-		Handler(http.HandlerFunc(getMyJewels))
+		Methods(http.MethodGet).
+		HandlerFunc(getMyJewels)
 	myJewelsRouter.
-		Methods("GET").
-		Path("/{id}").
-		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotImplemented)
-		}))
+		Methods(http.MethodPost).
+		HandlerFunc(createMyJewel)
 	myJewelsRouter.
-		Methods("POST").
-		Handler(http.HandlerFunc(createMyJewel))
-	myJewelsRouter.
-		Methods("PUT").
+		Methods(http.MethodPut).
 		Path("/{jewel}").
-		Handler(http.HandlerFunc(updateMyJewel))
+		HandlerFunc(updateMyJewel)
 	myJewelsRouter.
-		Methods("DELETE").
+		Methods(http.MethodDelete).
 		Path("/{jewel}").
-		Handler(http.HandlerFunc(deleteMyJewel))
+		HandlerFunc(deleteMyJewel)
 
 	adminRouter.
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/owner").
-		Handler(http.HandlerFunc(getOwners))
+		HandlerFunc(getOwners)
 	adminRouter.
-		Methods("GET").
+		Methods(http.MethodGet).
 		Path("/owner/{ownerId}/device").
-		Handler(http.HandlerFunc(getDevices))
+		HandlerFunc(getDevices)
 	adminRouter.
-		Methods("POST").
+		Methods(http.MethodPost).
 		Path("/owner/{ownerId}/device").
-		Handler(http.HandlerFunc(createDevice))
+		HandlerFunc(createDevice)
 	adminRouter.
-		Methods("GET").
+		Methods(http.MethodPut).
 		Path("/owner/{ownerId}/device/{deviceId}").
-		Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotImplemented)
-		}))
+		HandlerFunc(updateDevice)
 	adminRouter.
-		Methods("PUT").
+		Methods(http.MethodDelete).
 		Path("/owner/{ownerId}/device/{deviceId}").
-		Handler(http.HandlerFunc(updateDevice))
-	adminRouter.
-		Methods("DELETE").
-		Path("/owner/{ownerId}/device/{deviceId}").
-		Handler(http.HandlerFunc(deleteDevice))
+		HandlerFunc(deleteDevice)
 
 	devicesRouter.
-		Methods("POST").
+		Methods(http.MethodPost).
 		Path("/{type:(?:watch|computer|phone)}").
-		Handler(http.HandlerFunc(pushDeviceData))
+		HandlerFunc(pushDeviceData)
 
-	myJewelsRouter.Use(login(), createOrFindUser, contentTypeJson)
-	adminRouter.Use(login("admin"), createOrFindUser, contentTypeJson)
-	devicesRouter.Use(login(), createOrFindUser, contentTypeJson)
+	myJewelsRouter.Use(login(false), createOrFindUser, contentTypeJson)
+	adminRouter.Use(login(true), createOrFindUser, contentTypeJson)
+	devicesRouter.Use(login(false), createOrFindUser, contentTypeJson)
 }

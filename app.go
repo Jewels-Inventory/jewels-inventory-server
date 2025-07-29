@@ -8,13 +8,15 @@ import (
 	"html/template"
 	"jewels/api"
 	"jewels/config"
-	"jewels/database/migrate"
+	"jewels/database"
 	"jewels/eol"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type SpaHandler struct {
@@ -26,8 +28,7 @@ type SpaHandler struct {
 }
 
 func (handler SpaHandler) serveTemplated(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err :=
-		template.ParseFS(handler.embedFS, handler.indexPath)
+	tmpl, err := template.ParseFS(handler.embedFS, handler.indexPath)
 	if err != nil {
 		http.Error(w, "Failed to get admin page", http.StatusInternalServerError)
 		return
@@ -127,14 +128,16 @@ func init() {
 }
 
 func main() {
+	log.Println("Loading configuration")
 	err := config.LoadConfiguration()
 	if err != nil {
 		panic(err)
 	}
 
-	migrate.DevicesToCollection()
-	migrate.CleanSessions()
-	migrate.RemoveOidcId()
+	log.Println("Preparing the database")
+	database.SetupDatabase()
+
+	defer database.GetDbMap().Db.Close()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
