@@ -9,6 +9,7 @@ import (
 	"jewels/api"
 	"jewels/config"
 	"jewels/database"
+	"jewels/database/mongo"
 	"jewels/eol"
 	"log"
 	"net/http"
@@ -122,9 +123,27 @@ var checkEolCmd = &cobra.Command{
 	},
 }
 
+var (
+	importFromMongoMongoUrl string
+	importFromMongoDatabase string
+)
+
+var importFromMongo = &cobra.Command{
+	Use:       "import-from-mongo",
+	Short:     "Imports all owners and their devices from a mongo database",
+	ValidArgs: []string{"mongo-url", "database"},
+	Run: func(cmd *cobra.Command, args []string) {
+		mongo.ImportFromMongoDb(importFromMongoMongoUrl, importFromMongoDatabase)
+	},
+}
+
 func init() {
+	importFromMongo.Flags().StringVarP(&importFromMongoMongoUrl, "mongo-url", "c", "", "The connection string to the mongo database")
+	importFromMongo.Flags().StringVarP(&importFromMongoDatabase, "database", "d", "", "The name of the database to import from")
+
 	rootCmd.AddCommand(serveCmd)
 	rootCmd.AddCommand(checkEolCmd)
+	rootCmd.AddCommand(importFromMongo)
 }
 
 func main() {

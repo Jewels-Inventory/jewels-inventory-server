@@ -1,6 +1,8 @@
 package database
 
 import (
+	"database/sql"
+	"errors"
 	"slices"
 )
 
@@ -13,7 +15,7 @@ func CreateOwnerIfNotExists(email, name, profilePicture string, roles []string) 
 	}
 
 	o, err := FindOwnerByEmail(email)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 

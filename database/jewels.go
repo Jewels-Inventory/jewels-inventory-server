@@ -1,34 +1,39 @@
 package database
 
-func fillJewel(device *Device) error {
+import (
+	"database/sql"
+	"errors"
+)
+
+func fillJewel(device *Device) (*Device, error) {
 	drives, err := Select[Drive](`select * from drives where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	cpu, err := SelectOne[*Cpu](`select * from cpus where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	bios, err := SelectOne[*Bios](`select * from bios where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	mainboard, err := SelectOne[*Mainboard](`select * from mainboards where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	kernel, err := SelectOne[*Kernel](`select * from kernels where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	operatingSystem, err := SelectOne[*OperatingSystem](`select * from operating_systems where device_id = $1`, device.Id)
-	if err != nil {
-		return err
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
 	device.Drives = drives
@@ -38,17 +43,22 @@ func fillJewel(device *Device) error {
 	device.Mainboard = mainboard
 	device.Kernel = kernel
 
-	return nil
+	return device, nil
 }
 
 func FindJewels(owner int64) ([]Device, error) {
 	jewels, err := Select[Device](`select * from devices where owner_id = $1`, owner)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	for _, jewel := range jewels {
-		return nil, fillJewel(&jewel)
+	for i, jewel := range jewels {
+		j, err := fillJewel(&jewel)
+		if err != nil {
+			return nil, err
+		}
+
+		jewels[i] = *j
 	}
 
 	return jewels, nil
@@ -60,7 +70,7 @@ func FindJewelById(id int64) (*Device, error) {
 		return nil, err
 	}
 
-	return &jewel, fillJewel(&jewel)
+	return fillJewel(&jewel)
 }
 
 func DeleteJewel(ownerId, jewel int64) error {
@@ -85,45 +95,55 @@ func CreateJewel(owner int64, device *Device) (*Device, error) {
 
 	for _, drive := range device.Drives {
 		drive.DeviceId = device.Id
-		err = tx.Insert(drive)
+		err = tx.Insert(&drive)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
 	}
 
-	device.Cpu.DeviceId = device.Id
-	err = tx.Insert(device.Cpu)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
+	if device.Cpu != nil {
+		device.Cpu.DeviceId = device.Id
+		err = tx.Insert(device.Cpu)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
-	device.Bios.DeviceId = device.Id
-	err = tx.Insert(device.Bios)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
+	if device.Bios != nil {
+		device.Bios.DeviceId = device.Id
+		err = tx.Insert(device.Bios)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
-	device.Mainboard.DeviceId = device.Id
-	err = tx.Insert(device.Mainboard)
-	if err != nil {
-		tx.Rollback()
+	if device.Mainboard != nil {
+		device.Mainboard.DeviceId = device.Id
+		err = tx.Insert(device.Mainboard)
+		if err != nil {
+			tx.Rollback()
+		}
 	}
 
-	device.Kernel.DeviceId = device.Id
-	err = tx.Insert(device.Kernel)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
+	if device.Kernel != nil {
+		device.Kernel.DeviceId = device.Id
+		err = tx.Insert(device.Kernel)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
-	device.Os.DeviceId = device.Id
-	err = tx.Insert(device.Os)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
+	if device.Os != nil {
+		device.Os.DeviceId = device.Id
+		err = tx.Insert(device.Os)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	}
 
 	return device, tx.Commit()
@@ -154,49 +174,59 @@ func UpdateJewel(owner int64, device *Device) error {
 
 	for _, drive := range device.Drives {
 		drive.DeviceId = device.Id
-		_, err = tx.Update(drive)
+		_, err = tx.Update(&drive)
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 
-	_, err = tx.Update(device.Cpu)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if device.Cpu != nil {
+		_, err = tx.Update(device.Cpu)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
-	_, err = tx.Update(device.Bios)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if device.Bios != nil {
+		_, err = tx.Update(device.Bios)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
-	_, err = tx.Update(device.Mainboard)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if device.Mainboard != nil {
+		_, err = tx.Update(device.Mainboard)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
-	_, err = tx.Update(device.Kernel)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if device.Kernel != nil {
+		_, err = tx.Update(device.Kernel)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
-	_, err = tx.Update(device.Os)
-	if err != nil {
-		tx.Rollback()
-		return err
+	if device.Os != nil {
+		_, err = tx.Update(device.Os)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()
 }
 
 func CreateOrUpdateJewel(owner int64, device *Device) error {
-	count, err := GetDbMap().SelectInt("select count(*) from devices where owner = $1 and id = $2", owner, device.Id)
-	if err != nil {
+	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and id = $2", owner, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
 
