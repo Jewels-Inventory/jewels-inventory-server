@@ -8,13 +8,16 @@ import (
 	"html/template"
 	"jewels/api"
 	"jewels/config"
-	"jewels/database/migrate"
+	"jewels/database"
+	"jewels/database/mongo"
 	"jewels/eol"
 	"log"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 type SpaHandler struct {
@@ -26,8 +29,7 @@ type SpaHandler struct {
 }
 
 func (handler SpaHandler) serveTemplated(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err :=
-		template.ParseFS(handler.embedFS, handler.indexPath)
+	tmpl, err := template.ParseFS(handler.embedFS, handler.indexPath)
 	if err != nil {
 		http.Error(w, "Failed to get admin page", http.StatusInternalServerError)
 		return
@@ -121,20 +123,40 @@ var checkEolCmd = &cobra.Command{
 	},
 }
 
+var (
+	importFromMongoMongoUrl string
+	importFromMongoDatabase string
+)
+
+var importFromMongo = &cobra.Command{
+	Use:       "import-from-mongo",
+	Short:     "Imports all owners and their devices from a mongo database",
+	ValidArgs: []string{"mongo-url", "database"},
+	Run: func(cmd *cobra.Command, args []string) {
+		mongo.ImportFromMongoDb(importFromMongoMongoUrl, importFromMongoDatabase)
+	},
+}
+
 func init() {
+	importFromMongo.Flags().StringVarP(&importFromMongoMongoUrl, "mongo-url", "c", "", "The connection string to the mongo database")
+	importFromMongo.Flags().StringVarP(&importFromMongoDatabase, "database", "d", "", "The name of the database to import from")
+
 	rootCmd.AddCommand(serveCmd)
 	rootCmd.AddCommand(checkEolCmd)
+	rootCmd.AddCommand(importFromMongo)
 }
 
 func main() {
+	log.Println("Loading configuration")
 	err := config.LoadConfiguration()
 	if err != nil {
 		panic(err)
 	}
 
-	migrate.DevicesToCollection()
-	migrate.CleanSessions()
-	migrate.RemoveOidcId()
+	log.Println("Preparing the database")
+	database.SetupDatabase()
+
+	defer database.GetDbMap().Db.Close()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)

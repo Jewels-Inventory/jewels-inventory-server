@@ -6,6 +6,7 @@ import (
 	"jewels/database"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -39,7 +40,7 @@ func downloadAndUpdateDeviceEol(device database.Device) {
 					}
 
 					device.Eol = &eol
-					err = database.UpdateJewel(device.OwnerId, device)
+					err = database.UpdateJewel(device.OwnerId, &device)
 					if err != nil {
 						log.Println(err)
 						return
@@ -54,7 +55,14 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 	vars := mux.Vars(r)
 
-	devices, err := database.FindJewels(vars["ownerId"])
+	ownerId, err := strconv.Atoi(vars["ownerId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	devices, err := database.FindJewels(int64(ownerId))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -66,7 +74,22 @@ func getDevices(w http.ResponseWriter, r *http.Request) {
 
 func deleteDevice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	err := database.DeleteJewel(vars["ownerId"], vars["deviceId"])
+
+	ownerId, err := strconv.Atoi(vars["ownerId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	deviceId, err := strconv.Atoi(vars["deviceId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = database.DeleteJewel(int64(ownerId), int64(deviceId))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -76,13 +99,21 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 
 func createDevice(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+
+	ownerId, err := strconv.Atoi(vars["ownerId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	var body struct {
 		Device database.Device `json:"jewel,omitempty"`
 		Mode   string          `json:"mode"`
 		Token  string          `json:"token,omitempty"`
 	}
-	err := decoder.Decode(&body)
+	err = decoder.Decode(&body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -90,7 +121,7 @@ func createDevice(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.Mode == "manual" {
-		device, err := database.CreateJewel(vars["ownerId"], body.Device)
+		device, err := database.CreateJewel(int64(ownerId), &body.Device)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -103,7 +134,7 @@ func createDevice(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 		encoder.Encode(device)
 	} else if body.Mode == "auto" {
-		err = database.CreateToken(vars["ownerId"], body.Token)
+		err = database.CreateToken(int64(ownerId), body.Token)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -125,9 +156,23 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body.Id = vars["deviceId"]
+	deviceId, err := strconv.Atoi(vars["deviceId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
 
-	err = database.UpdateJewel(vars["ownerId"], body)
+	ownerId, err := strconv.Atoi(vars["ownerId"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	body.Id = int64(deviceId)
+
+	err = database.UpdateJewel(int64(ownerId), &body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -156,7 +201,7 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	body.Type = database.DeviceType(vars["type"])
-	err = database.CreateOrUpdateJewel(GetUserFromRequest(r).Id, body)
+	err = database.CreateOrUpdateJewel(getUserFromRequest(r).Id, &body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

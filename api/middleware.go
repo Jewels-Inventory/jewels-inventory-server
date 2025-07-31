@@ -9,7 +9,6 @@ import (
 	"jewels/config"
 	"jewels/database"
 	"net/http"
-	"slices"
 	"strings"
 )
 
@@ -27,7 +26,7 @@ func contentTypeJson(next http.Handler) http.Handler {
 	})
 }
 
-func getZitadelMiddleware(roles ...string) func(http.Handler) http.Handler {
+func getZitadelMiddleware(needsAdmin bool) func(http.Handler) http.Handler {
 	ctx := context.Background()
 
 	zitadelConfig := oauth.WithIntrospection[*oauth.IntrospectionContext](oauth.ClientIDSecretIntrospectionAuthentication(config.LoadedConfiguration.OidcServerClientId, config.LoadedConfiguration.OidcServerClientSecret))
@@ -39,15 +38,15 @@ func getZitadelMiddleware(roles ...string) func(http.Handler) http.Handler {
 
 	mw := middleware.New(authZ)
 
-	roleChecks := make([]authorization.CheckOption, len(roles))
-	for i, role := range roles {
-		roleChecks[i] = authorization.WithRole(role)
+	roleChecks := make([]authorization.CheckOption, 0)
+	if needsAdmin {
+		roleChecks = append(roleChecks, authorization.WithRole("admin"))
 	}
 
 	return mw.RequireAuthorization(roleChecks...)
 }
 
-func login(roles ...string) func(next http.Handler) http.Handler {
+func login(needsAdmin bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			bearerToken := r.Header.Get("Authorization")
@@ -58,15 +57,11 @@ func login(roles ...string) func(next http.Handler) http.Handler {
 
 			owner, err := getOwnerFromToken(r)
 			if err != nil {
-				getZitadelMiddleware(roles...)(next).ServeHTTP(w, r)
+				getZitadelMiddleware(needsAdmin)(next).ServeHTTP(w, r)
 				return
 			}
 
-			allowed := len(roles) == 0 || slices.ContainsFunc(owner.Roles, func(role string) bool {
-				return slices.Contains(roles, role)
-			})
-
-			if !allowed {
+			if needsAdmin && !owner.IsAdmin {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}

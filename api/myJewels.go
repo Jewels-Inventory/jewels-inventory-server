@@ -5,12 +5,13 @@ import (
 	"github.com/gorilla/mux"
 	"jewels/database"
 	"net/http"
+	"strconv"
 )
 
 func getMyJewels(w http.ResponseWriter, r *http.Request) {
 	encoder := json.NewEncoder(w)
 
-	devices, err := database.FindJewels(GetUserFromRequest(r).Id)
+	devices, err := database.FindJewels(getUserFromRequest(r).Id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -22,7 +23,15 @@ func getMyJewels(w http.ResponseWriter, r *http.Request) {
 
 func deleteMyJewel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	err := database.DeleteJewel(GetUserFromRequest(r).Id, vars["jewel"])
+
+	jewelId, err := strconv.Atoi(vars["jewel"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = database.DeleteJewel(getUserFromRequest(r).Id, int64(jewelId))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -45,7 +54,7 @@ func createMyJewel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if body.Mode == "manual" {
-		device, err := database.CreateJewel(GetUserFromRequest(r).Id, body.Device)
+		device, err := database.CreateJewel(getUserFromRequest(r).Id, &body.Device)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -56,7 +65,7 @@ func createMyJewel(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusCreated)
 		encoder.Encode(device)
 	} else if body.Mode == "auto" {
-		err = database.CreateToken(GetUserFromRequest(r).Id, body.Token)
+		err = database.CreateToken(getUserFromRequest(r).Id, body.Token)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -78,9 +87,15 @@ func updateMyJewel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body.Id = vars["jewel"]
+	jewelId, err := strconv.Atoi(vars["jewel"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	body.Id = int64(jewelId)
 
-	err = database.UpdateJewel(GetUserFromRequest(r).Id, body)
+	err = database.UpdateJewel(getUserFromRequest(r).Id, &body)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

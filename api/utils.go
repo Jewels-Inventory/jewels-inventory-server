@@ -5,6 +5,6 @@ import (
 	"net/http"
 )
 
-func GetUserFromRequest(r *http.Request) *database.Owner {
+func getUserFromRequest(r *http.Request) *database.Owner {
 	return r.Context().Value("owner").(*database.Owner)
 }

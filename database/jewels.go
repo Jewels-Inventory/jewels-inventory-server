@@ -1,179 +1,239 @@
 package database
 
 import (
+	"database/sql"
 	"errors"
-	"github.com/google/uuid"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var ErrNotSameOwner = errors.New("device has different owner")
-
-func FindJewels(owner string) ([]Device, error) {
-	client, err := OpenConnection()
-	if err != nil {
+func fillJewel(device *Device) (*Device, error) {
+	drives, err := Select[Drive](`select * from drives where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	deviceCollection := GetDevicesCollection(client)
-	cursor, err := deviceCollection.Find(ctx, bson.M{"ownerId": owner})
-	if err != nil {
+	cpu, err := SelectOne[*Cpu](`select * from cpus where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	var devices []Device
-	err = cursor.All(ctx, &devices)
-	if err != nil {
+	bios, err := SelectOne[*Bios](`select * from bios where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	return devices, nil
-}
-
-func FindJewelById(id string) (*Device, error) {
-	client, err := OpenConnection()
-	if err != nil {
+	mainboard, err := SelectOne[*Mainboard](`select * from mainboards where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	deviceCollection := GetDevicesCollection(client)
-	result := deviceCollection.FindOne(ctx, bson.M{"_id": id})
-	if result.Err() != nil {
+	kernel, err := SelectOne[*Kernel](`select * from kernels where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	device := new(Device)
-	err = result.Decode(device)
-	if err != nil {
+	operatingSystem, err := SelectOne[*OperatingSystem](`select * from operating_systems where device_id = $1`, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
+
+	device.Drives = drives
+	device.Cpu = cpu
+	device.Os = operatingSystem
+	device.Bios = bios
+	device.Mainboard = mainboard
+	device.Kernel = kernel
 
 	return device, nil
 }
 
-func DeleteJewel(owner, jewel string) error {
-	client, err := OpenConnection()
-	if err != nil {
-		return err
+func FindJewels(owner int64) ([]Device, error) {
+	jewels, err := Select[Device](`select * from devices where owner_id = $1`, owner)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, err
 	}
 
-	defer CloseConnection(client)
+	for i, jewel := range jewels {
+		j, err := fillJewel(&jewel)
+		if err != nil {
+			return nil, err
+		}
 
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
+		jewels[i] = *j
+	}
 
-	deviceCollection := GetDevicesCollection(client)
-	_, err = deviceCollection.DeleteOne(ctx, bson.M{"ownerId": owner, "_id": jewel})
-
-	return err
+	return jewels, nil
 }
 
-func CreateJewel(owner string, device Device) (*Device, error) {
-	client, err := OpenConnection()
+func FindJewelById(id int64) (*Device, error) {
+	jewel, err := SelectOne[Device](`select * from devices where id = $1`, id)
 	if err != nil {
 		return nil, err
 	}
 
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	deviceCollection := GetDevicesCollection(client)
-	if device.Id == "" {
-		device.Id = uuid.New().String()
-	}
-
-	device.OwnerId = owner
-	_, err = deviceCollection.InsertOne(ctx, device)
-
-	return &device, err
+	return fillJewel(&jewel)
 }
 
-func CreateToken(owner, token string) error {
-	client, err := OpenConnection()
-	if err != nil {
-		return err
-	}
-
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	ownerCollection := GetOwnersCollection(client)
-	_, err = ownerCollection.UpdateOne(ctx, bson.M{"_id": owner}, bson.M{"$push": bson.M{"tokens": token}})
+func DeleteJewel(ownerId, jewel int64) error {
+	_, err := GetDbMap().Exec(`delete from devices where owner_id = $1 and id = $2`, ownerId, jewel)
 
 	return err
 }
 
-func UpdateJewel(owner string, device Device) error {
-	client, err := OpenConnection()
+func CreateJewel(owner int64, device *Device) (*Device, error) {
+	tx, err := GetDbMap().Begin()
 	if err != nil {
-		return err
-	}
-
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	deviceCollection := GetDevicesCollection(client)
-	if device.Id == "" {
-		device.Id = uuid.New().String()
-	}
-
-	if checkJewelOwnerById(owner, device.Id) {
-		return ErrNotSameOwner
+		return nil, err
 	}
 
 	device.OwnerId = owner
 
-	_, err = deviceCollection.UpdateOne(ctx, bson.M{"_id": device.Id, "ownerId": device.OwnerId}, bson.M{"$set": device})
+	err = tx.Insert(device)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 
-	return err
+	for _, drive := range device.Drives {
+		drive.DeviceId = device.Id
+		err = tx.Insert(&drive)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if device.Cpu != nil {
+		device.Cpu.DeviceId = device.Id
+		err = tx.Insert(device.Cpu)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if device.Bios != nil {
+		device.Bios.DeviceId = device.Id
+		err = tx.Insert(device.Bios)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if device.Mainboard != nil {
+		device.Mainboard.DeviceId = device.Id
+		err = tx.Insert(device.Mainboard)
+		if err != nil {
+			tx.Rollback()
+		}
+	}
+
+	if device.Kernel != nil {
+		device.Kernel.DeviceId = device.Id
+		err = tx.Insert(device.Kernel)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if device.Os != nil {
+		device.Os.DeviceId = device.Id
+		err = tx.Insert(device.Os)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	return device, tx.Commit()
 }
 
-func CreateOrUpdateJewel(owner string, device Device) error {
-	jewel, err := FindJewelById(device.Id)
-	if (err != nil && errors.Is(err, mongo.ErrNoDocuments)) || jewel == nil {
+func CreateToken(owner int64, token string) error {
+	authToken := OwnerAuthToken{
+		OwnerId: owner,
+		Token:   token,
+	}
+
+	return GetDbMap().Insert(&authToken)
+}
+
+func UpdateJewel(owner int64, device *Device) error {
+	device.OwnerId = owner
+
+	tx, err := GetDbMap().Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Update(device)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, drive := range device.Drives {
+		drive.DeviceId = device.Id
+		_, err = tx.Update(&drive)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if device.Cpu != nil {
+		_, err = tx.Update(device.Cpu)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if device.Bios != nil {
+		_, err = tx.Update(device.Bios)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if device.Mainboard != nil {
+		_, err = tx.Update(device.Mainboard)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if device.Kernel != nil {
+		_, err = tx.Update(device.Kernel)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if device.Os != nil {
+		_, err = tx.Update(device.Os)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
+}
+
+func CreateOrUpdateJewel(owner int64, device *Device) error {
+	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and id = $2", owner, device.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+
+	if count == 0 {
 		_, err = CreateJewel(owner, device)
 		return err
-	} else if err != nil {
-		return err
-	}
-
-	if jewel.OwnerId != owner {
-		return ErrNotSameOwner
 	}
 
 	return UpdateJewel(owner, device)
-}
-
-func checkJewelOwnerById(ownerId, deviceId string) bool {
-	client, err := OpenConnection()
-	if err != nil {
-		return false
-	}
-
-	defer CloseConnection(client)
-
-	ctx, cancelFunc := GetContext()
-	defer cancelFunc()
-
-	deviceCollection := GetDevicesCollection(client)
-	count, err := deviceCollection.CountDocuments(ctx, bson.M{"ownerId": ownerId, "_id": deviceId}, options.Count().SetLimit(1))
-
-	return count > 0 && err != nil
 }

@@ -1,0 +1,419 @@
+openapi: 3.1.0
+info:
+  title: Jewels Server
+  description: Jewels Server
+  version: 3.0.0
+servers:
+  - url: 'https://jewels.ulbricht.cloud'
+  - url: 'http://localhost:8090'
+tags:
+  - name: my-jewels
+    description: My Jewels
+  - name: devices
+    description: Devices
+  - name: owner
+    description: Owner
+paths:
+  /api/my-jewel:
+    get:
+      tags:
+        - my-jewels
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getMyJewels
+      summary: My Jewels
+      responses:
+        200:
+          description: All jewels of the current user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      tags:
+        - my-jewels
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: createMyJewel
+      summary: Creates a new jewel for the current user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNewJewelBody"
+      responses:
+        201:
+          description: Successfully created the jewel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+  /api/my-jewel/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: number
+        required: true
+    get:
+      tags:
+        - my-jewels
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getMyJewel
+      summary: Get jewel by id
+      responses:
+        200:
+          description: The jewel with the given id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+    put:
+      tags:
+        - my-jewels
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: updateMyJewel
+      summary: Update the given jewel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Device"
+      responses:
+        204:
+          description: Successfully updated the jewel
+    delete:
+      tags:
+        - my-jewels
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: deleteMyJewel
+      summary: Delete the given jewel
+      responses:
+        204:
+          description: Successfully deleted the jewel
+  /api/device/{type}:
+    post:
+      tags:
+        - devices
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      description: Send the automatic device information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Device"
+      responses:
+        204:
+          description: Successfully updated the device
+    parameters:
+      - in: path
+        name: type
+        schema:
+          $ref: "#/components/schemas/Type"
+        required: true
+  /api/admin/owner:
+    get:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getAllOwners
+      summary: Gets all owners
+      responses:
+        200:
+          description: All owners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Owner"
+  /api/admin/owner/{ownerId}/device:
+    parameters:
+      - in: path
+        name: ownerId
+        schema:
+          type: number
+        required: true
+    get:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getJewelsByOwner
+      summary: Gets jewels by owner
+      responses:
+        200:
+          description: All jewels for the given owner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Device"
+    post:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: createNewDeviceForOwner
+      summary: Creates a new jewel for the onwer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNewJewelBody"
+      responses:
+        201:
+          description: Successfully created the jewel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+  /api/admin/owner/{ownerId}/device/{deviceId}:
+    parameters:
+      - in: path
+        name: ownerId
+        schema:
+          type: number
+        required: true
+      - in: path
+        name: deviceId
+        schema:
+          type: number
+        required: true
+    get:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getJewelByOwner
+      summary: Get jewel by id
+      responses:
+        200:
+          description: The jewel with the given id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+    put:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: updateJewelByOwner
+      summary: Update the given jewel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Device"
+      responses:
+        204:
+          description: Successfully updated the jewel
+    delete:
+      tags:
+        - owner
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: deleteJewelByOwner
+      summary: Delete the given jewel
+      responses:
+        204:
+          description: Successfully deleted the jewel
+components:
+  securitySchemes:
+    ApiKey:
+      type: http
+      scheme: Bearer
+    BearerAuth:
+      type: http
+      scheme: Bearer
+  schemas:
+    Bios:
+      additionalProperties: false
+      properties:
+        manufacturer:
+          type: string
+        version:
+          type: string
+      required:
+        - manufacturer
+        - version
+      type: object
+    Cpu:
+      additionalProperties: false
+      properties:
+        cores:
+          type: number
+        manufacturer:
+          type: string
+        model:
+          type: string
+        speed:
+          type: number
+        threads:
+          type: number
+      required:
+        - manufacturer
+        - model
+        - speed
+        - cores
+        - threads
+      type: object
+    Device:
+      additionalProperties: false
+      properties:
+        bios:
+          $ref: '#/components/schemas/Bios'
+        cpu:
+          $ref: '#/components/schemas/Cpu'
+        drives:
+          items:
+            $ref: '#/components/schemas/Drive'
+          type: array
+        eol:
+          anyOf:
+            - format: date-time
+              type: string
+        hostname:
+          type: string
+        id:
+          type: number
+        kernel:
+          $ref: '#/components/schemas/Kernel'
+        mainboard:
+          $ref: '#/components/schemas/Mainboard'
+        manufacturer:
+          type: string
+        model:
+          type: string
+        os:
+          $ref: '#/components/schemas/OperatingSystem'
+        ram:
+          type: number
+        storage:
+          type: number
+        notes:
+          type: string
+        type:
+          $ref: '#/components/schemas/Type'
+      required:
+        - type
+        - model
+        - manufacturer
+      type: object
+    Drive:
+      additionalProperties: false
+      properties:
+        manufacturer:
+          type: string
+        model:
+          type: string
+        name:
+          type: string
+        size:
+          type: number
+      required:
+        - id
+        - name
+        - manufacturer
+        - model
+        - size
+      type: object
+    Kernel:
+      additionalProperties: false
+      properties:
+        architecture:
+          type: string
+        version:
+          type: string
+      required:
+        - version
+        - architecture
+      type: object
+    Mainboard:
+      additionalProperties: false
+      properties:
+        manufacturer:
+          type: string
+        model:
+          type: string
+        version:
+          type: string
+      required:
+        - manufacturer
+        - version
+        - model
+      type: object
+    OperatingSystem:
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+      required:
+        - version
+        - name
+      type: object
+    Owner:
+      additionalProperties: false
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        name:
+          type: string
+        profilePicture:
+          type: string
+        roles:
+          items:
+            type: string
+          type: array
+      required:
+        - id
+        - name
+        - email
+        - roles
+      type: object
+    Type:
+      enum:
+        - phone
+        - computer
+        - watch
+        - other
+      type: string
+    CreateNewJewelBody:
+      properties:
+        mode:
+          type: string
+          enum:
+            - auto
+            - manual
+        token:
+          type: string
+        jewel:
+          $ref: "#/components/schemas/Device"
+      required:
+        - mode

@@ -6,3 +6,12 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: jewels
       MONGO_INITDB_ROOT_PASSWORD: jewels
+  jewels-postgres:
+    image: library/postgres:17-alpine
+    ports:
+      - 5431:5432
+    environment:
+      POSTGRES_DB: jewels
+      POSTGRES_PASSWORD: jewels
+      POSTGRES_ROOT_PASSWORD: jewels
+      POSTGRES_USER: jewels
