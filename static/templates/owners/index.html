@@ -108,7 +108,8 @@
                     </a>
                   </template>
                   <template
-                    x-if="selectedJewel.cpu?.cores || selectedJewel.ram || selectedJewel.mainboard || selectedJewel.bios">
+                    x-if="selectedJewel.cpu?.cores || selectedJewel.ram || selectedJewel.mainboard || selectedJewel.bios"
+                  >
                     <a
                       class="cosmo-tab__link"
                       :class="{ 'is--active': detailsTab === 'hardware' }"
@@ -302,18 +303,25 @@
             <template x-if="addJewel.hasError">
               <div class="cosmo-message is--negative">
                 <span class="cosmo-message__header">Fehler beim Hinzufügen</span>
-                <p>Leider konnte dein neues Gerät nicht hinzugefügt werden. Bitte wende dich an deinen
-                  Administrator.</p>
+                <p>
+                  Leider konnte dein neues Gerät nicht hinzugefügt werden. Bitte wende dich an deinen Administrator.
+                </p>
               </div>
             </template>
             <div class="cosmo-tab">
               <div class="cosmo-tab__links">
-                <a class="cosmo-tab__link" :class="{ 'is--active': addJewel.mode === 'auto' }"
-                   @click="addJewel.mode = 'auto'">
+                <a
+                  class="cosmo-tab__link"
+                  :class="{ 'is--active': addJewel.mode === 'auto' }"
+                  @click="addJewel.mode = 'auto'"
+                >
                   Automatisch
                 </a>
-                <a class="cosmo-tab__link" :class="{ 'is--active': addJewel.mode === 'manual' }"
-                   @click="addJewel.mode = 'manual'">
+                <a
+                  class="cosmo-tab__link"
+                  :class="{ 'is--active': addJewel.mode === 'manual' }"
+                  @click="addJewel.mode = 'manual'"
+                >
                   Von Hand
                 </a>
               </div>
@@ -342,10 +350,22 @@
                       </div>
                       <div class="cosmo-input__group">
                         <label class="cosmo-label" for="tokenUrl">Url</label>
-                        <input class="cosmo-input" type="text" readonly id="tokenUrl" x-model="addJewel.automatic.host">
+                        <input
+                          class="cosmo-input"
+                          type="text"
+                          readonly
+                          id="tokenUrl"
+                          x-model="addJewel.automatic.host"
+                        />
                         <label class="cosmo-label" for="token">Token</label>
-                        <input class="cosmo-input" type="text" readonly id="token" name="token"
-                               x-model="addJewel.automatic.token">
+                        <input
+                          class="cosmo-input"
+                          type="text"
+                          readonly
+                          id="token"
+                          name="token"
+                          x-model="addJewel.automatic.token"
+                        />
                       </div>
                     </div>
                   </div>
@@ -362,15 +382,25 @@
                     <template x-if="addJewel.jewel.type === 'computer'">
                       <div style="display: contents">
                         <label for="hostname" class="cosmo-label">Name</label>
-                        <input id="hostname" class="cosmo-input" type="text" x-model="addJewel.jewel.hostname"
-                               required />
+                        <input
+                          id="hostname"
+                          class="cosmo-input"
+                          type="text"
+                          x-model="addJewel.jewel.hostname"
+                          required
+                        />
                       </div>
                     </template>
                     <label for="model" class="cosmo-label">Model</label>
                     <input id="model" class="cosmo-input" type="text" x-model="addJewel.jewel.model" required />
                     <label for="manufacturer" class="cosmo-label">Hersteller</label>
-                    <input id="manufacturer" class="cosmo-input" type="text" x-model="addJewel.jewel.manufacturer"
-                           required />
+                    <input
+                      id="manufacturer"
+                      class="cosmo-input"
+                      type="text"
+                      x-model="addJewel.jewel.manufacturer"
+                      required
+                    />
                     <template x-if="addJewel.jewel.type === 'computer' || addJewel.jewel.type === 'phone'">
                       <div style="display: contents">
                         <label for="operatingSystem" class="cosmo-label">Betriebssystem</label>
@@ -391,7 +421,8 @@
                       </div>
                     </template>
                     <template
-                      x-if="addJewel.jewel.type === 'computer' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'">
+                      x-if="addJewel.jewel.type === 'computer' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'"
+                    >
                       <div style="display: contents">
                         <label for="storage" class="cosmo-label">Speicherplatz in GB</label>
                         <input
@@ -417,27 +448,50 @@
                       <div style="display: contents">
                         <span class="cosmo-input__header">Prozessor</span>
                         <label for="cpuManufacturer" class="cosmo-label">Hersteller</label>
-                        <select id="cpuManufacturer" class="cosmo-select" x-model="addJewel.jewel.cpu.manufacturer"
-                                required>
+                        <select
+                          id="cpuManufacturer"
+                          class="cosmo-select"
+                          x-model="addJewel.jewel.cpu.manufacturer"
+                          required
+                        >
                           <option value="Intel">Intel</option>
                           <option value="AMD">AMD</option>
                         </select>
                         <label for="cpuModel" class="cosmo-label">Model</label>
-                        <input id="cpuModel" class="cosmo-input" type="text" x-model="addJewel.jewel.cpu.model"
-                               required />
+                        <input
+                          id="cpuModel"
+                          class="cosmo-input"
+                          type="text"
+                          x-model="addJewel.jewel.cpu.model"
+                          required
+                        />
                         <label for="cpuSpeed" class="cosmo-label">Geschwindigkeit in GHz</label>
-                        <input id="cpuSpeed" class="cosmo-input" type="number" x-model.number="addJewel.jewel.cpu.speed"
-                               step="0.01" />
+                        <input
+                          id="cpuSpeed"
+                          class="cosmo-input"
+                          type="number"
+                          x-model.number="addJewel.jewel.cpu.speed"
+                          step="0.01"
+                        />
                         <label for="cpuCores" class="cosmo-label">Kerne</label>
-                        <input id="cpuCores" class="cosmo-input" type="number"
-                               x-model.number="addJewel.jewel.cpu.cores" />
+                        <input
+                          id="cpuCores"
+                          class="cosmo-input"
+                          type="number"
+                          x-model.number="addJewel.jewel.cpu.cores"
+                        />
                         <label for="cpuThreads" class="cosmo-label">Threads</label>
-                        <input id="cpuThreads" class="cosmo-input" type="number"
-                               x-model.number="addJewel.jewel.cpu.threads" />
+                        <input
+                          id="cpuThreads"
+                          class="cosmo-input"
+                          type="number"
+                          x-model.number="addJewel.jewel.cpu.threads"
+                        />
                       </div>
                     </template>
                     <template
-                      x-if="addJewel.jewel.type === 'other' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'">
+                      x-if="addJewel.jewel.type === 'other' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'"
+                    >
                       <div style="display: contents">
                         <label for="eol" class="cosmo-label">Supportende</label>
                         <input id="eol" class="cosmo-input" type="date" x-model="addJewel.jewel.eol" />
@@ -463,9 +517,7 @@
             <template x-if="editJewel.hasError">
               <div class="cosmo-message is--negative">
                 <span class="cosmo-message__header">Fehler beim Speichern</span>
-                <p>
-                  Leider konnte dein Gerät nicht gespeichert werden. Bitte wende dich an deinen Administrator.
-                </p>
+                <p>Leider konnte dein Gerät nicht gespeichert werden. Bitte wende dich an deinen Administrator.</p>
               </div>
             </template>
             <div class="cosmo-input__group">
@@ -479,15 +531,19 @@
               <template x-if="editJewel.jewel.type === 'computer'">
                 <div style="display: contents">
                   <label for="hostname" class="cosmo-label">Name</label>
-                  <input id="hostname" class="cosmo-input" type="text" x-model="editJewel.jewel.hostname"
-                         required />
+                  <input id="hostname" class="cosmo-input" type="text" x-model="editJewel.jewel.hostname" required />
                 </div>
               </template>
               <label for="model" class="cosmo-label">Model</label>
               <input id="model" class="cosmo-input" type="text" x-model="editJewel.jewel.model" required />
               <label for="manufacturer" class="cosmo-label">Hersteller</label>
-              <input id="manufacturer" class="cosmo-input" type="text" x-model="editJewel.jewel.manufacturer"
-                     required />
+              <input
+                id="manufacturer"
+                class="cosmo-input"
+                type="text"
+                x-model="editJewel.jewel.manufacturer"
+                required
+              />
               <template x-if="editJewel.jewel.type === 'computer' || editJewel.jewel.type === 'phone'">
                 <div style="display: contents">
                   <label for="operatingSystem" class="cosmo-label">Betriebssystem</label>
@@ -508,7 +564,8 @@
                 </div>
               </template>
               <template
-                x-if="editJewel.jewel.type === 'computer' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'">
+                x-if="editJewel.jewel.type === 'computer' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'"
+              >
                 <div style="display: contents">
                   <label for="storage" class="cosmo-label">Speicherplatz in GB</label>
                   <input
@@ -534,27 +591,34 @@
                 <div style="display: contents">
                   <span class="cosmo-input__header">Prozessor</span>
                   <label for="cpuManufacturer" class="cosmo-label">Hersteller</label>
-                  <select id="cpuManufacturer" class="cosmo-select" x-model="editJewel.jewel.cpu.manufacturer"
-                          required>
+                  <select id="cpuManufacturer" class="cosmo-select" x-model="editJewel.jewel.cpu.manufacturer" required>
                     <option value="Intel">Intel</option>
                     <option value="AMD">AMD</option>
                   </select>
                   <label for="cpuModel" class="cosmo-label">Model</label>
-                  <input id="cpuModel" class="cosmo-input" type="text" x-model="editJewel.jewel.cpu.model"
-                         required />
+                  <input id="cpuModel" class="cosmo-input" type="text" x-model="editJewel.jewel.cpu.model" required />
                   <label for="cpuSpeed" class="cosmo-label">Geschwindigkeit in GHz</label>
-                  <input id="cpuSpeed" class="cosmo-input" type="number" x-model.number="editJewel.jewel.cpu.speed"
-                         step="0.01" />
+                  <input
+                    id="cpuSpeed"
+                    class="cosmo-input"
+                    type="number"
+                    x-model.number="editJewel.jewel.cpu.speed"
+                    step="0.01"
+                  />
                   <label for="cpuCores" class="cosmo-label">Kerne</label>
-                  <input id="cpuCores" class="cosmo-input" type="number"
-                         x-model.number="editJewel.jewel.cpu.cores" />
+                  <input id="cpuCores" class="cosmo-input" type="number" x-model.number="editJewel.jewel.cpu.cores" />
                   <label for="cpuThreads" class="cosmo-label">Threads</label>
-                  <input id="cpuThreads" class="cosmo-input" type="number"
-                         x-model.number="editJewel.jewel.cpu.threads" />
+                  <input
+                    id="cpuThreads"
+                    class="cosmo-input"
+                    type="number"
+                    x-model.number="editJewel.jewel.cpu.threads"
+                  />
                 </div>
               </template>
               <template
-                x-if="editJewel.jewel.type === 'other' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'">
+                x-if="editJewel.jewel.type === 'other' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'"
+              >
                 <div style="display: contents">
                   <label for="eol" class="cosmo-label">Supportende</label>
                   <input id="eol" class="cosmo-input" type="date" x-model="editJewel.jewel.eol" />

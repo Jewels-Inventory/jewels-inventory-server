@@ -1,14 +1,14 @@
 .qrcode {
-    width: 450px;
-    height: 450px;
+  width: 450px;
+  height: 450px;
 }
 
 .token {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .jewels-new {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }

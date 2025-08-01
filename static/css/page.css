@@ -1,38 +1,38 @@
 :root {
-    --primary-hue: 200;
-    --primary-lightness-base: 55%;
-    --primary-saturation: 87%;
-    --background: url('/static/img/background-lightmode.webp');
+  --primary-hue: 200;
+  --primary-lightness-base: 55%;
+  --primary-saturation: 87%;
+  --background: url('/static/img/background-lightmode.webp');
 }
 
 @media screen and (prefers-color-scheme: dark) {
-    :root {
-        --background: url('/static/img/background-darkmode.webp');
-    }
+  :root {
+    --background: url('/static/img/background-darkmode.webp');
+  }
 }
 
 @media screen and (prefers-color-scheme: light) {
-    :root {
-        --gradient-multiplier: 1.5;
-    }
+  :root {
+    --gradient-multiplier: 1.5;
+  }
 }
 
 .cosmo-page {
-    backdrop-filter: blur(4px);
-    background: rgb(var(--white-base) var(--white-base) var(--white-base) / 90%);
+  backdrop-filter: blur(4px);
+  background: rgb(var(--white-base) var(--white-base) var(--white-base) / 90%);
 }
 
 body {
-    background: var(--background);
-    background-size: cover;
-    background-position-y: bottom;
-    background-position-x: left;
-    height: 100vh;
-    width: 100vw;
-    padding: 0;
-    margin: 0;
+  background: var(--background);
+  background-size: cover;
+  background-position-y: bottom;
+  background-position-x: left;
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
 
-    --gradient-bottom-color: transparent !important;
+  --gradient-bottom-color: transparent !important;
 }
 
 h1 + h2,
@@ -40,12 +40,12 @@ h2 + h3,
 h3 + h4,
 h4 + h5,
 h5 + h6 {
-    margin-top: 0;
+  margin-top: 0;
 }
 
 .cosmo-button.is--circle.is--large {
-    svg {
-        height: 2rem;
-        width: 2rem;
-    }
+  svg {
+    height: 2rem;
+    width: 2rem;
+  }
 }
