@@ -1,0 +1,26 @@
+:root {
+  --primary-hue: 220;
+  --primary-lightness-base: 25%;
+  --primary-saturation: 54%;
+
+  --background: url('/background.webp');
+}
+
+@media screen and (prefers-color-scheme: light) {
+  :root {
+    --gradient-multiplier: 3.5;
+  }
+}
+
+body {
+  background: var(--background);
+  background-size: cover;
+  background-position-y: top;
+  background-position-x: left;
+  height: 100vh;
+  width: 100vw;
+  padding: 0;
+  margin: 0;
+
+  --gradient-bottom-color: transparent !important;
+}

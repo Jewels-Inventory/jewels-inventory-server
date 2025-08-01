@@ -71,6 +71,8 @@ func createMyJewel(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 

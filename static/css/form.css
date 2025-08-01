@@ -1,0 +1,18 @@
+.cosmo-fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  grid-column: span 2;
+}
+
+.cosmo-legend {
+  font-size: var(--input-header-font-size);
+  height: var(--input-header-font-size);
+  font-weight: var(--font-weight-light);
+  font-family: var(--font-family-heading);
+  text-transform: uppercase;
+  grid-column: span 2;
+  margin-top: var(--input-group-gap);
+  margin-bottom: var(--input-group-gap);
+}
