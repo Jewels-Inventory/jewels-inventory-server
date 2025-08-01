@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
-	"html/template"
 	"jewels/api"
 	"jewels/config"
 	"jewels/database"
 	"jewels/database/mongo"
 	"jewels/eol"
+	"jewels/web"
 	"log"
 	"net/http"
 	"os"
@@ -24,46 +24,18 @@ type SpaHandler struct {
 	embedFS      embed.FS
 	indexPath    string
 	fsPrefixPath string
-	templated    bool
-	templateData any
-}
-
-func (handler SpaHandler) serveTemplated(w http.ResponseWriter, _ *http.Request) {
-	tmpl, err := template.ParseFS(handler.embedFS, handler.indexPath)
-	if err != nil {
-		http.Error(w, "Failed to get admin page", http.StatusInternalServerError)
-		return
-	}
-
-	err = tmpl.Execute(w, handler.templateData)
-	if err != nil {
-		http.Error(w, "Failed to get admin page", http.StatusInternalServerError)
-		return
-	}
-}
-
-func (handler SpaHandler) servePlain(w http.ResponseWriter, r *http.Request) {
-	http.ServeFileFS(w, r, handler.embedFS, handler.indexPath)
 }
 
 func (handler SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fullPath := strings.TrimPrefix(path.Join(handler.fsPrefixPath, r.URL.Path), "/")
 	file, err := handler.embedFS.Open(fullPath)
 	if err != nil {
-		if handler.templated {
-			handler.serveTemplated(w, r)
-		} else {
-			handler.servePlain(w, r)
-		}
+		http.ServeFileFS(w, r, handler.embedFS, handler.indexPath)
 		return
 	}
 
 	if fi, err := file.Stat(); err != nil || fi.IsDir() {
-		if handler.templated {
-			handler.serveTemplated(w, r)
-		} else {
-			handler.servePlain(w, r)
-		}
+		http.ServeFileFS(w, r, handler.embedFS, handler.indexPath)
 		return
 	}
 
@@ -71,8 +43,6 @@ func (handler SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	//go:embed "frontend/dist/frontend/browser"
-	frontend embed.FS
 	//go:embed openapi
 	openapi embed.FS
 	//go:embed static
@@ -91,20 +61,24 @@ var serveCmd = &cobra.Command{
 		router := mux.NewRouter()
 
 		api.SetupApiRouter(router)
+		web.SetupWebRouter(router)
 
-		router.PathPrefix("/static/").Handler(http.FileServerFS(static))
+		if os.Getenv("ENV") == "dev" {
+			router.PathPrefix("/static/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Service-Worker-Allowed", "/")
+				http.FileServerFS(os.DirFS(".")).ServeHTTP(w, r)
+			})
+		} else {
+			router.PathPrefix("/static/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Service-Worker-Allowed", "/")
+				http.FileServerFS(static).ServeHTTP(w, r)
+			})
+		}
+
 		router.PathPrefix("/openapi").Handler(SpaHandler{
 			embedFS:      openapi,
 			indexPath:    "openapi/index.html",
 			fsPrefixPath: "",
-			templated:    false,
-		})
-		router.PathPrefix("/").Handler(SpaHandler{
-			embedFS:      frontend,
-			indexPath:    "frontend/dist/frontend/browser/index.html",
-			fsPrefixPath: "frontend/dist/frontend/browser",
-			templated:    true,
-			templateData: config.LoadedConfiguration,
 		})
 
 		log.Println("Serving at localhost:8090...")

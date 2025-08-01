@@ -1,0 +1,185 @@
+import { get, httpDelete, post, put } from '../../lib/jinya-http.js';
+import confirm from '../../lib/ui/confirm.js';
+import alert from '../../lib/ui/alert.js';
+
+import '../../lib/ui/toolbar-editor.js';
+
+Alpine.data('myJewelsData', () => ({
+  loading: true,
+  jewels: [],
+  get availableTypes() {
+    return [...new Set(this.jewels.map((jewel) => jewel.type) ?? [])];
+  },
+  get filteredJewels() {
+    return this.jewels.filter(
+      (jewel) =>
+        this.deviceTypeFilter.has(jewel.type) &&
+        (jewel.hostname?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          jewel.model.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          jewel.manufacturer.toLowerCase().includes(this.searchTerm.toLowerCase())),
+    );
+  },
+  get selectedJewelEol() {
+    if (this.selectedJewel?.eol) {
+      return new Date(Date.parse(this.selectedJewel.eol)).toLocaleDateString();
+    }
+
+    return null;
+  },
+  searchTerm: '',
+  detailsTab: 'device',
+  selectedJewel: null,
+  deviceTypeFilter: new Set(['phone', 'computer', 'watch', 'other']),
+  addJewel: {
+    open: false,
+    mode: 'manual',
+    jewel: {
+      type: 'other',
+      hostname: '',
+      eol: '',
+      ram: '',
+      model: '',
+      manufacturer: '',
+      storage: '',
+      cpu: {
+        model: '',
+        manufacturer: '',
+        cores: '',
+        speed: '',
+        threads: '',
+      },
+      os: {
+        name: '',
+        version: '',
+      },
+    },
+    reset() {
+      this.jewel = {
+        type: 'other',
+        hostname: '',
+        eol: '',
+        ram: '',
+        model: '',
+        manufacturer: '',
+        storage: '',
+        cpu: {
+          model: '',
+          manufacturer: '',
+          cores: '',
+          speed: '',
+          threads: '',
+        },
+        os: {
+          name: '',
+          version: '',
+        },
+      };
+    },
+  },
+  editJewel: {
+    open: false,
+    jewel: null,
+    reset() {
+      this.jewel = null;
+    },
+  },
+  async init() {
+    this.loading = true;
+    await this.loadJewels();
+    this.selectJewel(this.jewels[0]?.id ?? null);
+    this.loading = false;
+  },
+  async loadJewels() {
+    this.jewels = await get('/api/my-jewels');
+  },
+  selectJewel(id) {
+    this.selectedJewel = this.jewels.find((jewel) => jewel.id === id) ?? null;
+  },
+  toggleFilter(type) {
+    if (this.deviceTypeFilter.has(type)) {
+      this.deviceTypeFilter.delete(type);
+    } else {
+      this.deviceTypeFilter.add(type);
+    }
+  },
+  openAddJewel() {
+    this.addJewel.reset();
+    this.addJewel.open = true;
+  },
+  openEditJewel() {
+    this.editJewel.open = true;
+    this.editJewel.jewel = structuredClone(this.selectedJewel);
+  },
+  async createJewel() {
+    let device;
+    if (this.selectedJewel?.type === 'other') {
+      device = `${this.selectedJewel?.manufacturer} ${this.selectedJewel?.model}`;
+    } else {
+      device = this.selectedJewel?.hostname;
+    }
+    try {
+      const createdJewel = await post('/api/my-jewels', this.editJewel.jewel);
+      await this.loadJewels();
+      this.selectJewel(createdJewel.id);
+      this.editJewel.open = false;
+    } catch (e) {
+      console.error(e);
+      await alert({
+        title: 'Fehler beim Speichern',
+        message: `Leider konnte das Gerät ${device} nicht gespeichert werden. Bitte wende dich an deinen Administrator.`,
+        negative: true,
+      });
+    }
+  },
+  async saveJewel() {
+    try {
+      let device;
+      if (this.selectedJewel?.type === 'other') {
+        device = `${this.selectedJewel?.manufacturer} ${this.selectedJewel?.model}`;
+      } else {
+        device = this.selectedJewel?.hostname;
+      }
+      await put(`/api/my-jewels/${this.selectedJewel?.id}`, this.editJewel.jewel);
+      await this.loadJewels();
+      this.selectJewel(this.selectedJewel?.id);
+      this.editJewel.open = false;
+    } catch (e) {
+      console.error(e);
+      await alert({
+        title: 'Fehler beim Speichern',
+        message: `Leider konnte das Gerät ${device} nicht gespeichert werden. Bitte wende dich an deinen Administrator.`,
+        negative: true,
+      });
+    }
+  },
+  async deleteJewel() {
+    let device;
+    if (this.selectedJewel?.type === 'other') {
+      device = `${this.selectedJewel?.manufacturer} ${this.selectedJewel?.model}`;
+    } else {
+      device = this.selectedJewel?.hostname;
+    }
+    if (
+      await confirm({
+        title: 'Gerät löschen',
+        message: `Soll das Gerät ${device} wirklich gelöscht werden?`,
+        declineLabel: 'Gerät behalten',
+        approveLabel: 'Gerät löschen',
+        negative: true,
+      })
+    ) {
+      try {
+        await httpDelete(`/api/my-jewels/${this.selectedJewel?.id}`);
+        this.jewels = this.jewels.filter((jewel) => jewel.id !== this.selectedJewel?.id);
+        this.selectJewel(this.jewels[0]?.id ?? null);
+      } catch (e) {
+        console.error(e);
+        await alert({
+          title: 'Fehler beim Löschen',
+          message: `Leider konnte das Gerät ${device} nicht gelöscht werden. Bitte wende dich an deinen Administrator.`,
+          negative: true,
+        });
+      }
+    }
+  },
+}));

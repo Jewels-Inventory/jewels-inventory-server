@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
 	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
 	"github.com/zitadel/zitadel-go/v3/pkg/http/middleware"
@@ -29,7 +31,8 @@ func contentTypeJson(next http.Handler) http.Handler {
 func getZitadelMiddleware(needsAdmin bool) func(http.Handler) http.Handler {
 	ctx := context.Background()
 
-	zitadelConfig := oauth.WithIntrospection[*oauth.IntrospectionContext](oauth.ClientIDSecretIntrospectionAuthentication(config.LoadedConfiguration.OidcServerClientId, config.LoadedConfiguration.OidcServerClientSecret))
+	introspectionAuth := oauth.ClientIDSecretIntrospectionAuthentication(config.LoadedConfiguration.OidcServerClientId, config.LoadedConfiguration.OidcServerClientSecret)
+	zitadelConfig := oauth.WithIntrospection[*oauth.IntrospectionContext](introspectionAuth)
 	authZ, err := authorization.New(ctx, zitadel.New(config.LoadedConfiguration.OidcDomain), zitadelConfig)
 
 	if err != nil {
@@ -56,7 +59,7 @@ func login(needsAdmin bool) func(next http.Handler) http.Handler {
 			}
 
 			owner, err := getOwnerFromToken(r)
-			if err != nil {
+			if (err != nil && !errors.Is(err, sql.ErrNoRows)) || owner == nil {
 				getZitadelMiddleware(needsAdmin)(next).ServeHTTP(w, r)
 				return
 			}
@@ -81,7 +84,7 @@ func createOrFindUser(next http.Handler) http.Handler {
 				stringRoles[i] = role.(string)
 			}
 
-			owner, err := database.CreateOwnerIfNotExists(userInfo.Email, userInfo.Name, userInfo.Picture, stringRoles)
+			owner, err := database.CreateOwnerIfNotExists(userInfo.UserInfoEmail.Email, userInfo.Name, userInfo.Picture, stringRoles)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
