@@ -16,8 +16,6 @@
 }
 
 .cosmo-modal {
-    max-width: max(30vw, 30rem);
-
     .cosmo-table {
         width: 100%;
     }

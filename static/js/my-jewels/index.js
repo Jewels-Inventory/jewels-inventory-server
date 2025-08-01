@@ -1,6 +1,7 @@
 import { get, httpDelete, post, put } from '../../lib/jinya-http.js';
 import confirm from '../../lib/ui/confirm.js';
 import alert from '../../lib/ui/alert.js';
+import QRCodeStyling from '../../lib/qrcode-styling.js';
 
 import '../../lib/ui/toolbar-editor.js';
 
@@ -32,7 +33,13 @@ Alpine.data('myJewelsData', () => ({
   deviceTypeFilter: new Set(['phone', 'computer', 'watch', 'other']),
   addJewel: {
     open: false,
-    mode: 'manual',
+    hasError: false,
+    mode: 'auto',
+    automatic: {
+      host: location.origin,
+      token: '',
+      qrCode: '',
+    },
     jewel: {
       type: 'other',
       hostname: '',
@@ -53,21 +60,52 @@ Alpine.data('myJewelsData', () => ({
         version: '',
       },
     },
-    reset() {
+    async reset() {
+      this.automatic.token = crypto.randomUUID();
+      const qrCode = new QRCodeStyling({
+        dotsOptions: {
+          color: '#28aef0',
+          type: 'rounded',
+        },
+        backgroundOptions: {
+          color: 'transparent',
+        },
+        imageOptions: {
+          crossOrigin: 'anonymous',
+          margin: 0,
+          hideBackgroundDots: false,
+          imageSize: 1,
+        },
+        width: 450,
+        height: 450,
+        margin: 0,
+        qrOptions: {
+          typeNumber: 0,
+          mode: 'Byte',
+          errorCorrectionLevel: 'H',
+        },
+        image: `${this.automatic.host}/static/img/qrlogo.svg`,
+        data: JSON.stringify({
+          host: this.automatic.host,
+          token: this.automatic.token,
+        }),
+      });
+      await qrCode._svgDrawingPromise;
+      this.automatic.qrCode = qrCode._svg.outerHTML;
       this.jewel = {
         type: 'other',
         hostname: '',
         eol: '',
-        ram: '',
+        ram: 0,
         model: '',
         manufacturer: '',
-        storage: '',
+        storage: 0,
         cpu: {
           model: '',
           manufacturer: '',
-          cores: '',
-          speed: '',
-          threads: '',
+          cores: 0,
+          speed: 0,
+          threads: 0,
         },
         os: {
           name: '',
@@ -112,21 +150,35 @@ Alpine.data('myJewelsData', () => ({
   },
   async createJewel() {
     let device;
-    if (this.selectedJewel?.type === 'other') {
-      device = `${this.selectedJewel?.manufacturer} ${this.selectedJewel?.model}`;
+    if (this.addJewel?.jewel?.type === 'other') {
+      device = `${this.addJewel?.jewel?.manufacturer} ${this.addJewel?.jewel?.model}`;
     } else {
-      device = this.selectedJewel?.hostname;
+      device = this.addJewel?.jewel?.hostname;
     }
     try {
-      const createdJewel = await post('/api/my-jewels', this.editJewel.jewel);
-      await this.loadJewels();
-      this.selectJewel(createdJewel.id);
-      this.editJewel.open = false;
+      let eol = this.addJewel.jewel.eol ?? null;
+      if (eol === '') {
+        eol = null;
+      }
+      const createdJewel = await post('/api/my-jewels', {
+        jewel: {
+          ...this.addJewel.jewel,
+          eol,
+        },
+        mode: this.addJewel.mode,
+        token: this.addJewel.automatic.token,
+      });
+      if (createdJewel) {
+        await this.loadJewels();
+        this.selectJewel(createdJewel.id);
+      }
+      this.addJewel.open = false;
     } catch (e) {
       console.error(e);
       await alert({
         title: 'Fehler beim Speichern',
         message: `Leider konnte das Gerät ${device} nicht gespeichert werden. Bitte wende dich an deinen Administrator.`,
+        closeLabel: 'Schließen',
         negative: true,
       });
     }
