@@ -44,7 +44,7 @@
           window.jewelsConfig = {
             openIdClientId: '{{ .OidcFrontendClientId }}',
             openIdUrl: 'https://{{ .OidcDomain }}',
-            openIdCallbackUrl: `${location.origin}/login/callback`,
+            openIdCallbackUrl: `${location.origin}/login/callback`
           };
         </script>
     </head>
@@ -68,13 +68,15 @@
                         >
                             Meine Jewels
                         </a>
-                        <a
-                                class="cosmo-menu__item"
-                                href="/owners"
-                                x-active-route.area="owners"
-                        >
-                            Besitzer
-                        </a>
+                        <template x-if="$store.authentication.user.roles.includes('admin')">
+                            <a
+                                    class="cosmo-menu__item"
+                                    href="/owners"
+                                    x-active-route.area="owners"
+                            >
+                                Besitzer
+                            </a>
+                        </template>
                     </div>
                 </nav>
             </div>

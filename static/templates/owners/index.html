@@ -1,0 +1,573 @@
+<div x-data="ownersData" class="cosmo-side-list">
+  <div class="cosmo-side-list__items">
+    <template x-for="owner of owners">
+      <a
+        @click="selectOwner(owner)"
+        class="cosmo-side-list__item"
+        :class="{ 'is--active': owner.id === selectedOwner?.id }"
+        x-text="owner.name"
+      ></a>
+    </template>
+  </div>
+  <div class="cosmo-side-list__content">
+    <template x-if="loading">
+      <jinya-loader />
+    </template>
+    <template x-if="!loading">
+      <div class="device-list">
+        <div class="device-list-items">
+          <div class="device-filter-bar">
+            <template x-for="type of availableTypes" :key="type">
+              <button
+                type="button"
+                class="device-filter-type"
+                :class="{ 'active': deviceTypeFilter.has(type) }"
+                @click="toggleFilter(type)"
+              >
+                <div class="device-filter-bubble"></div>
+                <template x-if="type === 'watch'"><span>Smartwatch</span></template>
+                <template x-if="type === 'phone'"><span>Smartphones</span></template>
+                <template x-if="type === 'computer'"><span>Computer</span></template>
+                <template x-if="type === 'other'"><span>Sonstiges</span></template>
+              </button>
+            </template>
+          </div>
+          <input
+            type="search"
+            class="cosmo-input device-search-bar"
+            placeholder="Einfach tippen zum Filtern…"
+            x-model="searchTerm"
+          />
+          <div class="device-list-items-inner">
+            <template x-for="device of filteredJewels" :key="device.id">
+              <a
+                class="device-list-item"
+                :class="{ 'is--active': selectedJewel?.id === device.id }"
+                @click="selectJewel(device.id)"
+              >
+                <span class="device-title" x-text="device.manufacturer + ' ' + device.model"></span>
+                <span class="device-subtitle" x-text="device.hostname ?? ''"></span>
+              </a>
+            </template>
+            <template x-if="filteredJewels.length === 0">
+              <div class="cosmo-message is--information">
+                <div class="cosmo-message__header">Es wurden keine Geräte gefunden</div>
+                <div class="cosmo-message__message">
+                  Zu deiner Suche haben wir keine Geräte gefunden, möchtest du eins hinzufügen?
+                </div>
+                <div class="cosmo-button__container">
+                  <button class="cosmo-button is--primary" @click="openAddJewel">Neues Gerät erstellen</button>
+                </div>
+              </div>
+            </template>
+          </div>
+          <button class="cosmo-button is--circle is--primary add-button is--large" @click="openAddJewel">
+            <svg class="lucide-icon" viewBox="0 0 24 24">
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg>
+          </button>
+        </div>
+        <div class="device-list-separator"></div>
+        <template x-if="selectedJewel">
+          <div class="device-list-details">
+            <div class="cosmo-title">
+              <template x-if="selectedJewel.type === 'computer'">
+                <span x-text="selectedJewel.hostname"></span>
+              </template>
+              <template x-if="selectedJewel.type !== 'computer'">
+                <span x-text="selectedJewel.manufacturer + ' ' + selectedJewel.model"></span>
+              </template>
+              <template x-if="selectedJewel.os">
+                <small x-text="selectedJewel.os.name + ' ' + selectedJewel.os.version"></small>
+              </template>
+            </div>
+            <div class="cosmo-toolbar">
+              <div class="cosmo-toolbar__group">
+                <button class="cosmo-button" @click="openEditJewel">Bearbeiten</button>
+                <button class="cosmo-button is--negative" @click="deleteJewel">Löschen</button>
+              </div>
+            </div>
+            <div class="device-list-details-inner">
+              <div class="cosmo-tab">
+                <div class="cosmo-tab__links">
+                  <a
+                    class="cosmo-tab__link"
+                    :class="{ 'is--active': detailsTab === 'device' }"
+                    @click="detailsTab = 'device'"
+                  >
+                    Gerät
+                  </a>
+                  <template x-if="selectedJewel.os?.name || selectedJewel.kernel?.version">
+                    <a
+                      class="cosmo-tab__link"
+                      :class="{ 'is--active': detailsTab === 'software' }"
+                      @click="detailsTab = 'software'"
+                    >
+                      Software
+                    </a>
+                  </template>
+                  <template
+                    x-if="selectedJewel.cpu?.cores || selectedJewel.ram || selectedJewel.mainboard || selectedJewel.bios">
+                    <a
+                      class="cosmo-tab__link"
+                      :class="{ 'is--active': detailsTab === 'hardware' }"
+                      @click="detailsTab = 'hardware'"
+                    >
+                      Hardware
+                    </a>
+                  </template>
+                  <template x-if="selectedJewel.drives?.length ?? 0 > 0">
+                    <a
+                      class="cosmo-tab__link"
+                      :class="{ 'is--active': detailsTab === 'storage' }"
+                      @click="detailsTab = 'storage'"
+                    >
+                      Speichergeräte
+                    </a>
+                  </template>
+                  <a
+                    class="cosmo-tab__link"
+                    :class="{ 'is--active': detailsTab === 'notes' }"
+                    @click="detailsTab = 'notes'"
+                  >
+                    Notizen
+                  </a>
+                </div>
+              </div>
+              <template x-if="detailsTab === 'device'">
+                <div class="cosmo-tab__content">
+                  <dl class="cosmo-list is--key-value">
+                    <template x-if="selectedJewel.hostname">
+                      <div style="display: contents">
+                        <dt>Name</dt>
+                        <dd x-text="selectedJewel.hostname"></dd>
+                      </div>
+                    </template>
+                    <dt>Hersteller</dt>
+                    <dd x-text="selectedJewel.manufacturer"></dd>
+                    <dt>Model</dt>
+                    <dd x-text="selectedJewel.model"></dd>
+                    <template x-if="selectedJewelEol">
+                      <div style="display: contents">
+                        <dt>Supportende</dt>
+                        <dd x-text="selectedJewelEol"></dd>
+                      </div>
+                    </template>
+                  </dl>
+                </div>
+              </template>
+              <template x-if="detailsTab === 'software'">
+                <div class="cosmo-tab__content">
+                  <template x-if="selectedJewel.os">
+                    <div style="display: contents">
+                      <h3>Betriebssystem</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Name</dt>
+                        <dd x-text="selectedJewel.os.name"></dd>
+                        <dt>Version</dt>
+                        <dd x-text="selectedJewel.os.version"></dd>
+                      </dl>
+                    </div>
+                  </template>
+                  <template x-if="selectedJewel.kernel">
+                    <div style="display: contents">
+                      <h3>Kernel</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Version</dt>
+                        <dd x-text="selectedJewel.kernel.version"></dd>
+                        <dt>Architektur</dt>
+                        <dd x-text="selectedJewel.kernel.architecture"></dd>
+                      </dl>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template x-if="detailsTab === 'hardware'">
+                <div class="cosmo-tab__content">
+                  <template x-if="selectedJewel.cpu">
+                    <div style="display: contents">
+                      <h3>Prozessor</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Hersteller</dt>
+                        <dd x-text="selectedJewel.cpu.manufacturer"></dd>
+                        <dt>Model</dt>
+                        <dd x-text="selectedJewel.cpu.model"></dd>
+                        <template x-if="selectedJewel.cpu.cores">
+                          <div style="display: contents">
+                            <dt>Kerne</dt>
+                            <dd x-text="selectedJewel.cpu.cores"></dd>
+                          </div>
+                        </template>
+                        <template x-if="selectedJewel.cpu.threads">
+                          <div style="display: contents">
+                            <dt>Threads</dt>
+                            <dd x-text="selectedJewel.cpu.threads"></dd>
+                          </div>
+                        </template>
+                        <template x-if="selectedJewel.cpu.speed > 0">
+                          <div style="display: contents">
+                            <dt>Threads</dt>
+                            <dd x-text="selectedJewel.cpu.speed.toFixed(2) + 'GHz'"></dd>
+                          </div>
+                        </template>
+                      </dl>
+                    </div>
+                  </template>
+                  <template x-if="selectedJewel.storage > 0 || selectedJewel.ram > 0">
+                    <div style="display: contents">
+                      <h3>Speicher</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <template x-if="selectedJewel.storage > 0">
+                          <div style="display: contents">
+                            <dt>Speicherplatz</dt>
+                            <dd x-text="selectedJewel.storage.toFixed(2) + ' GB'"></dd>
+                          </div>
+                        </template>
+                        <template x-if="selectedJewel.ram > 0">
+                          <div style="display: contents">
+                            <dt>Arbeitsspeicher</dt>
+                            <dd x-text="selectedJewel.ram.toFixed(2) + ' GB'"></dd>
+                          </div>
+                        </template>
+                      </dl>
+                    </div>
+                  </template>
+                  <template x-if="selectedJewel.mainboard">
+                    <div style="display: contents">
+                      <h3>Mainboard</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Hersteller</dt>
+                        <dd x-text="selectedJewel.mainboard.manufacturer"></dd>
+                        <dt>Model</dt>
+                        <dd x-text="selectedJewel.mainboard.model"></dd>
+                        <dt>Version</dt>
+                        <dd x-text="selectedJewel.mainboard.version"></dd>
+                      </dl>
+                    </div>
+                  </template>
+                  <template x-if="selectedJewel.bios">
+                    <div style="display: contents">
+                      <h3>BIOS/UEFI</h3>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Hersteller</dt>
+                        <dd x-text="selectedJewel.bios.manufacturer"></dd>
+                        <dt>Version</dt>
+                        <dd x-text="selectedJewel.bios.version"></dd>
+                      </dl>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template x-if="detailsTab === 'storage'">
+                <div class="cosmo-tab__content">
+                  <template x-for="drive of selectedJewel.drives">
+                    <div>
+                      <h4 x-text="drive.name"></h4>
+                      <dl class="cosmo-list is--key-value">
+                        <dt>Hersteller</dt>
+                        <dd x-text="drive.manufacturer"></dd>
+                        <dt>Model</dt>
+                        <dd x-text="drive.model"></dd>
+                        <dt>Größe</dt>
+                        <dd x-text="drive.size.toFixed(2) + ' GB'"></dd>
+                      </dl>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template x-if="detailsTab === 'notes'">
+                <form class="cosmo-tab__content" @submit.prevent="saveNotes">
+                  <jinya-toolbar-editor
+                    :content="selectedJewel.notes"
+                    @change="(e) => selectedJewel.notes = e.value"
+                    height="20vh"
+                  ></jinya-toolbar-editor>
+                  <div class="cosmo-button__container">
+                    <button type="reset" class="cosmo-button">Änderungen verwerfen</button>
+                    <button type="submit" class="cosmo-button is--primary">Notizen speichern</button>
+                  </div>
+                </form>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+    <template x-if="addJewel.open">
+      <div class="cosmo-modal__container">
+        <form class="cosmo-modal" @submit.prevent="createJewel">
+          <h1 class="cosmo-modal__title">Gerät hinzufügen</h1>
+          <div class="cosmo-modal__content">
+            <template x-if="addJewel.hasError">
+              <div class="cosmo-message is--negative">
+                <span class="cosmo-message__header">Fehler beim Hinzufügen</span>
+                <p>Leider konnte dein neues Gerät nicht hinzugefügt werden. Bitte wende dich an deinen
+                  Administrator.</p>
+              </div>
+            </template>
+            <div class="cosmo-tab">
+              <div class="cosmo-tab__links">
+                <a class="cosmo-tab__link" :class="{ 'is--active': addJewel.mode === 'auto' }"
+                   @click="addJewel.mode = 'auto'">
+                  Automatisch
+                </a>
+                <a class="cosmo-tab__link" :class="{ 'is--active': addJewel.mode === 'manual' }"
+                   @click="addJewel.mode = 'manual'">
+                  Von Hand
+                </a>
+              </div>
+              <div class="cosmo-tab__content">
+                <template x-if="addJewel.mode === 'auto'">
+                  <div class="jewels-new">
+                    <div>
+                      <div class="token" x-html="addJewel.automatic.qrCode"></div>
+                    </div>
+                    <div>
+                      <div class="cosmo-message is--information">
+                        <h3 class="cosmo-message__header">Wozu ist das Token da?</h3>
+                        <p class="cosmo-message__message">
+                          Das Token ist für die Jewels App oder den Jewels Linux Client,<br />
+                          um automatisiert Informationen über dein Gerät in Jewels zu speichern.<br />
+                          Um die Verwendung möglichst einfach zu machen,<br />
+                          kannst du den unten angezeigten QR Code einfach mit der Jewels App scannen.<br />
+                          Wenn du den Linux Client benutzt, musst du die Infos unter dem QR Code eintragen.
+                        </p>
+                      </div>
+                      <div class="cosmo-message is--warning">
+                        <h3 class="cosmo-message__header">Speicher dir das Token</h3>
+                        <p class="cosmo-message__message">
+                          Das Token ist nach dem Speichern nicht mehr verfügbar, bitte speicher es dir ab.
+                        </p>
+                      </div>
+                      <div class="cosmo-input__group">
+                        <label class="cosmo-label" for="tokenUrl">Url</label>
+                        <input class="cosmo-input" type="text" readonly id="tokenUrl" x-model="addJewel.automatic.host">
+                        <label class="cosmo-label" for="token">Token</label>
+                        <input class="cosmo-input" type="text" readonly id="token" name="token"
+                               x-model="addJewel.automatic.token">
+                      </div>
+                    </div>
+                  </div>
+                </template>
+                <template x-if="addJewel.mode === 'manual'">
+                  <div class="cosmo-input__group">
+                    <label for="type" class="cosmo-label">Gerätetyp</label>
+                    <select id="type" class="cosmo-select" required x-model="addJewel.jewel.type">
+                      <option value="phone">Smartphone oder Tablet</option>
+                      <option value="computer">Computer oder Laptop</option>
+                      <option value="watch">Smartwatch</option>
+                      <option value="other">Sonstiges</option>
+                    </select>
+                    <template x-if="addJewel.jewel.type === 'computer'">
+                      <div style="display: contents">
+                        <label for="hostname" class="cosmo-label">Name</label>
+                        <input id="hostname" class="cosmo-input" type="text" x-model="addJewel.jewel.hostname"
+                               required />
+                      </div>
+                    </template>
+                    <label for="model" class="cosmo-label">Model</label>
+                    <input id="model" class="cosmo-input" type="text" x-model="addJewel.jewel.model" required />
+                    <label for="manufacturer" class="cosmo-label">Hersteller</label>
+                    <input id="manufacturer" class="cosmo-input" type="text" x-model="addJewel.jewel.manufacturer"
+                           required />
+                    <template x-if="addJewel.jewel.type === 'computer' || addJewel.jewel.type === 'phone'">
+                      <div style="display: contents">
+                        <label for="operatingSystem" class="cosmo-label">Betriebssystem</label>
+                        <input
+                          id="operatingSystem"
+                          class="cosmo-input"
+                          type="text"
+                          x-model="addJewel.jewel.os.name"
+                          required
+                        />
+                        <label for="operatingSystemVersion" class="cosmo-label">Betriebssystem Version</label>
+                        <input
+                          id="operatingSystemVersion"
+                          class="cosmo-input"
+                          type="text"
+                          x-model="addJewel.jewel.os.version"
+                        />
+                      </div>
+                    </template>
+                    <template
+                      x-if="addJewel.jewel.type === 'computer' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'">
+                      <div style="display: contents">
+                        <label for="storage" class="cosmo-label">Speicherplatz in GB</label>
+                        <input
+                          id="storage"
+                          class="cosmo-input"
+                          type="number"
+                          x-model.number="addJewel.jewel.storage"
+                          :required="addJewel.jewel.type === 'computer'"
+                          step="0.01"
+                        />
+                        <label for="ram" class="cosmo-label">Arbeitsspeicher in GB</label>
+                        <input
+                          id="ram"
+                          class="cosmo-input"
+                          type="number"
+                          x-model.number="addJewel.jewel.ram"
+                          :required="addJewel.jewel.type === 'computer'"
+                          step="0.01"
+                        />
+                      </div>
+                    </template>
+                    <template x-if="addJewel.jewel.type === 'computer'">
+                      <div style="display: contents">
+                        <span class="cosmo-input__header">Prozessor</span>
+                        <label for="cpuManufacturer" class="cosmo-label">Hersteller</label>
+                        <select id="cpuManufacturer" class="cosmo-select" x-model="addJewel.jewel.cpu.manufacturer"
+                                required>
+                          <option value="Intel">Intel</option>
+                          <option value="AMD">AMD</option>
+                        </select>
+                        <label for="cpuModel" class="cosmo-label">Model</label>
+                        <input id="cpuModel" class="cosmo-input" type="text" x-model="addJewel.jewel.cpu.model"
+                               required />
+                        <label for="cpuSpeed" class="cosmo-label">Geschwindigkeit in GHz</label>
+                        <input id="cpuSpeed" class="cosmo-input" type="number" x-model.number="addJewel.jewel.cpu.speed"
+                               step="0.01" />
+                        <label for="cpuCores" class="cosmo-label">Kerne</label>
+                        <input id="cpuCores" class="cosmo-input" type="number"
+                               x-model.number="addJewel.jewel.cpu.cores" />
+                        <label for="cpuThreads" class="cosmo-label">Threads</label>
+                        <input id="cpuThreads" class="cosmo-input" type="number"
+                               x-model.number="addJewel.jewel.cpu.threads" />
+                      </div>
+                    </template>
+                    <template
+                      x-if="addJewel.jewel.type === 'other' || addJewel.jewel.type === 'phone' || addJewel.jewel.type === 'watch'">
+                      <div style="display: contents">
+                        <label for="eol" class="cosmo-label">Supportende</label>
+                        <input id="eol" class="cosmo-input" type="date" x-model="addJewel.jewel.eol" />
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+          <div class="cosmo-modal__button-bar">
+            <button class="cosmo-button" type="button" @click="addJewel.open = false">Verwerfen</button>
+            <button class="cosmo-button" type="submit">Gerät speichern</button>
+          </div>
+        </form>
+      </div>
+    </template>
+    <template x-if="editJewel.open">
+      <div class="cosmo-modal__container">
+        <form class="cosmo-modal" @submit.prevent="saveJewel">
+          <h1 class="cosmo-modal__title">Gerät bearbeiten</h1>
+          <div class="cosmo-modal__content">
+            <template x-if="editJewel.hasError">
+              <div class="cosmo-message is--negative">
+                <span class="cosmo-message__header">Fehler beim Speichern</span>
+                <p>
+                  Leider konnte dein Gerät nicht gespeichert werden. Bitte wende dich an deinen Administrator.
+                </p>
+              </div>
+            </template>
+            <div class="cosmo-input__group">
+              <label for="type" class="cosmo-label">Gerätetyp</label>
+              <select id="type" class="cosmo-select" required x-model="editJewel.jewel.type">
+                <option value="phone">Smartphone oder Tablet</option>
+                <option value="computer">Computer oder Laptop</option>
+                <option value="watch">Smartwatch</option>
+                <option value="other">Sonstiges</option>
+              </select>
+              <template x-if="editJewel.jewel.type === 'computer'">
+                <div style="display: contents">
+                  <label for="hostname" class="cosmo-label">Name</label>
+                  <input id="hostname" class="cosmo-input" type="text" x-model="editJewel.jewel.hostname"
+                         required />
+                </div>
+              </template>
+              <label for="model" class="cosmo-label">Model</label>
+              <input id="model" class="cosmo-input" type="text" x-model="editJewel.jewel.model" required />
+              <label for="manufacturer" class="cosmo-label">Hersteller</label>
+              <input id="manufacturer" class="cosmo-input" type="text" x-model="editJewel.jewel.manufacturer"
+                     required />
+              <template x-if="editJewel.jewel.type === 'computer' || editJewel.jewel.type === 'phone'">
+                <div style="display: contents">
+                  <label for="operatingSystem" class="cosmo-label">Betriebssystem</label>
+                  <input
+                    id="operatingSystem"
+                    class="cosmo-input"
+                    type="text"
+                    x-model="editJewel.jewel.os.name"
+                    required
+                  />
+                  <label for="operatingSystemVersion" class="cosmo-label">Betriebssystem Version</label>
+                  <input
+                    id="operatingSystemVersion"
+                    class="cosmo-input"
+                    type="text"
+                    x-model="editJewel.jewel.os.version"
+                  />
+                </div>
+              </template>
+              <template
+                x-if="editJewel.jewel.type === 'computer' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'">
+                <div style="display: contents">
+                  <label for="storage" class="cosmo-label">Speicherplatz in GB</label>
+                  <input
+                    id="storage"
+                    class="cosmo-input"
+                    type="number"
+                    x-model.number="editJewel.jewel.storage"
+                    :required="editJewel.jewel.type === 'computer'"
+                    step="0.01"
+                  />
+                  <label for="ram" class="cosmo-label">Arbeitsspeicher in GB</label>
+                  <input
+                    id="ram"
+                    class="cosmo-input"
+                    type="number"
+                    x-model.number="editJewel.jewel.ram"
+                    :required="editJewel.jewel.type === 'computer'"
+                    step="0.01"
+                  />
+                </div>
+              </template>
+              <template x-if="editJewel.jewel.type === 'computer'">
+                <div style="display: contents">
+                  <span class="cosmo-input__header">Prozessor</span>
+                  <label for="cpuManufacturer" class="cosmo-label">Hersteller</label>
+                  <select id="cpuManufacturer" class="cosmo-select" x-model="editJewel.jewel.cpu.manufacturer"
+                          required>
+                    <option value="Intel">Intel</option>
+                    <option value="AMD">AMD</option>
+                  </select>
+                  <label for="cpuModel" class="cosmo-label">Model</label>
+                  <input id="cpuModel" class="cosmo-input" type="text" x-model="editJewel.jewel.cpu.model"
+                         required />
+                  <label for="cpuSpeed" class="cosmo-label">Geschwindigkeit in GHz</label>
+                  <input id="cpuSpeed" class="cosmo-input" type="number" x-model.number="editJewel.jewel.cpu.speed"
+                         step="0.01" />
+                  <label for="cpuCores" class="cosmo-label">Kerne</label>
+                  <input id="cpuCores" class="cosmo-input" type="number"
+                         x-model.number="editJewel.jewel.cpu.cores" />
+                  <label for="cpuThreads" class="cosmo-label">Threads</label>
+                  <input id="cpuThreads" class="cosmo-input" type="number"
+                         x-model.number="editJewel.jewel.cpu.threads" />
+                </div>
+              </template>
+              <template
+                x-if="editJewel.jewel.type === 'other' || editJewel.jewel.type === 'phone' || editJewel.jewel.type === 'watch'">
+                <div style="display: contents">
+                  <label for="eol" class="cosmo-label">Supportende</label>
+                  <input id="eol" class="cosmo-input" type="date" x-model="editJewel.jewel.eol" />
+                </div>
+              </template>
+            </div>
+          </div>
+          <div class="cosmo-modal__button-bar">
+            <button class="cosmo-button" type="button" @click="editJewel.open = false">Änderungen verwerfen</button>
+            <button class="cosmo-button" type="submit">Gerät speichern</button>
+          </div>
+        </form>
+      </div>
+    </template>
+  </div>
+</div>
