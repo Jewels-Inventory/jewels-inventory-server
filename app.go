@@ -8,7 +8,6 @@ import (
 	"jewels/api"
 	"jewels/config"
 	"jewels/database"
-	"jewels/database/mongo"
 	"jewels/eol"
 	"jewels/web"
 	"log"

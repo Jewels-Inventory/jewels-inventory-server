@@ -65,23 +65,29 @@ alter table kernels
 alter table operating_systems
 	drop constraint if exists operating_systems_device_fkey;
 
+alter table devices
+	drop constraint if exists devices_owner_fkey;
+
 alter table owner_auth_tokens
 	add constraint owner_auth_tokens_owners_fkey foreign key (owner_id) references owners(id) on delete cascade;
 
 alter table drives
-	add constraint drives_device_fkey foreign key (device_id) references device(id) on delete cascade;
+	add constraint drives_device_fkey foreign key (device_id) references devices(id) on delete cascade;
 
 alter table bios
-	add constraint bios_device_fkey foreign key (device_id) references device(id) on delete cascade;
+	add constraint bios_device_fkey foreign key (device_id) references devices(id) on delete cascade;
 
 alter table mainboards
-	add constraint mainboards_device_fkey foreign key (device_id) references device(id) on delete cascade;
+	add constraint mainboards_device_fkey foreign key (device_id) references devices(id) on delete cascade;
 
 alter table kernels
-	add constraint kernels_device_fkey foreign key (device_id) references device(id) on delete cascade;
+	add constraint kernels_device_fkey foreign key (device_id) references devices(id) on delete cascade;
 
 alter table operating_systems
-	add constraint operating_systems_device_fkey foreign key (device_id) references device(id) on delete cascade;
+	add constraint operating_systems_device_fkey foreign key (device_id) references devices(id) on delete cascade;
+
+alter table devices
+	add constraint devices_owner_fkey foreign key (owner_id) references owners(id) on delete cascade;
 `)
 	}
 }
