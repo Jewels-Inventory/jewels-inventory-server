@@ -76,7 +76,8 @@ type OperatingSystem struct {
 }
 
 type Device struct {
-	Id           int64            `json:"id" db:"id,autoincrement,primarykey"`
+	Id           int64            `json:"-" db:"id,autoincrement,primarykey"`
+	DeviceId     string           `json:"id" db:"device_id"`
 	OwnerId      int64            `json:"-" db:"owner_id"`
 	Type         DeviceType       `json:"type" db:"type"`
 	Hostname     *string          `json:"hostname,omitempty" db:"hostname"`

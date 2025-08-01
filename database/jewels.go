@@ -225,7 +225,7 @@ func UpdateJewel(owner int64, device *Device) error {
 }
 
 func CreateOrUpdateJewel(owner int64, device *Device) error {
-	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and id = $2", owner, device.Id)
+	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and device_id = $2", owner, device.DeviceId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
