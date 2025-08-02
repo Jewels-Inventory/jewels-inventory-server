@@ -82,14 +82,9 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deviceId, err := strconv.Atoi(vars["deviceId"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	deviceId := vars["deviceId"]
 
-	err = database.DeleteJewel(int64(ownerId), int64(deviceId))
+	err = database.DeleteJewel(int64(ownerId), deviceId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -156,12 +151,7 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deviceId, err := strconv.Atoi(vars["deviceId"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	deviceId := vars["deviceId"]
 
 	ownerId, err := strconv.Atoi(vars["ownerId"])
 	if err != nil {
@@ -170,7 +160,7 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body.Id = int64(deviceId)
+	body.DeviceId = deviceId
 
 	err = database.UpdateJewel(int64(ownerId), &body)
 	if err != nil {
@@ -179,7 +169,7 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jewel, err := database.FindJewelById(body.Id)
+	jewel, err := database.FindJewelById(body.DeviceId)
 	if err == nil && jewel != nil {
 		downloadAndUpdateDeviceEol(*jewel)
 	}
@@ -208,7 +198,7 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jewel, err := database.FindJewelById(body.Id)
+	jewel, err := database.FindJewelById(body.DeviceId)
 	if err == nil && jewel != nil {
 		downloadAndUpdateDeviceEol(*jewel)
 	}

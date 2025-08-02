@@ -64,8 +64,8 @@ func FindJewels(owner int64) ([]Device, error) {
 	return jewels, nil
 }
 
-func FindJewelById(id int64) (*Device, error) {
-	jewel, err := SelectOne[Device](`select * from devices where id = $1`, id)
+func FindJewelById(deviceId string) (*Device, error) {
+	jewel, err := SelectOne[Device](`select * from devices where device_id = $1`, deviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -73,8 +73,8 @@ func FindJewelById(id int64) (*Device, error) {
 	return fillJewel(&jewel)
 }
 
-func DeleteJewel(ownerId, jewel int64) error {
-	_, err := GetDbMap().Exec(`delete from devices where owner_id = $1 and id = $2`, ownerId, jewel)
+func DeleteJewel(ownerId int64, jewel string) error {
+	_, err := GetDbMap().Exec(`delete from devices where owner_id = $1 and device_id = $2`, ownerId, jewel)
 
 	return err
 }
@@ -165,6 +165,14 @@ func UpdateJewel(owner int64, device *Device) error {
 	if err != nil {
 		return err
 	}
+
+	id, err := tx.SelectInt("select id from devices where owner_id = $1 and device_id = $2", owner, device.DeviceId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	device.Id = id
 
 	_, err = tx.Update(device)
 	if err != nil {

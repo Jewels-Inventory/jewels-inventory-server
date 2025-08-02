@@ -36,7 +36,7 @@ func FindOwnerByEmail(email string) (*Owner, error) {
 }
 
 func FindOwnerByToken(token string) (*Owner, error) {
-	return SelectOne[*Owner]("select * from owners o inner join owner_auth_tokens oat on oat.owner_id = o.id where oat.token = $1", token)
+	return SelectOne[*Owner]("select o.* from owners o inner join owner_auth_tokens oat on oat.owner_id = o.id where oat.token = $1", token)
 }
 
 func FindAllOwners() ([]Owner, error) {

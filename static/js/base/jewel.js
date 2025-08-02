@@ -196,6 +196,7 @@ export default function jewelData(name, additionalData = {}) {
         await alert({
           title: 'Fehler beim Speichern',
           message: `Leider konnte das Gerät ${device} nicht gespeichert werden. Bitte wende dich an deinen Administrator.`,
+          closeLabel: 'Schließen',
           negative: true,
         });
       }
@@ -225,6 +226,7 @@ export default function jewelData(name, additionalData = {}) {
           await alert({
             title: 'Fehler beim Löschen',
             message: `Leider konnte das Gerät ${device} nicht gelöscht werden. Bitte wende dich an deinen Administrator.`,
+            closeLabel: 'Schließen',
             negative: true,
           });
         }

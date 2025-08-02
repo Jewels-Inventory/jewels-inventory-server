@@ -24,19 +24,16 @@ func getMyJewels(w http.ResponseWriter, r *http.Request) {
 func deleteMyJewel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	jewelId, err := strconv.Atoi(vars["jewel"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
+	jewelId := vars["jewel"]
 
-	err = database.DeleteJewel(getUserFromRequest(r).Id, int64(jewelId))
+	err := database.DeleteJewel(getUserFromRequest(r).Id, jewelId)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func createMyJewel(w http.ResponseWriter, r *http.Request) {

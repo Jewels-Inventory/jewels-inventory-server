@@ -16,7 +16,7 @@ func SetupApiRouter(router *mux.Router) {
 		PathPrefix("/admin").
 		Subrouter()
 	myJewelsRouter := apiRouter.
-		PathPrefix("/my-jewel").
+		PathPrefix("/my-jewels").
 		Subrouter()
 
 	apiRouter.
