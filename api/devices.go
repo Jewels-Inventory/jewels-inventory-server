@@ -169,7 +169,7 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jewel, err := database.FindJewelById(body.DeviceId)
+	jewel, err := database.FindJewelByOwnerAndDeviceId(int64(ownerId), body.DeviceId)
 	if err == nil && jewel != nil {
 		downloadAndUpdateDeviceEol(*jewel)
 	}
@@ -198,7 +198,7 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jewel, err := database.FindJewelById(body.DeviceId)
+	jewel, err := database.FindJewelByOwnerAndDeviceId(getUserFromRequest(r).Id, body.DeviceId)
 	if err == nil && jewel != nil {
 		downloadAndUpdateDeviceEol(*jewel)
 	}

@@ -5,7 +5,6 @@ info:
   version: 3.0.0
 servers:
   - url: 'https://jewels.ulbricht.cloud'
-  - url: 'http://localhost:8090'
 tags:
   - name: my-jewels
     description: My Jewels
@@ -13,6 +12,8 @@ tags:
     description: Devices
   - name: owner
     description: Owner
+  - name: relay
+    description: Relay VPN Server
 paths:
   /api/my-jewel:
     get:
@@ -240,6 +241,65 @@ paths:
       responses:
         204:
           description: Successfully deleted the jewel
+  /api/admin/relay-vpn/client:
+    get:
+      tags:
+        - relay
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getAllRelayClients
+      summary: Gets all relay clients
+      responses:
+        200:
+          description: All relay clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RelayClient"
+  /api/admin/relay-vpn/device:
+    get:
+      tags:
+        - relay
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getAllDevices
+      summary: Gets all devices
+      responses:
+        200:
+          description: All devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceWithRelayConfig"
+  /api/admin/relay-vpn/device/{deviceId}:
+    parameters:
+      - in: path
+        name: deviceId
+        schema:
+          type: number
+        required: true
+    put:
+      tags:
+        - relay
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: createNewDeviceForOwner
+      summary: Creates a new jewel for the onwer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetRelayBody"
+      responses:
+        204:
+          description: Successfully set the relay config
 components:
   securitySchemes:
     ApiKey:
@@ -298,7 +358,7 @@ components:
         hostname:
           type: string
         id:
-          type: number
+          type: string
         kernel:
           $ref: '#/components/schemas/Kernel'
         mainboard:
@@ -417,3 +477,45 @@ components:
           $ref: "#/components/schemas/Device"
       required:
         - mode
+      type: object
+    SetRelayBody:
+      properties:
+        relayServerId:
+          type: integer
+        relayClientId:
+          type: integer
+      required:
+        - relayClientId
+        - relayServerId
+      type: object
+    RelayClient:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        relayServerId:
+          type: integer
+        allocatedIp:
+          type: string
+      type: object
+    DeviceWithRelayConfig:
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        hostname:
+          type: string
+        manufacturer:
+          type: string
+        model:
+          type: string
+        type:
+          $ref: '#/components/schemas/Type'
+        relayServerId:
+          type: integer
+        relayClientId:
+          type: integer
+        owner:
+          $ref: '#/components/schemas/Owner'
+      type: object

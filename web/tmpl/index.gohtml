@@ -77,6 +77,15 @@
                                 Besitzer
                             </a>
                         </template>
+                        <template x-if="$store.authentication.user.roles.includes('admin')">
+                            <a
+                                    class="cosmo-menu__item"
+                                    href="/relay-vpn"
+                                    x-active-route.area="relay-vpn"
+                            >
+                                Relay VPN Konfiguration
+                            </a>
+                        </template>
                     </div>
                 </nav>
             </div>
@@ -102,6 +111,12 @@
                     x-route="/owners"
                     x-handler="[$store.authentication.needsLogin, $store.navigation.fetchScript]"
                     x-template="/static/templates/owners/index.html"
+            ></template>
+
+            <template
+                    x-route="/relay-vpn"
+                    x-handler="[$store.authentication.needsLogin, $store.navigation.fetchScript]"
+                    x-template="/static/templates/relay-vpn/index.html"
             ></template>
 
             <template

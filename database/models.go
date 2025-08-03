@@ -76,21 +76,30 @@ type OperatingSystem struct {
 }
 
 type Device struct {
-	Id           int64            `json:"-" db:"id,autoincrement,primarykey"`
-	DeviceId     string           `json:"id" db:"device_id"`
-	OwnerId      int64            `json:"-" db:"owner_id"`
-	Type         DeviceType       `json:"type" db:"type"`
-	Hostname     *string          `json:"hostname,omitempty" db:"hostname"`
-	Model        string           `json:"model" db:"model"`
-	Manufacturer string           `json:"manufacturer" db:"manufacturer"`
-	Storage      *float64         `json:"storage,omitempty" db:"storage"`
-	Ram          *float64         `json:"ram,omitempty" db:"ram"`
-	Eol          *time.Time       `json:"eol,omitempty" db:"eol"`
-	Notes        string           `json:"notes,omitempty" db:"notes"`
-	Cpu          *Cpu             `json:"cpu,omitempty" db:"-"`
-	Bios         *Bios            `json:"bios,omitempty" db:"-"`
-	Mainboard    *Mainboard       `json:"mainboard,omitempty" db:"-"`
-	Kernel       *Kernel          `json:"kernel,omitempty" db:"-"`
-	Drives       []Drive          `json:"drives,omitempty" db:"-"`
-	Os           *OperatingSystem `json:"os,omitempty" db:"-"`
+	Id            int64            `json:"-" db:"id,autoincrement,primarykey"`
+	DeviceId      string           `json:"id" db:"device_id"`
+	OwnerId       int64            `json:"-" db:"owner_id"`
+	Type          DeviceType       `json:"type" db:"type"`
+	Hostname      *string          `json:"hostname,omitempty" db:"hostname"`
+	Model         string           `json:"model" db:"model"`
+	Manufacturer  string           `json:"manufacturer" db:"manufacturer"`
+	Storage       *float64         `json:"storage,omitempty" db:"storage"`
+	Ram           *float64         `json:"ram,omitempty" db:"ram"`
+	Eol           *time.Time       `json:"eol,omitempty" db:"eol"`
+	Notes         string           `json:"notes,omitempty" db:"notes"`
+	Cpu           *Cpu             `json:"cpu,omitempty" db:"-"`
+	Bios          *Bios            `json:"bios,omitempty" db:"-"`
+	Mainboard     *Mainboard       `json:"mainboard,omitempty" db:"-"`
+	Kernel        *Kernel          `json:"kernel,omitempty" db:"-"`
+	Drives        []Drive          `json:"drives,omitempty" db:"-"`
+	Os            *OperatingSystem `json:"os,omitempty" db:"-"`
+	RelayClientId *int64           `json:"-" db:"relay_client_id"`
+	RelayServerId *int64           `json:"-" db:"relay_server_id"`
+}
+
+type RelayClient struct {
+	Id            int64  `json:"id"`
+	Name          string `json:"name"`
+	RelayServerId int64  `json:"relayServerId"`
+	AllocatedIp   string `json:"allocatedIp"`
 }

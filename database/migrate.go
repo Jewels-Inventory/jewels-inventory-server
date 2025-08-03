@@ -42,8 +42,8 @@ func SetupDatabase() {
 			panic(err)
 		}
 
-		// Introduces JWLS-6
-		conn.Exec(`
+		// Introduced: JWLS-6
+		_, err = conn.Exec(`
 alter table owner_auth_tokens
 	drop constraint if exists owner_auth_tokens_owners_fkey;
 
@@ -89,5 +89,20 @@ alter table operating_systems
 alter table devices
 	add constraint devices_owner_fkey foreign key (owner_id) references owners(id) on delete cascade;
 `)
+		if err != nil {
+			panic(err)
+		}
+
+		// Introduced: JWLS-3
+		_, err = conn.Exec(`
+alter table devices
+	add column if not exists relay_server_id bigint null;
+alter table devices
+	add column if not exists relay_client_id bigint null;
+`)
+		if err != nil {
+			panic(err)
+		}
+
 	}
 }
