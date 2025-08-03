@@ -76,6 +76,10 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodPut).
 		Path("/relay-vpn/device/{deviceId}").
 		HandlerFunc(setRelayConfig)
+	adminRouter.
+		Methods(http.MethodGet).
+		Path("/relay-vpn/device/{deviceId}").
+		HandlerFunc(getRelayConfig)
 
 	devicesRouter.
 		Methods(http.MethodPost).

@@ -174,7 +174,7 @@ paths:
         - ApiKey: [ ]
         - BearerAuth: [ ]
       operationId: createNewDeviceForOwner
-      summary: Creates a new jewel for the onwer
+      summary: Creates a new jewel for the owner
       requestBody:
         content:
           application/json:
@@ -282,16 +282,34 @@ paths:
       - in: path
         name: deviceId
         schema:
-          type: number
+          type: string
         required: true
+    get:
+      tags:
+        - relay
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getRelayDeviceConfig
+      summary: Gets the relay config for the given device
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetRelayBody"
+      responses:
+        200:
+          description: Successfully set the relay config
+          content:
+            application/octet-stream:
     put:
       tags:
         - relay
       security:
         - ApiKey: [ ]
         - BearerAuth: [ ]
-      operationId: createNewDeviceForOwner
-      summary: Creates a new jewel for the onwer
+      operationId: setRelayConfig
+      summary: Saves the relay configuration for the given device
       requestBody:
         content:
           application/json:

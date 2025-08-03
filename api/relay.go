@@ -99,3 +99,27 @@ func setRelayConfig(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func getRelayConfig(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	deviceId := vars["deviceId"]
+	device, err := database.FindJewelByDeviceId(deviceId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	if device.RelayServerId == nil || device.RelayClientId == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	config, err := relay.GetRelayClientConfig(device)
+	if err != nil || config == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	_, _ = w.Write(config)
+}
