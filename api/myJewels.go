@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"jewels/database"
+	"jewels/relay"
 	"net/http"
 	"strconv"
 )
@@ -102,4 +103,25 @@ func updateMyJewel(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func getVpnConfig(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	owner := getUserFromRequest(r)
+	deviceId := vars["deviceId"]
+	device, err := database.FindJewelByOwnerAndDeviceId(owner.Id, deviceId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	config, err := relay.GetRelayClientConfig(device)
+	if err != nil || config == nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(config)
 }

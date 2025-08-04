@@ -38,6 +38,10 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodDelete).
 		Path("/{jewel}").
 		HandlerFunc(deleteMyJewel)
+	myJewelsRouter.
+		Methods(http.MethodGet).
+		Path("/{jewel}/vpn-config").
+		HandlerFunc(getVpnConfig)
 
 	adminRouter.
 		Methods(http.MethodGet).
@@ -59,6 +63,24 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodDelete).
 		Path("/owner/{ownerId}/device/{deviceId}").
 		HandlerFunc(deleteDevice)
+
+	adminRouter.
+		Methods(http.MethodGet).
+		Path("/relay-vpn/client").
+		HandlerFunc(getRelayClients)
+	adminRouter.
+		Methods(http.MethodGet).
+		Path("/relay-vpn/device").
+		HandlerFunc(getAllDevices)
+	adminRouter.
+		Methods(http.MethodPut).
+		Path("/relay-vpn/device/{deviceId}").
+		HandlerFunc(setRelayConfig)
+
+	apiRouter.
+		Methods(http.MethodGet).
+		Path("/relay-vpn/device/{deviceId}").
+		Handler(login(false)(createOrFindUser(contentTypeJson(http.HandlerFunc(getRelayConfig)))))
 
 	devicesRouter.
 		Methods(http.MethodPost).

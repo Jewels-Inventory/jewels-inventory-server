@@ -40,9 +40,9 @@ func FindOwnerByToken(token string) (*Owner, error) {
 }
 
 func FindAllOwners() ([]Owner, error) {
-	return Select[Owner]("select * from owners")
+	return Select[Owner]("select * from owners order by name")
 }
 
 func FindAllAdmins() ([]Owner, error) {
-	return Select[Owner]("select * from owners where is_admin = true")
+	return Select[Owner]("select * from owners where is_admin = true order by name")
 }
