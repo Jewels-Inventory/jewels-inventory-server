@@ -284,24 +284,6 @@ paths:
         schema:
           type: string
         required: true
-    get:
-      tags:
-        - relay
-      security:
-        - ApiKey: [ ]
-        - BearerAuth: [ ]
-      operationId: getRelayDeviceConfig
-      summary: Gets the relay config for the given device
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SetRelayBody"
-      responses:
-        200:
-          description: Successfully set the relay config
-          content:
-            application/octet-stream:
     put:
       tags:
         - relay
@@ -318,6 +300,26 @@ paths:
       responses:
         204:
           description: Successfully set the relay config
+  /api/relay-vpn/device/{deviceId}:
+    parameters:
+      - in: path
+        name: deviceId
+        schema:
+          type: string
+        required: true
+    get:
+      tags:
+        - relay
+      security:
+        - ApiKey: [ ]
+        - BearerAuth: [ ]
+      operationId: getRelayDeviceConfig
+      summary: Gets the relay config for the given device
+      responses:
+        200:
+          description: Successfully set the relay config
+          content:
+            application/octet-stream:
 components:
   securitySchemes:
     ApiKey:

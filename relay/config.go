@@ -86,7 +86,7 @@ func GetRelayClientConfig(device *database.Device) ([]byte, error) {
 		return nil, ErrNoRelayClient
 	}
 
-	req, err := getRelayApiRequest(fmt.Sprintf("api/management/server/%d/client/%d/config", device.RelayServerId, device.RelayClientId))
+	req, err := getRelayApiRequest(fmt.Sprintf("api/management/server/%d/client/%d/config", *device.RelayServerId, *device.RelayClientId))
 	if err != nil {
 		return nil, err
 	}
