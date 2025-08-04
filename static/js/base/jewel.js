@@ -232,5 +232,27 @@ export default function jewelData(name, additionalData = {}) {
         }
       }
     },
+    async saveNotes() {
+      let device;
+      if (this.selectedJewel?.type === 'other') {
+        device = `${this.selectedJewel?.manufacturer} ${this.selectedJewel?.model}`;
+      } else {
+        device = this.selectedJewel?.hostname;
+      }
+      try {
+        await put(`/api/${this.getBaseUrl()}/${this.selectedJewel?.id}`, this.selectedJewel);
+        await this.loadJewels();
+        this.selectJewel(this.selectedJewel?.id);
+        this.editJewel.open = false;
+      } catch (e) {
+        console.error(e);
+        await alert({
+          title: 'Fehler beim Speichern',
+          message: `Leider konnten die Notizen für das Gerät ${device} nicht gespeichert werden. Bitte wende dich an deinen Administrator.`,
+          closeLabel: 'Schließen',
+          negative: true,
+        });
+      }
+    },
   }));
 }
