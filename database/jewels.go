@@ -65,11 +65,11 @@ func FindJewels(owner int64) ([]Device, error) {
 }
 
 func FindAllJewels() ([]Device, error) {
-	return Select[Device](`select * from devices order by owner_id, hostname`)
+	return Select[Device](`select * from devices order by owner_id, type, manufacturer, model`)
 }
 
 func FindJewelByOwnerAndDeviceId(ownerId int64, deviceId string) (*Device, error) {
-	jewel, err := SelectOne[Device](`select * from devices where owner_id = $1 and device_id = $2`, ownerId, deviceId)
+	jewel, err := SelectOne[Device](`select * from devices where owner_id = $1 and device_id = $2 order by owner_id, type, manufacturer, model`, ownerId, deviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +246,7 @@ func UpdateJewel(owner int64, device *Device) error {
 }
 
 func CreateOrUpdateJewel(owner int64, device *Device) error {
-	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and device_id = $2 order by owner_id, device_id", owner, device.DeviceId)
+	count, err := GetDbMap().SelectInt("select count(*) from devices where owner_id = $1 and device_id = $2", owner, device.DeviceId)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return err
 	}
