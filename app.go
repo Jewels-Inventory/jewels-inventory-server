@@ -3,8 +3,6 @@ package main
 import (
 	"embed"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/spf13/cobra"
 	"jewels/api"
 	"jewels/config"
 	"jewels/database"
@@ -15,6 +13,9 @@ import (
 	"os"
 	"path"
 	"strings"
+
+	"github.com/gorilla/mux"
+	"github.com/spf13/cobra"
 
 	_ "github.com/joho/godotenv/autoload"
 )
