@@ -2,11 +2,12 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"jewels/database"
 	"jewels/relay"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func getMyJewels(w http.ResponseWriter, r *http.Request) {

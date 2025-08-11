@@ -2,11 +2,12 @@ package mailing
 
 import (
 	"embed"
-	"github.com/wneessen/go-mail"
 	"html/template"
 	"jewels/config"
 	"jewels/database"
 	"strings"
+
+	"github.com/wneessen/go-mail"
 )
 
 //go:generate npx --yes mjml -r templates/admin.mjml templates/owner.mjml -o templates

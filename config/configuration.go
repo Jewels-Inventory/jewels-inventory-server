@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/wneessen/go-mail"
 	"go-simpler.org/env"
 )

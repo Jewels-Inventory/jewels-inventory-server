@@ -2,10 +2,11 @@ package database
 
 import (
 	"context"
+	"os"
+
 	"github.com/DerKnerd/gorp"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
-	"os"
 )
 
 var dbMap *gorp.DbMap

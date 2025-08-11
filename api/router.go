@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func SetupApiRouter(router *mux.Router) {

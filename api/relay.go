@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"jewels/database"
 	"jewels/relay"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func getRelayClients(w http.ResponseWriter, r *http.Request) {

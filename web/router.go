@@ -1,9 +1,10 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
+
+	"github.com/gorilla/mux"
 )
 
 func SetupWebRouter(router *mux.Router) {

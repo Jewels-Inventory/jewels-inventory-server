@@ -2,13 +2,14 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"jewels/database"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func downloadAndUpdateDeviceEol(device database.Device) {

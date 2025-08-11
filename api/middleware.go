@@ -4,14 +4,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
-	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
-	"github.com/zitadel/zitadel-go/v3/pkg/http/middleware"
-	"github.com/zitadel/zitadel-go/v3/pkg/zitadel"
 	"jewels/config"
 	"jewels/database"
 	"net/http"
 	"strings"
+
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization"
+	"github.com/zitadel/zitadel-go/v3/pkg/authorization/oauth"
+	"github.com/zitadel/zitadel-go/v3/pkg/http/middleware"
+	"github.com/zitadel/zitadel-go/v3/pkg/zitadel"
 )
 
 func getOwnerFromToken(r *http.Request) (*database.Owner, error) {
