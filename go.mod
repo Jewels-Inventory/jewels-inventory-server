@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.9.1
 	github.com/wneessen/go-mail v0.6.2
-	github.com/zitadel/zitadel-go/v3 v3.10.0
+	github.com/zitadel/zitadel-go/v3 v3.11.1
 	go-simpler.org/env v0.12.0
 )
 
