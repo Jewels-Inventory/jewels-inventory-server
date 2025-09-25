@@ -1,4 +1,4 @@
-FROM docker.io/library/alpine:latest
+FROM ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/library/alpine:latest
 
 COPY jewels /app/jewels
 

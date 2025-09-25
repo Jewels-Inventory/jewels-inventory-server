@@ -15,17 +15,16 @@ stages:
   image: registry.ulbricht.casa/docker-images/buildah:latest
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | buildah login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
-    - echo "$DOCKERHUB_PASSWORD" | buildah login -u "$DOCKERHUB_USER" --password-stdin docker.io
 
 lint-frontend:
-  image: oven/bun:latest
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/oven/bun:latest
   stage: lint
   script:
     - bun install -f
     - bun run lint
 
 build:
-  image: library/golang:1.24-alpine
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/library/golang:1.24-alpine
   stage: build
   before_script:
     - apk add npm
