@@ -43,52 +43,38 @@ func SetupDatabase() {
 			panic(err)
 		}
 
-		// Introduced: JWLS-6
+		// Introduced: JWLS-10
 		_, err = conn.Exec(`
-alter table owner_auth_tokens
-	drop constraint if exists owner_auth_tokens_owners_fkey;
+create or replace function add_foreign_key_if_not_exists(from_table text, from_column text, to_table text, to_column text)
+returns void language plpgsql as
+$$
+declare 
+   fk_exists boolean;
+begin
+    fk_exists := case when exists (select true
+	from information_schema.table_constraints tc
+		inner join information_schema.constraint_column_usage ccu
+			using (constraint_catalog, constraint_schema, constraint_name)
+		inner join information_schema.key_column_usage kcu
+			using (constraint_catalog, constraint_schema, constraint_name)
+	where constraint_type = 'FOREIGN KEY'
+	  and ccu.table_name = to_table
+	  and ccu.column_name = to_column
+	  and tc.table_name = from_table
+	  and kcu.column_name = from_column) then true else false end;
+	if not fk_exists then
+		execute format('alter table %s add constraint %s_%s_fkey foreign key (%s) references %s(%s) on delete cascade', from_table, from_table, to_table, from_column, to_table, to_column);
+	end if;
+end
+$$;
 
-alter table drives
-	drop constraint if exists drives_device_fkey;
-
-alter table cpus
-	drop constraint if exists cpus_device_fkey;
-
-alter table bios
-	drop constraint if exists bios_device_fkey;
-
-alter table mainboards
-	drop constraint if exists mainboards_device_fkey;
-
-alter table kernels
-	drop constraint if exists kernels_device_fkey;
-
-alter table operating_systems
-	drop constraint if exists operating_systems_device_fkey;
-
-alter table devices
-	drop constraint if exists devices_owner_fkey;
-
-alter table owner_auth_tokens
-	add constraint owner_auth_tokens_owners_fkey foreign key (owner_id) references owners(id) on delete cascade;
-
-alter table drives
-	add constraint drives_device_fkey foreign key (device_id) references devices(id) on delete cascade;
-
-alter table bios
-	add constraint bios_device_fkey foreign key (device_id) references devices(id) on delete cascade;
-
-alter table mainboards
-	add constraint mainboards_device_fkey foreign key (device_id) references devices(id) on delete cascade;
-
-alter table kernels
-	add constraint kernels_device_fkey foreign key (device_id) references devices(id) on delete cascade;
-
-alter table operating_systems
-	add constraint operating_systems_device_fkey foreign key (device_id) references devices(id) on delete cascade;
-
-alter table devices
-	add constraint devices_owner_fkey foreign key (owner_id) references owners(id) on delete cascade;
+select add_foreign_key_if_not_exists('owner_auth_tokens', 'owner_id', 'owners', 'id');
+select add_foreign_key_if_not_exists('devices', 'owner_id', 'owners', 'id');
+select add_foreign_key_if_not_exists('drives', 'device_id', 'devices', 'id');
+select add_foreign_key_if_not_exists('bios', 'device_id', 'devices', 'id');
+select add_foreign_key_if_not_exists('mainboards', 'device_id', 'devices', 'id');
+select add_foreign_key_if_not_exists('kernels', 'device_id', 'devices', 'id');
+select add_foreign_key_if_not_exists('operating_systems', 'device_id', 'devices', 'id');
 `)
 		if err != nil {
 			panic(err)
@@ -104,6 +90,5 @@ alter table devices
 		if err != nil {
 			panic(err)
 		}
-
 	}
 }
