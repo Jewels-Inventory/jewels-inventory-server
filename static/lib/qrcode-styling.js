@@ -1479,7 +1479,6 @@ var W = { exports: {} },
                             i = 0,
                             o = {};
                           ;
-
                         ) {
                           var s = r.read();
                           if (-1 == s) break;
@@ -1966,7 +1965,7 @@ var W = { exports: {} },
                         },
                         putBit: function (r) {
                           var n = Math.floor(e / 8);
-                          (t.length <= n && t.push(0), r && (t[n] |= 128 >>> e % 8), (e += 1));
+                          (t.length <= n && t.push(0), r && (t[n] |= 128 >>> (e % 8)), (e += 1));
                         },
                       };
                     return r;

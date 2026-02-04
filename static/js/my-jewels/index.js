@@ -1,4 +1,5 @@
 import jewelData from '../base/jewel.js';
+import { post } from '../../lib/jinya-http.js';
 
 jewelData('myJewelsData', {
   async init() {

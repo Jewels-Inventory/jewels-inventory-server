@@ -315,40 +315,15 @@
             <div class="cosmo-tab__content">
               <template x-if="addJewel.mode === 'auto'">
                 <div class="jewels-new">
-                  <div>
-                    <div class="token" x-html="addJewel.automatic.qrCode"></div>
+                  <div class="cosmo-message is--information">
+                    <h3 class="cosmo-message__header">Anmelden mit der App</h3>
+                    <p class="cosmo-message__message">
+                      Um dich mit der Jewels App anzumelden, musst du einfach nur den QR-Code scannen.<br />
+                      Danach musst du einfach nur auf "Gerät speichern" klicken und dann baut die App<br />
+                      automatisch eine Verbindung zu Jewels auf.
+                    </p>
                   </div>
-                  <div>
-                    <div class="cosmo-message is--information">
-                      <h3 class="cosmo-message__header">Wozu ist das Token da?</h3>
-                      <p class="cosmo-message__message">
-                        Das Token ist für die Jewels App oder den Jewels Linux Client,<br />
-                        um automatisiert Informationen über dein Gerät in Jewels zu speichern.<br />
-                        Um die Verwendung möglichst einfach zu machen,<br />
-                        kannst du den unten angezeigten QR Code einfach mit der Jewels App scannen.<br />
-                        Wenn du den Linux Client benutzt, musst du die Infos unter dem QR Code eintragen.
-                      </p>
-                    </div>
-                    <div class="cosmo-message is--warning">
-                      <h3 class="cosmo-message__header">Speicher dir das Token</h3>
-                      <p class="cosmo-message__message">
-                        Das Token ist nach dem Speichern nicht mehr verfügbar, bitte speicher es dir ab.
-                      </p>
-                    </div>
-                    <div class="cosmo-input__group">
-                      <label class="cosmo-label" for="tokenUrl">Url</label>
-                      <input class="cosmo-input" type="text" readonly id="tokenUrl" x-model="addJewel.automatic.host" />
-                      <label class="cosmo-label" for="token">Token</label>
-                      <input
-                        class="cosmo-input"
-                        type="text"
-                        readonly
-                        id="token"
-                        name="token"
-                        x-model="addJewel.automatic.token"
-                      />
-                    </div>
-                  </div>
+                  <div class="token" x-html="addJewel.automatic.qrCode"></div>
                 </div>
               </template>
               <template x-if="addJewel.mode === 'manual'">
