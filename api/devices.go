@@ -91,6 +91,8 @@ func deleteDevice(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func createDevice(w http.ResponseWriter, r *http.Request) {
