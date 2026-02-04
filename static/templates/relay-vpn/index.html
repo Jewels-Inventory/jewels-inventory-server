@@ -1,37 +1,41 @@
 <div x-data="relayVpnData">
   <table class="cosmo-table">
     <thead>
-    <tr>
-      <th>Hostname</th>
-      <th>Hersteller</th>
-      <th>Modell</th>
-      <th>Typ</th>
-      <th>Besitzer</th>
-      <th>Relay VPN Client</th>
-      <th></th>
-    </tr>
+      <tr>
+        <th>Hostname</th>
+        <th>Hersteller</th>
+        <th>Modell</th>
+        <th>Typ</th>
+        <th>Besitzer</th>
+        <th>Relay VPN Client</th>
+        <th></th>
+      </tr>
     </thead>
     <tbody>
-    <template x-for="device of devices" :key="device.id">
-      <tr>
-        <td x-text="device.hostname"></td>
-        <td x-text="device.manufacturer"></td>
-        <td x-text="device.model"></td>
-        <td x-text="device.type"></td>
-        <td x-text="device.owner.name"></td>
-        <td>
-          <select class="cosmo-select" x-model="relayConfigs[device.id]">
-            <option value="">Keine Konfiguration</option>
-            <template x-for="relayClient of relayClients">
-              <option :selected="device.relayServerId === relayClient.relayServerId && device.relayClientId === relayClient.id" :value="relayClient.relayServerId + '-' + relayClient.id" x-text="relayClient.name + ' (' + relayClient.allocatedIp + ')'"></option>
-            </template>
-          </select>
-        </td>
-        <td>
-          <button class="cosmo-button" @click="saveRelay(device)">Speichern</button>
-        </td>
-      </tr>
-    </template>
+      <template x-for="device of devices" :key="device.id">
+        <tr>
+          <td x-text="device.hostname"></td>
+          <td x-text="device.manufacturer"></td>
+          <td x-text="device.model"></td>
+          <td x-text="device.type"></td>
+          <td x-text="device.owner.name"></td>
+          <td>
+            <select class="cosmo-select" x-model="relayConfigs[device.id]">
+              <option value="">Keine Konfiguration</option>
+              <template x-for="relayClient of relayClients">
+                <option
+                  :selected="device.relayServerId === relayClient.relayServerId && device.relayClientId === relayClient.id"
+                  :value="relayClient.relayServerId + '-' + relayClient.id"
+                  x-text="relayClient.name + ' (' + relayClient.allocatedIp + ')'"
+                ></option>
+              </template>
+            </select>
+          </td>
+          <td>
+            <button class="cosmo-button" @click="saveRelay(device)">Speichern</button>
+          </td>
+        </tr>
+      </template>
     </tbody>
   </table>
 </div>

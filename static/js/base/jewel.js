@@ -76,7 +76,7 @@ export default function jewelData(name, additionalData = {}) {
             crossOrigin: 'anonymous',
             margin: 0,
             hideBackgroundDots: false,
-            imageSize: 1,
+            imageSize: 0.5,
           },
           width: 450,
           height: 450,

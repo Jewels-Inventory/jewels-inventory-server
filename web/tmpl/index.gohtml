@@ -102,6 +102,11 @@
             ></template>
 
             <template
+                    x-route="/desktop-login"
+                    x-handler="[$store.authentication.needsLogin, $store.authentication.desktopLogin]"
+            ></template>
+
+            <template
                     x-route="/my-jewels"
                     x-handler="[$store.authentication.needsLogin, $store.navigation.fetchScript]"
                     x-template="/static/templates/my-jewels/index.html"

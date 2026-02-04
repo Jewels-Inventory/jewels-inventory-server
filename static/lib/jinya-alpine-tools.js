@@ -1,6 +1,7 @@
 import Alpine from './alpine.js';
 import PineconeRouter from './pinecone-router.js';
 import * as client from './openid-client/index.js';
+import { post } from './jinya-http.js';
 
 let authenticationConfiguration = {
   openIdUrl: '',
@@ -55,7 +56,7 @@ export async function needsLogin(context) {
     return null;
   }
 
-  setRedirect(context.path);
+  setRedirect(location.pathname);
 
   return context.redirect('/login');
 }
@@ -79,7 +80,6 @@ export async function performLogin(context) {
   });
   setAccessToken(tokenResponse.access_token);
   Alpine.store('authentication').login();
-  context.redirect(getRedirect() ?? '/');
 }
 
 async function getUser() {
@@ -239,7 +239,7 @@ async function setupAlpine(alpine, defaultArea, defaultPage) {
     async login() {
       this.loggedIn = true;
       this.user = await (await getUser()).json();
-      history.replaceState(null, null, location.href.split('?')[0]);
+      window.PineconeRouter.context.navigate(getRedirect() ?? '/');
     },
     logout() {
       deleteAccessToken();
@@ -247,6 +247,33 @@ async function setupAlpine(alpine, defaultArea, defaultPage) {
       window.PineconeRouter.context.navigate('/login');
       this.loggedIn = false;
       this.roles = [];
+    },
+    async desktopLogin() {
+      const data = {
+        token: crypto.randomUUID(),
+        host: location.origin,
+      };
+      try {
+        await post('/api/my-jewels', {
+          mode: 'auto',
+          token: data.token,
+        });
+        await fetch('http://localhost:10523', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+          mode: 'cors',
+        });
+      } finally {
+        window.close();
+        setTimeout(() => {
+          if (!window.closed) {
+            window.PineconeRouter.context.navigate('/');
+          }
+        }, 200);
+      }
     },
   });
   Alpine.store('navigation', {
