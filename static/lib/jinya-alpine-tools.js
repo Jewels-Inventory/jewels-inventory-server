@@ -236,8 +236,9 @@ async function setupAlpine(alpine, defaultArea, defaultPage) {
     performLogin,
     user: await (await getUser()).json(),
     loggedIn: await checkLogin(),
-    login() {
+    async login() {
       this.loggedIn = true;
+      this.user = await (await getUser()).json();
       history.replaceState(null, null, location.href.split('?')[0]);
     },
     logout() {

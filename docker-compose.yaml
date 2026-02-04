@@ -1,11 +1,4 @@
 services:
-  jewels-mongodb:
-    image: mongo
-    ports:
-      - 27017:27017
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: jewels
-      MONGO_INITDB_ROOT_PASSWORD: jewels
   jewels-postgres:
     image: library/postgres:17-alpine
     ports:
