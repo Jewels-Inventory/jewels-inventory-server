@@ -8,3 +8,21 @@ services:
       POSTGRES_PASSWORD: jewels
       POSTGRES_ROOT_PASSWORD: jewels
       POSTGRES_USER: jewels
+  jewels-proxy:
+    image: library/traefik:latest
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - "./traefik/traefik_dynamic.yml:/dynamic.yml:ro"
+      - "./traefik/certs:/certs"
+    command:
+      - --entryPoints.web.address=:80
+      - --entryPoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls=true
+      - --entryPoints.traefik.address=:8060
+      - --providers.file.filename=/dynamic.yml
+      - --api.insecure=true
+      - --api.dashboard=true

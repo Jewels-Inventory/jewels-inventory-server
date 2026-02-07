@@ -266,3 +266,4 @@ e2e/*.map
 
 /mailing/admin.html
 /mailing/owner.html
+/traefik/certs

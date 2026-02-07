@@ -1,0 +1,22 @@
+http:
+  routers:
+    traefik:
+      rule: Host(`localhost`)
+      service: api@internal
+      entryPoints:
+        - traefik
+    plan:
+      rule: PathPrefix(`/`)
+      service: plan
+      entryPoints:
+        - websecure
+      tls: {}
+  services:
+    plan:
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:8090"
+tls:
+  certificates:
+    - certFile: /certs/jewels.zz.pem
+      keyFile: /certs/jewels.zz-key.pem
