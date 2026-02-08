@@ -3,7 +3,7 @@ package api
 import (
 	"encoding/json"
 	"jewels/database"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -43,7 +43,7 @@ func downloadAndUpdateDeviceEol(device database.Device) {
 					device.Eol = &eol
 					err = database.UpdateJewel(device.OwnerId, &device)
 					if err != nil {
-						log.Println(err)
+						slog.Error("Failed to download and update device EOL", "error", err)
 						return
 					}
 				}

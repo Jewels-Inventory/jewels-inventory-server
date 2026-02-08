@@ -2,8 +2,6 @@ package api
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"jewels/config"
 	"jewels/database"
 	"net/http"
@@ -60,7 +58,7 @@ func login(needsAdmin bool) func(next http.Handler) http.Handler {
 			}
 
 			owner, err := getOwnerFromToken(r)
-			if (err != nil && !errors.Is(err, sql.ErrNoRows)) || owner == nil {
+			if err != nil {
 				getZitadelMiddleware(needsAdmin)(next).ServeHTTP(w, r)
 				return
 			}
@@ -106,5 +104,18 @@ func createOrFindUser(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), "owner", owner)))
 		return
+	})
+}
+
+func createOrFindOwnerEncryptionKey(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		owner := r.Context().Value("owner").(*database.Owner)
+		encryptionKey, err := database.CreateOwnerEncryptionKeyIfNotExists(owner)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), "encryptionKey", encryptionKey)))
 	})
 }

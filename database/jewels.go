@@ -11,27 +11,27 @@ func fillJewel(device *Device) (*Device, error) {
 		return nil, err
 	}
 
-	cpu, err := SelectOne[*Cpu](`select * from cpus where device_id = $1 order by id`, device.Id)
+	cpu, err := SelectOne[Cpu](`select * from cpus where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	bios, err := SelectOne[*Bios](`select * from bios where device_id = $1 order by id`, device.Id)
+	bios, err := SelectOne[Bios](`select * from bios where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	mainboard, err := SelectOne[*Mainboard](`select * from mainboards where device_id = $1 order by id`, device.Id)
+	mainboard, err := SelectOne[Mainboard](`select * from mainboards where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	kernel, err := SelectOne[*Kernel](`select * from kernels where device_id = $1 order by id`, device.Id)
+	kernel, err := SelectOne[Kernel](`select * from kernels where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	operatingSystem, err := SelectOne[*OperatingSystem](`select * from operating_systems where device_id = $1 order by id`, device.Id)
+	operatingSystem, err := SelectOne[OperatingSystem](`select * from operating_systems where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func FindJewelByOwnerAndDeviceId(ownerId int64, deviceId string) (*Device, error
 		return nil, err
 	}
 
-	return fillJewel(&jewel)
+	return fillJewel(jewel)
 }
 
 func FindJewelByDeviceId(deviceId string) (*Device, error) {
@@ -83,7 +83,7 @@ func FindJewelByDeviceId(deviceId string) (*Device, error) {
 		return nil, err
 	}
 
-	return fillJewel(&jewel)
+	return fillJewel(jewel)
 }
 
 func DeleteJewel(ownerId int64, jewel string) error {

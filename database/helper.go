@@ -16,11 +16,11 @@ func Get[R any](keys ...any) (*R, error) {
 	return nil, err
 }
 
-func SelectOne[R any](query string, keys ...any) (R, error) {
+func SelectOne[R any](query string, keys ...any) (*R, error) {
 	var r R
 	err := dbMap.SelectOne(&r, query, keys...)
 
-	return r, err
+	return &r, err
 }
 
 func Select[R any](query string, keys ...any) ([]R, error) {
