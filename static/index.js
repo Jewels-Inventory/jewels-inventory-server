@@ -6,8 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     defaultPage: 'index',
     baseScriptPath: '/static/js/',
     routerBasePath: '/',
-    openIdClientId: window.jewelsConfig.openIdClientId,
-    openIdUrl: window.jewelsConfig.openIdUrl,
-    openIdCallbackUrl: window.jewelsConfig.openIdCallbackUrl,
+    openIdConfig: jewelsOpenIdConfig,
   });
 });
