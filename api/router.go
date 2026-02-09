@@ -125,7 +125,7 @@ func SetupApiRouter(router *mux.Router) {
 		HandlerFunc(pushDeviceData)
 
 	otpRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
-	myJewelsRouter.Use(login(false), createOrFindUser, contentTypeJson)
-	adminRouter.Use(login(true), createOrFindUser, contentTypeJson)
-	devicesRouter.Use(login(false), createOrFindUser, contentTypeJson)
+	myJewelsRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	adminRouter.Use(login(true), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	devicesRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 }

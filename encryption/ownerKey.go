@@ -1,35 +1,41 @@
 package encryption
 
 import (
-	"bytes"
+	"crypto/cipher"
 	"crypto/rand"
-	"io"
+	"fmt"
 
-	"filippo.io/age"
+	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func CreateOwnerKey() (string, error) {
-	return EncryptString(rand.Text())
-}
-
-func EncryptOwnerString(data, encryptedOwnerKey string) (string, error) {
-	recipient, err := getRecipient(encryptedOwnerKey)
+	data := make([]byte, 32)
+	_, err := rand.Read(data)
 	if err != nil {
 		return "", err
 	}
 
-	return encryptString(recipient, data)
+	return EncryptString(string(data))
 }
 
-func EncryptOwnerList(data []string, encryptedOwnerKey string) ([]string, error) {
-	recipient, err := getRecipient(encryptedOwnerKey)
+func EncryptOwnerString(data, encryptedOwnerKey string) ([]byte, error) {
+	aead, err := getAead(encryptedOwnerKey)
 	if err != nil {
 		return nil, err
 	}
 
-	result := make([]string, len(data))
+	return encrypt(aead, []byte(data))
+}
+
+func EncryptOwnerList(data []string, encryptedOwnerKey string) ([][]byte, error) {
+	aead, err := getAead(encryptedOwnerKey)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([][]byte, len(data))
 	for i, item := range data {
-		result[i], err = encryptString(recipient, item)
+		result[i], err = encrypt(aead, []byte(item))
 		if err != nil {
 			return nil, err
 		}
@@ -38,82 +44,65 @@ func EncryptOwnerList(data []string, encryptedOwnerKey string) ([]string, error)
 	return result, nil
 }
 
-func DecryptOwnerString(data, encryptedOwnerKey string) (string, error) {
-	identity, err := getIdentity(encryptedOwnerKey)
+func DecryptOwnerString(data []byte, encryptedOwnerKey string) (string, error) {
+	aead, err := getAead(encryptedOwnerKey)
 	if err != nil {
 		return "", err
 	}
 
-	return decryptString(identity, data)
+	res, err := decrypt(aead, data)
+	if err != nil {
+		return "", err
+	}
+
+	return string(res), nil
 }
 
-func DecryptOwnerList(data []string, encryptedOwnerKey string) ([]string, error) {
-	identity, err := getIdentity(encryptedOwnerKey)
+func DecryptOwnerList(data [][]byte, encryptedOwnerKey string) ([]string, error) {
+	aead, err := getAead(encryptedOwnerKey)
 	if err != nil {
 		return nil, err
 	}
 
 	result := make([]string, len(data))
 	for i, item := range data {
-		result[i], err = decryptString(identity, item)
+		res, err := decrypt(aead, item)
 		if err != nil {
 			return nil, err
 		}
+		result[i] = string(res)
 	}
 
 	return result, nil
 }
 
-func getRecipient(encryptedOwnerKey string) (age.Recipient, error) {
-	decryptedOwnerKey, err := DecryptString(encryptedOwnerKey)
+func getAead(key string) (cipher.AEAD, error) {
+	decryptedOwnerKey, err := DecryptString(string(key))
 	if err != nil {
 		return nil, err
 	}
 
-	return age.NewScryptRecipient(decryptedOwnerKey)
+	return chacha20poly1305.New([]byte(decryptedOwnerKey))
 }
 
-func getIdentity(encryptedOwnerKey string) (age.Identity, error) {
-	decryptedOwnerKey, err := DecryptString(encryptedOwnerKey)
-	if err != nil {
+func encrypt(aead cipher.AEAD, data []byte) ([]byte, error) {
+	nonce := make([]byte, chacha20poly1305.NonceSize)
+	if _, err := rand.Read(nonce); err != nil {
 		return nil, err
 	}
 
-	return age.NewScryptIdentity(decryptedOwnerKey)
+	ciphertext := aead.Seal(nonce, nonce, data, nil)
+	return ciphertext, nil
 }
 
-func encryptString(recipient age.Recipient, data string) (string, error) {
-	var buf bytes.Buffer
-	w, err := age.Encrypt(&buf, recipient)
-	if err != nil {
-		return "", err
+func decrypt(aead cipher.AEAD, data []byte) ([]byte, error) {
+	nonceSize := chacha20poly1305.NonceSize
+	if len(data) < nonceSize {
+		return nil, fmt.Errorf("ciphertext too short")
 	}
 
-	_, err = w.Write([]byte(data))
-	if err != nil {
-		return "", err
-	}
+	nonce := data[:nonceSize]
+	actualCiphertext := data[nonceSize:]
 
-	err = w.Close()
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func decryptString(identity age.Identity, data string) (string, error) {
-	buf := bytes.NewBufferString(data)
-	r, err := age.Decrypt(buf, identity)
-	if err != nil {
-		return "", err
-	}
-
-	var out bytes.Buffer
-	_, err = io.Copy(&out, r)
-	if err != nil {
-		return "", err
-	}
-
-	return out.String(), nil
+	return aead.Open(nil, nonce, actualCiphertext, nil)
 }

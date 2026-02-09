@@ -58,7 +58,7 @@ func ImportOtp(file string, userId int64) error {
 	}
 
 	for i, _ := range otps {
-		otps[i].EncryptedSecretKey = []byte(encryptedSecrets[i])
+		otps[i].EncryptedSecretKey = encryptedSecrets[i]
 	}
 
 	toInsert := make([]interface{}, len(otps))

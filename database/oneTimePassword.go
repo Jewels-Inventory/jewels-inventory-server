@@ -63,9 +63,9 @@ where otp.owner_id = $1
 		return nil, err
 	}
 
-	encryptedSecrets := make([]string, len(otps))
+	encryptedSecrets := make([][]byte, len(otps))
 	for i, otp := range otps {
-		encryptedSecrets[i] = string(otp.EncryptedSecretKey)
+		encryptedSecrets[i] = otp.EncryptedSecretKey
 	}
 
 	decryptedSecrets, err := encryption.DecryptOwnerList(encryptedSecrets, ownerKey.EncryptedKey)
@@ -129,9 +129,9 @@ where otps.shared_to_owner_id = $1`, owner.Id)
 			return nil, err
 		}
 
-		encryptedSecrets := make([]string, len(groupedOtp))
+		encryptedSecrets := make([][]byte, len(groupedOtp))
 		for i, otp := range groupedOtp {
-			encryptedSecrets[i] = string(otp.EncryptedSecretKey)
+			encryptedSecrets[i] = otp.EncryptedSecretKey
 		}
 
 		decryptedSecrets, err := encryption.DecryptOwnerList(encryptedSecrets, ownerKey.EncryptedKey)
@@ -165,7 +165,7 @@ where id = $1
 		return nil, err
 	}
 
-	otp.SecretKey, err = encryption.DecryptOwnerString(string(otp.EncryptedSecretKey), ownerKey.EncryptedKey)
+	otp.SecretKey, err = encryption.DecryptOwnerString(otp.EncryptedSecretKey, ownerKey.EncryptedKey)
 	if err != nil {
 		return nil, err
 	}
