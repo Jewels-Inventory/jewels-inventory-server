@@ -3,7 +3,6 @@ package cmd
 import (
 	"embed"
 	"jewels/api"
-	"jewels/encryption"
 	"jewels/web"
 	"log/slog"
 	"net/http"
@@ -42,8 +41,6 @@ func GetServeCmd(openapi, static embed.FS) *cobra.Command {
 		Use:   "serve",
 		Short: "Serves the web app of Jewels",
 		Run: func(cmd *cobra.Command, args []string) {
-			encryption.SetupEncryption()
-
 			slog.Info("Starting server")
 			router := mux.NewRouter()
 

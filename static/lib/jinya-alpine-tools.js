@@ -1,52 +1,41 @@
 import Alpine from './alpine.js';
 import PineconeRouter from './pinecone-router.js';
 import { UserManager } from './openid-client/index.js';
-import { post } from './jinya-http.js';
 
 let authenticationConfiguration = {};
 /** @type UserManager */
 let userManager = null;
 let scriptBasePath = '/static/js/';
+let baseRouterPath = '';
+let localStoragePrefix = '';
 let languages = {};
 
 export function setRedirect(redirect) {
-  sessionStorage.setItem('/jewels/login/redirect', redirect);
+  sessionStorage.setItem(`${localStoragePrefix}/login/redirect`, redirect);
 }
 
 export function getRedirect() {
-  return sessionStorage.getItem('/jewels/login/redirect');
+  return sessionStorage.getItem(`${localStoragePrefix}/login/redirect`);
 }
 
 export function deleteRedirect() {
-  sessionStorage.removeItem('/jewels/login/redirect');
+  sessionStorage.removeItem(`${localStoragePrefix}/login/redirect`);
 }
 
 export function hasAccessToken() {
-  return !!localStorage.getItem('/jewels/api/access-token');
+  return !!localStorage.getItem(`${localStoragePrefix}/api/access-token`);
 }
 
 export function getAccessToken() {
-  return localStorage.getItem('/jewels/api/access-token');
+  return localStorage.getItem(`${localStoragePrefix}/api/access-token`);
 }
 
 export function setAccessToken(code) {
-  localStorage.setItem('/jewels/api/access-token', code);
+  localStorage.setItem(`${localStoragePrefix}/api/access-token`, code);
 }
 
 export function deleteAccessToken() {
-  localStorage.removeItem('/jewels/api/access-token');
-}
-
-function setCodeVerifier(code) {
-  localStorage.setItem('/jewels/login/code-verifier', code);
-}
-
-function getCodeVerifier() {
-  return localStorage.getItem('/jewels/login/code-verifier');
-}
-
-function deleteCodeVerifier() {
-  localStorage.removeItem('/jewels/login/code-verifier');
+  localStorage.removeItem(`${localStoragePrefix}/api/access-token`);
 }
 
 export async function needsLogin(context) {
@@ -54,7 +43,8 @@ export async function needsLogin(context) {
     return null;
   }
 
-  setRedirect(location.pathname);
+  const redirect = context.path.substring(baseRouterPath.length);
+  setRedirect(redirect);
 
   return context.redirect('/login');
 }
@@ -68,8 +58,7 @@ export async function needsLogout(context) {
 }
 
 function getUserManager() {
-  const config = jewelsOpenIdConfig;
-  return new UserManager(config);
+  return new UserManager(authenticationConfiguration);
 }
 
 export async function openIdLogin() {
@@ -80,6 +69,7 @@ export async function performLogin(context) {
   const user = await userManager.signinCallback();
   setAccessToken(user.access_token);
   Alpine.store('authentication').login();
+  context.redirect(getRedirect() ?? '/');
 }
 
 async function getUser() {
@@ -100,7 +90,13 @@ export async function checkLogin() {
 }
 
 export async function fetchScript({ route }) {
-  const [, area, page] = route.split('/');
+  let [page, area] = route.split('/').reverse();
+
+  if (!area) {
+    area = page;
+    page = 'index';
+  }
+
   if (area) {
     await import(`${scriptBasePath}${area}/${page?.replaceAll(':', '') ?? 'index'}.js`);
     Alpine.store('navigation').navigate({
@@ -158,7 +154,13 @@ export function setupLocalization(Alpine, langs) {
 }
 
 async function setupAuthentication(openIdConfig) {
-  authenticationConfiguration = openIdConfig;
+  authenticationConfiguration = {
+    redirect_uri: `${location.origin}${baseRouterPath}/login/callback`,
+    post_logout_redirect_uri: location.origin,
+    scope: `openid profile email offline_access ${openIdConfig.additionalScopes}`,
+    code_challenge_method: 'S256',
+    ...openIdConfig,
+  };
   userManager = await getUserManager();
 }
 
@@ -255,6 +257,7 @@ export async function setup({
   defaultArea,
   defaultPage,
   baseScriptPath,
+  storagePrefix,
   routerBasePath = '',
   openIdConfig = undefined,
   languages = [],
@@ -263,6 +266,8 @@ export async function setup({
   if (openIdConfig) {
     await setupAuthentication(openIdConfig);
   }
+  baseRouterPath = routerBasePath;
+  localStoragePrefix = storagePrefix || '';
   window.Alpine = Alpine;
 
   Alpine.plugin(PineconeRouter);

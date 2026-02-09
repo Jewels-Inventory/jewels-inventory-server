@@ -44,10 +44,6 @@
           window.jewelsOpenIdConfig = {
             authority: 'https://{{ .OidcDomain }}',
             client_id: '{{ .OidcFrontendClientId }}',
-            redirect_uri: `${location.origin}/login/callback`,
-            post_logout_redirect_uri: location.origin,
-            scope: 'openid profile email offline_access',
-            code_challenge_method: 'S256',
           };
         </script>
     </head>

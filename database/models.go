@@ -126,7 +126,8 @@ type OneTimePasswordShare struct {
 
 type OneTimePasswordWithIcon struct {
 	OneTimePassword
-	SimpleIcon
+	BrandIcon  string `json:"brandIcon" db:"brand_icon"`
+	SimpleIcon string `json:"simpleIcon" db:"simple_icon"`
 }
 
 type OneTimePasswordWithShare struct {
@@ -134,10 +135,17 @@ type OneTimePasswordWithShare struct {
 	SharedWith []Owner `json:"sharedWith" db:"-"`
 }
 
+type BrandIcon struct {
+	Name      string `json:"Name" db:"name"`
+	Reference string `json:"Reference" db:"reference"`
+	SVG       string `json:"SVG" db:"svg"`
+	PNG       string `json:"PNG" db:"png"`
+	WebP      string `json:"WebP" db:"webp"`
+}
+
 type SimpleIcon struct {
-	Title    string `json:"title" db:"title"`
-	Slug     string `json:"slug" db:"slug"`
-	Code     string `json:"code" db:"code"`
-	Hex      string `json:"hex" db:"hex"`
-	IconData string `json:"iconData" db:"icon_data"`
+	Title string `json:"title" db:"title"`
+	Slug  string `json:"slug" db:"slug"`
+	Code  string `json:"code" db:"code"`
+	Hex   string `json:"hex" db:"hex"`
 }

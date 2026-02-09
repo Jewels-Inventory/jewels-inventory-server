@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     defaultArea: 'my-jewels',
     defaultPage: 'index',
     baseScriptPath: '/static/js/',
+    storagePrefix: '/jewels',
     routerBasePath: '/',
     openIdConfig: jewelsOpenIdConfig,
   });

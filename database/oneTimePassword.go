@@ -15,11 +15,8 @@ select coalesce(jsonb_agg(
                                 'accountName', otp.account_name,
                                 'accountIssuer', otp.account_issuer,
                                 'encryptedSecretKey', encode(otp.secret_key::bytea, 'base64'),
-                                'title', si.title,
-                                'slug', si.slug,
-                                'code', si.code,
-                                'hex', si.hex,
-                                'iconData', si.icon_data,
+                                'brandIcon', bi.reference,
+                                'simpleIcon', si.slug,
                                 'sharedWith', coalesce(
                                         (select json_agg(
                                                         jsonb_build_object(
@@ -39,9 +36,14 @@ select coalesce(jsonb_agg(
                          ))
                 ), '[]')
 from one_time_passwords otp
-         left join lateral ( select *, similarity(si.slug, otp.account_issuer) as score
+         left join lateral ( select *, similarity(bi.name, otp.account_issuer) as score
+                             from brand_icons bi
+                             where bi.name % otp.account_issuer
+                             order by score desc
+                             limit 1 ) bi on true
+         left join lateral ( select *, similarity(si.title, otp.account_issuer) as score
                              from simple_icons si
-                             where si.slug % otp.account_issuer
+                             where si.title % otp.account_issuer
                              order by score desc
                              limit 1 ) si on true
 where otp.owner_id = $1
@@ -89,13 +91,19 @@ func FindSharedOneTimePasswords(owner *Owner) ([]OneTimePasswordWithIcon, error)
 	sharedOtps, err := Select[sharedOneTimePassword](`
 select otp.*,
        otps.shared_to_owner_id,
-       si.*
+       bi.reference as brand_icon,
+       si.slug as simple_icon
 from one_time_passwords otp
          join one_time_password_shares otps on otps.one_time_password_id = otp.id
-         left join lateral ( select *
+         left join lateral ( select *, similarity(bi.name, otp.account_issuer) as score
+                             from brand_icons bi
+                             where bi.name % otp.account_issuer
+                             order by score desc
+                             limit 1 ) bi on true
+         left join lateral ( select *, similarity(si.title, otp.account_issuer) as score
                              from simple_icons si
-                             where si.slug % otp.account_issuer
-                             order by similarity(si.slug, otp.account_issuer) desc
+                             where si.title % otp.account_issuer
+                             order by score desc
                              limit 1 ) si on true
 where otps.shared_to_owner_id = $1`, owner.Id)
 	if err != nil {

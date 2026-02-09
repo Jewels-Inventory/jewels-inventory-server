@@ -41,6 +41,7 @@ func SetupDatabase() {
 		AddTableWithName[OneTimePassword]("one_time_passwords")
 		AddTableWithName[OneTimePasswordShare]("one_time_password_shares").
 			SetUniqueTogether("one_time_password_id", "shared_to_owner_id")
+		AddTableWithName[BrandIcon]("brand_icons")
 		AddTableWithName[SimpleIcon]("simple_icons")
 
 		err = GetDbMap().CreateTablesIfNotExists()

@@ -77,8 +77,8 @@ func SetupApiRouter(router *mux.Router) {
 
 	iconsRouter.
 		Methods(http.MethodGet).
-		PathPrefix("").
-		HandlerFunc(getIcons)
+		PathPrefix("/{brand}").
+		HandlerFunc(getIcon)
 
 	adminRouter.
 		Methods(http.MethodGet).
@@ -124,7 +124,6 @@ func SetupApiRouter(router *mux.Router) {
 		Path("/{type:(?:watch|computer|phone)}").
 		HandlerFunc(pushDeviceData)
 
-	iconsRouter.Use(login(false), createOrFindUser, contentTypeJson)
 	otpRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	myJewelsRouter.Use(login(false), createOrFindUser, contentTypeJson)
 	adminRouter.Use(login(true), createOrFindUser, contentTypeJson)

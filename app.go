@@ -6,6 +6,7 @@ import (
 	"jewels/cmd"
 	"jewels/config"
 	"jewels/database"
+	"jewels/encryption"
 	"jewels/logging"
 	"log/slog"
 	"os"
@@ -31,12 +32,14 @@ func init() {
 	rootCmd.AddCommand(cmd.GetServeCmd(openapi, static))
 	rootCmd.AddCommand(cmd.GetCheckEolCmd())
 	rootCmd.AddCommand(cmd.GetUpdateIconsCmd())
+	rootCmd.AddCommand(cmd.GetImportOtpCmd())
 }
 
 func main() {
 	logging.SetupLogging()
 	slog.Info("Prepared logging")
 
+	encryption.SetupEncryption()
 	slog.Info("Loading configuration")
 	err := config.LoadConfiguration()
 	if err != nil {

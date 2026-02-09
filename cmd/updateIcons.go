@@ -12,13 +12,8 @@ func GetUpdateIconsCmd() *cobra.Command {
 		Use:   "update-icons",
 		Short: "Update all known brand icons",
 		Run: func(cmd *cobra.Command, args []string) {
-			slog.Info("Replace all simple icons")
-			err := icons.UpdateIconCache()
-			if err != nil {
-				slog.Error("Failed to update icon cache", "error", err)
-			} else {
-				slog.Info("Updated icon cache")
-			}
+			slog.Info("Replace all brand icons")
+			icons.UpdateIconCache()
 		},
 	}
 }
