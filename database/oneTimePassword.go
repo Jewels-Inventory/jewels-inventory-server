@@ -32,8 +32,8 @@ select coalesce(jsonb_agg(
                                                        on o.id = otps.shared_to_owner_id
                                          where otps.one_time_password_id = otp.id),
                                         '[]'::json
-                                          )
-                         ))
+                                              )
+                         )) order by account_issuer, account_issuer
                 ), '[]')
 from one_time_passwords otp
          left join lateral ( select *, similarity(bi.name, otp.account_issuer) as score
@@ -46,8 +46,7 @@ from one_time_passwords otp
                              where si.title % otp.account_issuer
                              order by score desc
                              limit 1 ) si on true
-where otp.owner_id = $1
-`, owner.Id)
+where otp.owner_id = $1`, owner.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,8 @@ from one_time_passwords otp
                              where si.title % otp.account_issuer
                              order by score desc
                              limit 1 ) si on true
-where otps.shared_to_owner_id = $1`, owner.Id)
+where otps.shared_to_owner_id = $1
+order by otp.account_issuer, otp.account_name`, owner.Id)
 	if err != nil {
 		return nil, err
 	}
