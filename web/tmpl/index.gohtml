@@ -36,6 +36,7 @@
         <link rel="stylesheet" type="text/css" href="/static/css/cosmo-edits.css">
         <link rel="stylesheet" type="text/css" href="/static/css/form.css">
         <link rel="stylesheet" type="text/css" href="/static/css/devicelist.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/otp.css">
         <link rel="stylesheet" type="text/css" href="/static/css/jodit.css">
         <link rel="stylesheet" type="text/css" href="/static/css/new-jewel.css">
 
@@ -65,7 +66,14 @@
                                 href="/my-jewels"
                                 x-active-route.area="my-jewels"
                         >
-                            Meine Jewels
+                            Meine Geräte
+                        </a>
+                        <a
+                                class="cosmo-menu__item"
+                                href="/two-factor"
+                                x-active-route.area="two-factor"
+                        >
+                            Meine Zwei-Faktor Codes
                         </a>
                         <template x-if="$store.authentication.user.roles.includes('admin')">
                             <a
@@ -109,6 +117,12 @@
                     x-route="/my-jewels"
                     x-handler="[$store.authentication.needsLogin, $store.navigation.fetchScript]"
                     x-template="/static/templates/my-jewels/index.html"
+            ></template>
+
+            <template
+                    x-route="/two-factor"
+                    x-handler="[$store.authentication.needsLogin, $store.navigation.fetchScript]"
+                    x-template="/static/templates/two-factor/index.html"
             ></template>
 
             <template

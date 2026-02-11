@@ -126,13 +126,20 @@ type OneTimePasswordShare struct {
 
 type OneTimePasswordWithIcon struct {
 	OneTimePassword
-	BrandIcon  string `json:"brandIcon" db:"brand_icon"`
-	SimpleIcon string `json:"simpleIcon" db:"simple_icon"`
+	BrandIcon            string  `json:"brandIcon" db:"brand_icon"`
+	SimpleIcon           string  `json:"simpleIcon" db:"simple_icon"`
+	BrandIconSimilarity  float64 `json:"brandIconSimilarity" db:"brand_icon_similarity"`
+	SimpleIconSimilarity float64 `json:"simpleIconSimilarity" db:"simple_icon_similarity"`
 }
 
 type OneTimePasswordWithShare struct {
 	OneTimePasswordWithIcon
 	SharedWith []Owner `json:"sharedWith" db:"-"`
+}
+
+type SharedOneTimePassword struct {
+	OneTimePasswordWithIcon
+	SharedBy *Owner `json:"sharedBy" db:"-"`
 }
 
 type BrandIcon struct {

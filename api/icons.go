@@ -45,9 +45,9 @@ func getSimpleIcon(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	w.Header().Set("Content-Type", "image/webp")
+	w.Header().Set("Content-Type", "image/svg+xml")
 	w.Header().Set("Cache-Control", "max-age=604800")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.webp", icon.Title))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.svg", icon.Title))
 	w.Header().Set("Content-Transfer-Encoding", "binary")
 	_, err = w.Write(data)
 

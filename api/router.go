@@ -16,6 +16,9 @@ func SetupApiRouter(router *mux.Router) {
 	adminRouter := apiRouter.
 		PathPrefix("/admin").
 		Subrouter()
+	ownerRouter := apiRouter.
+		PathPrefix("/owner").
+		Subrouter()
 	myJewelsRouter := apiRouter.
 		PathPrefix("/my-jewels").
 		Subrouter()
@@ -50,6 +53,11 @@ func SetupApiRouter(router *mux.Router) {
 		Path("/{jewel}/vpn-config").
 		HandlerFunc(getVpnConfig)
 
+	ownerRouter.
+		Methods(http.MethodGet).
+		Path("").
+		HandlerFunc(getOwners)
+
 	otpRouter.
 		Methods(http.MethodGet).
 		Path("").
@@ -66,6 +74,10 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodDelete).
 		Path("/{id}").
 		HandlerFunc(deleteOneTimePassword)
+	otpRouter.
+		Methods(http.MethodPost).
+		Path("/{id}/share").
+		HandlerFunc(oneTimePasswordShare)
 	otpRouter.
 		Methods(http.MethodPost).
 		Path("/{id}/share/{shareWith}").
@@ -125,6 +137,7 @@ func SetupApiRouter(router *mux.Router) {
 		HandlerFunc(pushDeviceData)
 
 	otpRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	ownerRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	myJewelsRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	adminRouter.Use(login(true), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	devicesRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)

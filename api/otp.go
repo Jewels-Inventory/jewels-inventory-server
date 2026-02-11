@@ -82,9 +82,7 @@ func updateOneTimePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body struct {
-		AccountName   string `json:"accountName"`
-		AccountIssuer string `json:"accountIssuer"`
-		SecretKey     string `json:"secretKey"`
+		AccountName string `json:"accountName"`
 	}
 
 	err = decoder.Decode(&body)
@@ -95,9 +93,8 @@ func updateOneTimePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = database.UpdateOneTimePassword(owner, &database.OneTimePassword{
-		Id:            id,
-		AccountName:   body.AccountName,
-		AccountIssuer: body.AccountIssuer,
+		Id:          id,
+		AccountName: body.AccountName,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -173,6 +170,37 @@ func unshareOneTimePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = database.UnshareOneTimePassword(owner, shareWith, id)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func oneTimePasswordShare(w http.ResponseWriter, r *http.Request) {
+	owner := getUserFromRequest(r)
+	vars := mux.Vars(r)
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	var body struct {
+		SharedWith []int64 `json:"sharedWith"`
+	}
+
+	err = decoder.Decode(&body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	}
+
+	err = database.UpdateOneTimePasswordShares(owner, body.SharedWith, id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))

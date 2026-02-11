@@ -15,8 +15,10 @@ select coalesce(jsonb_agg(
                                 'accountName', otp.account_name,
                                 'accountIssuer', otp.account_issuer,
                                 'encryptedSecretKey', encode(otp.secret_key::bytea, 'base64'),
-                                'brandIcon', bi.reference,
-                                'simpleIcon', si.slug,
+							    'brandIcon', bi.reference,
+							    'brandIconSimilarity', coalesce(bi.score, 0),
+							    'simpleIcon', si.slug,
+							    'simpleIconSimilarity', coalesce(si.score, 0),
                                 'sharedWith', coalesce(
                                         (select json_agg(
                                                         jsonb_build_object(
@@ -81,7 +83,7 @@ where otp.owner_id = $1`, owner.Id)
 	return otps, nil
 }
 
-func FindSharedOneTimePasswords(owner *Owner) ([]OneTimePasswordWithIcon, error) {
+func FindSharedOneTimePasswords(owner *Owner) ([]SharedOneTimePassword, error) {
 	type sharedOneTimePassword struct {
 		OneTimePasswordWithIcon
 		SharedToOwnerId int64 `db:"shared_to_owner_id"`
@@ -90,8 +92,10 @@ func FindSharedOneTimePasswords(owner *Owner) ([]OneTimePasswordWithIcon, error)
 	sharedOtps, err := Select[sharedOneTimePassword](`
 select otp.*,
        otps.shared_to_owner_id,
-       bi.reference as brand_icon,
-       si.slug as simple_icon
+       coalesce(bi.reference, '') as brand_icon,
+       coalesce(si.slug, '')      as simple_icon,
+       coalesce(bi.score, 0)      as brand_icon_similarity,
+	   coalesce(si.score, 0)      as simple_icon_similarity
 from one_time_passwords otp
          join one_time_password_shares otps on otps.one_time_password_id = otp.id
          left join lateral ( select *, similarity(bi.name, otp.account_issuer) as score
@@ -110,13 +114,16 @@ order by otp.account_issuer, otp.account_name`, owner.Id)
 		return nil, err
 	}
 
-	groupedOtps := make(map[int64][]OneTimePasswordWithIcon)
+	groupedOtps := make(map[int64][]SharedOneTimePassword)
 	for _, otp := range sharedOtps {
 		group := groupedOtps[otp.OwnerId]
-		groupedOtps[otp.OwnerId] = append(group, otp.OneTimePasswordWithIcon)
+		groupedOtps[otp.OwnerId] = append(group, SharedOneTimePassword{
+			OneTimePasswordWithIcon: otp.OneTimePasswordWithIcon,
+			SharedBy:                nil,
+		})
 	}
 
-	otps := make([]OneTimePasswordWithIcon, 0)
+	otps := make([]SharedOneTimePassword, 0)
 
 	for ownerId, groupedOtp := range groupedOtps {
 		o, err := FindOwnerById(ownerId)
@@ -143,6 +150,7 @@ order by otp.account_issuer, otp.account_name`, owner.Id)
 			otp.SecretKey = decryptedSecrets[i]
 			otp.CanEdit = false
 			otp.EncryptedSecretKey = nil
+			otp.SharedBy = o
 			otps = append(otps, otp)
 		}
 	}
@@ -199,10 +207,9 @@ func CreateOneTimePassword(owner *Owner, otp *OneTimePassword) error {
 func UpdateOneTimePassword(owner *Owner, otp *OneTimePassword) error {
 	_, err := dbMap.Exec(`
 update one_time_passwords
-set account_issuer = coalesce($1, account_issuer),
-    account_name   = coalesce($2, account_name)
-where id = $3
-  and owner_id = $4`, otp.AccountIssuer, otp.AccountName, otp.Id, owner.Id)
+set account_name   = coalesce($1, account_name)
+where id = $2
+  and owner_id = $3`, otp.AccountName, otp.Id, owner.Id)
 
 	return err
 }
@@ -243,4 +250,42 @@ where otps.one_time_password_id = $1
   and otps.one_time_password_id = otp.id
   and otp.owner_id = $3`, otpId, sharedTo, owner.Id)
 	return err
+}
+
+func UpdateOneTimePasswordShares(owner *Owner, sharedTo []int64, otpId int64) error {
+	otp, err := FindOneTimePassword(owner, otpId)
+	if err != nil {
+		return err
+	}
+
+	tx, err := dbMap.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	_, err = tx.Exec(`
+delete
+from one_time_password_shares otps
+using one_time_passwords otp
+where otps.one_time_password_id = $1
+  and otps.one_time_password_id = otp.id
+  and otp.owner_id = $2`, otpId, owner.Id)
+	if err != nil {
+		return err
+	}
+
+	for _, sharedToId := range sharedTo {
+		if sharedToId != owner.Id {
+			_, err = tx.Exec(`
+insert into one_time_password_shares (one_time_password_id, shared_to_owner_id)
+values ($1, $2)`, otp.Id, sharedToId)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return tx.Commit()
 }

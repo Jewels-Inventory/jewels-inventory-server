@@ -1,5 +1,7 @@
 import Alpine from './alpine.js';
-import PineconeRouter from './pinecone-router.js';
+import PineconeRouter from './plugins/pinecone-router.js';
+import Collapse from './plugins/collapse.js';
+import Anchor from './plugins/anchor.js';
 import { UserManager } from './openid-client/index.js';
 
 let authenticationConfiguration = {};
@@ -271,6 +273,8 @@ export async function setup({
   window.Alpine = Alpine;
 
   Alpine.plugin(PineconeRouter);
+  Alpine.plugin(Collapse);
+  Alpine.plugin(Anchor);
 
   if (Object.keys(languages ?? {}).length > 0) {
     setupLocalization(Alpine, languages);

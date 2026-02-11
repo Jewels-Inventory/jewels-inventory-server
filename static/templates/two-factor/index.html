@@ -1,0 +1,128 @@
+<div x-data="twoFactorData">
+  <template x-if="loading">
+    <jinya-loader />
+  </template>
+  <template x-if="!loading">
+    <div class="two-factor__container">
+      <span class="cosmo-title">Meine Zwei-Faktor Codes</span>
+      <div class="two-factor__list">
+        <template x-for="otp of twoFactorCodes.myOneTimePasswords" :key="otp.id">
+          <div class="two-factor__item" @click="copyCodeToClipboard(otp.secretKey)" x-data="{ menuOpen: false }">
+            <img class="two-factor__icon" :src="getOtpIcon(otp)" />
+            <span class="two-factor__issuer" x-text="otp.accountIssuer"></span>
+            <span class="two-factor__code" x-text="$totp(otp.secretKey, currentTimer)"></span>
+            <span class="two-factor__name" x-text="otp.accountName"></span>
+            <button
+              @click.outside="menuOpen = false"
+              @click.prevent.stop="menuOpen = !menuOpen"
+              class="two-factor__edit-button"
+              x-ref="openMenu"
+            >
+              <svg
+                x-show="!menuOpen"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="12" cy="5" r="1" />
+                <circle cx="12" cy="19" r="1" />
+              </svg>
+              <svg
+                x-show="menuOpen"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="lucide lucide-x-icon lucide-x"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </button>
+            <div x-show="menuOpen" x-anchor.bottom-end.offset="$refs.openMenu" x-collapse class="two-factor__menu">
+              <a @click.stop.prevent="shareOtp(otp)" class="two-factor__menu-item">Teilen</a>
+              <a @click.stop.prevent="editOtp(otp)" class="two-factor__menu-item">Bearbeiten</a>
+              <a @click.stop.prevent="deleteOtp(otp)" class="two-factor__menu-item">Löschen</a>
+            </div>
+            <div
+              class="two-factor__progress"
+              :class="{ 'is--copied': copiedTotp === otp.secretKey }"
+              x-totp-width
+            ></div>
+          </div>
+        </template>
+      </div>
+      <span x-show="twoFactorCodes.sharedOneTimePasswords" class="cosmo-title">Mit mir geteilte Zwei-Faktor Codes</span>
+      <template x-for="sharedOtp of groupedSharedOtp" :key="sharedOtp.id">
+        <div>
+          <span class="cosmo-title"><small x-text="'Geteilt von ' + sharedOtp.name"></small></span>
+          <div class="two-factor__list">
+            <template x-for="otp of sharedOtp.otpCodes" :key="otp.id">
+              <div class="two-factor__item" @click="copyCodeToClipboard(otp.secretKey)" x-data="{ menuOpen: false }">
+                <img class="two-factor__icon" :src="getOtpIcon(otp)" />
+                <span class="two-factor__issuer" x-text="otp.accountIssuer"></span>
+                <span class="two-factor__code" x-text="$totp(otp.secretKey, currentTimer)"></span>
+                <span class="two-factor__name" x-text="otp.accountName"></span>
+                <div
+                  class="two-factor__progress"
+                  :class="{ 'is--copied': copiedTotp === otp.secretKey }"
+                  x-totp-width
+                ></div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+  </template>
+  <form @submit.prevent="saveTwoFactorCode" class="cosmo-modal__container" x-show="edit.open" x-transition>
+    <div class="cosmo-modal">
+      <h1 class="cosmo-modal__title">Zwei-Faktor Code bearbeiten</h1>
+      <div class="cosmo-modal__content">
+        <div class="cosmo-input__group">
+          <label for="account-name" class="cosmo-label">Account Name</label>
+          <input type="text" id="account-name" required class="cosmo-input" x-model="edit.accountName" />
+        </div>
+      </div>
+      <div class="cosmo-modal__button-bar">
+        <button type="button" @click="edit.open = false" class="cosmo-button">Verwerfen</button>
+        <button type="submit" class="cosmo-button">Zwei-Faktor Code speichern</button>
+      </div>
+    </div>
+  </form>
+  <form @submit.prevent="saveTwoFactorCodeShares" class="cosmo-modal__container" x-show="share.open" x-transition>
+    <div class="cosmo-modal">
+      <h1 class="cosmo-modal__title">Zwei-Faktor Code freigeben</h1>
+      <div class="cosmo-modal__content">
+        <div class="cosmo-input__group">
+          <template x-for="owner of owners" :key="owner.id">
+            <div class="cosmo-input__group is--switch">
+              <input
+                class="cosmo-switch"
+                :id="`share-${owner.id}`"
+                type="checkbox"
+                x-model.number="share.sharedWith"
+                :value="owner.id"
+              />
+              <label :for="`share-${owner.id}`" class="cosmo-label" x-text="owner.name"></label>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="cosmo-modal__button-bar">
+        <button type="button" @click="share.open = false" class="cosmo-button">Verwerfen</button>
+        <button type="submit" class="cosmo-button">Freigaben speichern</button>
+      </div>
+    </div>
+  </form>
+</div>

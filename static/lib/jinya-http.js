@@ -5,8 +5,7 @@ export class HttpError extends Error {
   constructor(status, error) {
     super();
     this.status = status;
-    this.innerError = error.innerError;
-    this.message = error.message;
+    this.message = error;
     this.plainError = error;
   }
 }
@@ -78,20 +77,16 @@ export async function send(
     return null;
   }
 
-  const httpError = await response.json();
+  const httpError = await response.text();
   switch (response.status) {
     case 400:
       throw new BadRequestError(httpError);
     case 401:
-      if (httpError.type === 'invalid-api-key') {
-        if (window.document) {
-          Alpine.store('authentication').logout();
-        }
-
-        return null;
+      if (window.document) {
+        Alpine.store('authentication').logout();
       }
 
-      throw new UnauthorizedError(httpError);
+      return null;
     case 403:
       throw new NotAllowedError(httpError);
     case 404:
