@@ -158,12 +158,57 @@ order by otp.account_issuer, otp.account_name`, owner.Id)
 	return otps, nil
 }
 
-func FindOneTimePassword(owner *Owner, otpId int64) (*OneTimePassword, error) {
-	otp, err := SelectOne[OneTimePassword](`
-select *
-from one_time_passwords
-where id = $1
-  and owner_id = $2`, otpId, owner.Id)
+func FindOneTimePassword(owner *Owner, otpId int64) (*OneTimePasswordWithShare, error) {
+	data, err := dbMap.SelectStr(`
+select coalesce(
+               jsonb_build_object(
+                       'id', otp.id,
+                       'ownerId', otp.owner_id,
+                       'accountName', otp.account_name,
+                       'accountIssuer', otp.account_issuer,
+                       'encryptedSecretKey', encode(otp.secret_key::bytea, 'base64'),
+                       'brandIcon', bi.reference,
+                       'brandIconSimilarity', coalesce(bi.score, 0),
+                       'simpleIcon', si.slug,
+                       'simpleIconSimilarity', coalesce(si.score, 0),
+                       'sharedWith', coalesce(
+                               (select json_agg(
+                                               jsonb_build_object(
+                                                       'id', o.id,
+                                                       'name', o.name,
+                                                       'email', o.email,
+                                                       'isAdmin', o.is_admin,
+                                                       'profilePicture', o.profile_picture
+                                               )
+                                       )
+                                from one_time_password_shares otps
+                                         join owners o
+                                              on o.id = otps.shared_to_owner_id
+                                where otps.one_time_password_id = otp.id),
+                               '[]'::json
+                       )
+               ),
+'{}')
+from one_time_passwords otp
+         left join lateral ( select *, similarity(bi.name, otp.account_issuer) as score
+                             from brand_icons bi
+                             where bi.name % otp.account_issuer
+                             order by score desc
+                             limit 1 ) bi
+                   on true
+         left join lateral ( select *, similarity(si.title, otp.account_issuer) as score
+                             from simple_icons si
+                             where si.title % otp.account_issuer
+                             order by score desc
+                             limit 1 ) si on true
+where otp.owner_id = $1
+  and otp.id = $2`, owner.Id, otpId)
+	if err != nil {
+		return nil, err
+	}
+
+	var otp OneTimePasswordWithShare
+	err = json.Unmarshal([]byte(data), &otp)
 	if err != nil {
 		return nil, err
 	}
@@ -173,35 +218,39 @@ where id = $1
 		return nil, err
 	}
 
-	otp.SecretKey, err = encryption.DecryptOwnerString(otp.EncryptedSecretKey, ownerKey.EncryptedKey)
+	decryptedSecret, err := encryption.DecryptOwnerString(otp.EncryptedSecretKey, ownerKey.EncryptedKey)
 	if err != nil {
 		return nil, err
 	}
 
-	return otp, nil
+	otp.SecretKey = decryptedSecret
+	otp.CanEdit = true
+	otp.EncryptedSecretKey = nil
+
+	return &otp, nil
 }
 
-func CreateOneTimePassword(owner *Owner, otp *OneTimePassword) error {
+func CreateOneTimePassword(owner *Owner, otp *OneTimePassword) (*OneTimePasswordWithShare, error) {
 	encryptionKey, err := FindOwnerEncryptionKeyByOwner(owner)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	encryptedSecretKey, err := encryption.EncryptOwnerString(otp.SecretKey, encryptionKey.EncryptedKey)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	otp.EncryptedSecretKey = []byte(encryptedSecretKey)
+	otp.EncryptedSecretKey = encryptedSecretKey
 
 	err = dbMap.Insert(otp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	otp.EncryptedSecretKey = nil
 
-	return nil
+	return FindOneTimePassword(owner, otp.Id)
 }
 
 func UpdateOneTimePassword(owner *Owner, otp *OneTimePassword) error {

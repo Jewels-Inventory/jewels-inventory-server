@@ -58,7 +58,7 @@ func createOneTimePassword(w http.ResponseWriter, r *http.Request) {
 		SecretKey:     body.SecretKey,
 	}
 
-	err = database.CreateOneTimePassword(owner, otp)
+	res, err := database.CreateOneTimePassword(owner, otp)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -66,7 +66,7 @@ func createOneTimePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	encoder.Encode(otp)
+	encoder.Encode(res)
 }
 
 func updateOneTimePassword(w http.ResponseWriter, r *http.Request) {

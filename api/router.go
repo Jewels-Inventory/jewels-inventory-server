@@ -57,6 +57,10 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodGet).
 		Path("").
 		HandlerFunc(getOwners)
+	ownerRouter.
+		Methods(http.MethodGet).
+		Path("/other").
+		HandlerFunc(getOwnersExceptMe)
 
 	otpRouter.
 		Methods(http.MethodGet).

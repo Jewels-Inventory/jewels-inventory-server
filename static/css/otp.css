@@ -117,7 +117,5 @@
 
   &:hover {
     background: var(--primary-color-alpha-50);
-
-    /* color: var(--white); */
   }
 }
