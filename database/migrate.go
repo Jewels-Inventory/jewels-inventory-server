@@ -43,6 +43,7 @@ func SetupDatabase() {
 			SetUniqueTogether("one_time_password_id", "shared_to_owner_id")
 		AddTableWithName[BrandIcon]("brand_icons")
 		AddTableWithName[SimpleIcon]("simple_icons")
+		AddTableWithName[AndroidDevice]("android_devices")
 
 		err = GetDbMap().CreateTablesIfNotExists()
 		if err != nil {
@@ -106,6 +107,22 @@ select add_foreign_key_if_not_exists('one_time_passwords', 'owner_id', 'owners',
 select add_foreign_key_if_not_exists('one_time_password_shares', 'shared_to_owner_id', 'owners', 'id');
 select add_foreign_key_if_not_exists('one_time_password_shares', 'one_time_password_id', 'one_time_passwords', 'id');
 `)
+		if err != nil {
+			panic(err)
+		}
+
+		// Clean unused cpus
+		_, err = conn.Exec(`
+delete
+from cpus c
+where c.id not in (select id from devices)`)
+		if err != nil {
+			panic(err)
+		}
+
+		// Add missing foreign key
+		_, err = conn.Exec(`
+select add_foreign_key_if_not_exists('cpus', 'device_id', 'devices', 'id');`)
 		if err != nil {
 			panic(err)
 		}

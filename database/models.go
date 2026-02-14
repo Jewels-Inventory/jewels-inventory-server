@@ -156,3 +156,10 @@ type SimpleIcon struct {
 	Code  string `json:"code" db:"code"`
 	Hex   string `json:"hex" db:"hex"`
 }
+
+type AndroidDevice struct {
+	RetailBranding string `db:"retail_branding"`
+	MarketingName  string `db:"marketing_name"`
+	Device         string `db:"device"`
+	Model          string `db:"model"`
+}

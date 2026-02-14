@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func downloadAndUpdateDeviceEol(device database.Device) {
-	eol, err := eol2.GetEolForDevice(&device)
+func downloadAndUpdateDeviceEol(device *database.Device) {
+	eol, err := eol2.GetEolForDevice(device)
 	if err != nil {
 		slog.Info("No eol found for device", "device", device.Model, "error", err)
 		return
@@ -99,7 +99,7 @@ func createDevice(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		downloadAndUpdateDeviceEol(*device)
+		downloadAndUpdateDeviceEol(device)
 
 		encoder := json.NewEncoder(w)
 		w.WriteHeader(http.StatusCreated)
@@ -147,7 +147,7 @@ func updateDevice(w http.ResponseWriter, r *http.Request) {
 
 	jewel, err := database.FindJewelByOwnerAndDeviceId(int64(ownerId), body.DeviceId)
 	if err == nil && jewel != nil {
-		downloadAndUpdateDeviceEol(*jewel)
+		downloadAndUpdateDeviceEol(jewel)
 	}
 
 	w.WriteHeader(http.StatusNoContent)
@@ -176,7 +176,7 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 
 	jewel, err := database.FindJewelByOwnerAndDeviceId(getUserFromRequest(r).Id, body.DeviceId)
 	if err == nil && jewel != nil {
-		downloadAndUpdateDeviceEol(*jewel)
+		downloadAndUpdateDeviceEol(jewel)
 	}
 
 	w.WriteHeader(http.StatusNoContent)

@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"log/slog"
 	"time"
 )
 
@@ -160,7 +161,17 @@ func CreateJewel(owner int64, device *Device) (*Device, error) {
 		}
 	}
 
-	return device, tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return nil, err
+	}
+
+	err = SetAndroidDevice(device)
+	if err != nil {
+		slog.Warn("Failed to set android device information", "error", err)
+	}
+
+	return device, nil
 }
 
 func CreateToken(owner int64, token string) error {
@@ -290,7 +301,17 @@ where device_id = $1`, device.Id)
 		}
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	err = SetAndroidDevice(device)
+	if err != nil {
+		slog.Warn("Failed to set android device information", "error", err)
+	}
+
+	return nil
 }
 
 func CreateOrUpdateJewel(owner int64, device *Device) error {

@@ -3,13 +3,16 @@ package cmd
 import (
 	"embed"
 	"jewels/api"
+	"jewels/jobs"
 	"jewels/web"
 	"log/slog"
 	"net/http"
 	"os"
 	"path"
 	"strings"
+	"time"
 
+	"github.com/bamzi/jobrunner"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 )
@@ -46,6 +49,26 @@ func GetServeCmd(openapi, static embed.FS) *cobra.Command {
 
 			api.SetupApiRouter(router)
 			web.SetupWebRouter(router)
+
+			slog.Info("Setting up job runner")
+			jobrunner.Start()
+
+			jobrunner.Every(time.Hour*24, jobs.CheckEol{})
+			jobrunner.Every(time.Hour*24, jobs.UpdateIcons{})
+			jobrunner.Every(time.Hour*24*7, jobs.UpdateAndroidDevicesList{})
+
+			go func() {
+				slog.Info("Checking eol on startup")
+				jobs.CheckEol{}.Run()
+			}()
+			go func() {
+				slog.Info("Updating icons on startup")
+				jobs.UpdateIcons{}.Run()
+			}()
+			go func() {
+				slog.Info("Updating android devices list on startup")
+				jobs.UpdateAndroidDevicesList{}.Run()
+			}()
 
 			if os.Getenv("ENV") == "dev" {
 				router.PathPrefix("/static/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
