@@ -3,51 +3,25 @@ package api
 import (
 	"encoding/json"
 	"jewels/database"
+	eol2 "jewels/eol"
 	"log/slog"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/gorilla/mux"
 )
 
 func downloadAndUpdateDeviceEol(device database.Device) {
-	if strings.ToLower(device.Manufacturer) == "samsung" && device.Type != database.Computer && device.Type != database.Other {
-		res, err := http.Get("https://endoflife.date/api/samsung-mobile.json")
-		if err != nil {
-			return
-		}
+	eol, err := eol2.GetEolForDevice(&device)
+	if err != nil {
+		slog.Info("No eol found for device", "device", device.Model, "error", err)
+		return
+	}
 
-		type responseDevice struct {
-			Cycle string `json:"cycle"`
-			Eol   any    `json:"eol"`
-		}
-
-		decoder := json.NewDecoder(res.Body)
-		var devices []responseDevice
-		err = decoder.Decode(&devices)
-		if err != nil {
-			return
-		}
-
-		for _, d := range devices {
-			if strings.ToLower(d.Cycle) == strings.ToLower(device.Model) {
-				eolString, ok := d.Eol.(string)
-				if ok {
-					eol, err := time.Parse("2006-01-02", eolString)
-					if err != nil {
-						return
-					}
-
-					err = database.UpdateJewelEol(device.OwnerId, device.Id, eol)
-					if err != nil {
-						slog.Error("Failed to download and update device EOL", "error", err)
-						return
-					}
-				}
-			}
-		}
+	slog.Info("Eol found for device", "device", device.Model, "eol", eol)
+	err = database.UpdateJewelEol(device.OwnerId, device.Id, eol)
+	if err != nil {
+		slog.Error("Error updating device eol", "device", device.Model, "error", err)
 	}
 }
 
