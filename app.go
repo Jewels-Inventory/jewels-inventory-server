@@ -30,8 +30,6 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(cmd.GetServeCmd(openapi, static))
-	rootCmd.AddCommand(cmd.GetCheckEolCmd())
-	rootCmd.AddCommand(cmd.GetUpdateIconsCmd())
 	rootCmd.AddCommand(cmd.GetImportOtpCmd())
 }
 
