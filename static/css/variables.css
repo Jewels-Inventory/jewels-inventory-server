@@ -3,6 +3,8 @@
   --primary-lightness-base: 25%;
   --primary-saturation: 54%;
   --background: url('/background.webp');
+  --primary-color-alpha-5: hsl(var(--primary-hue) var(--primary-saturation) var(--primary-lightness-base) / 5%);
+  --primary-color-alpha-15: hsl(var(--primary-hue) var(--primary-saturation) var(--primary-lightness-base) / 15%);
 }
 
 @media screen and (prefers-color-scheme: light) {

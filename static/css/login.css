@@ -1,4 +1,4 @@
-.relay-login {
+.jewels-login {
   background: hsl(var(--primary-hue) var(--primary-saturation) var(--primary-lightness-base) / 25%);
   padding: 2rem 4rem;
   backdrop-filter: blur(24px) saturate(90%);
@@ -14,7 +14,7 @@
   color: var(--white);
 }
 
-.relay-login__container {
+.jewels-login__container {
   height: var(--page-height);
   display: flex;
   justify-content: center;

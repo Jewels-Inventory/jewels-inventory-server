@@ -16,8 +16,17 @@ func SetupApiRouter(router *mux.Router) {
 	adminRouter := apiRouter.
 		PathPrefix("/admin").
 		Subrouter()
+	ownerRouter := apiRouter.
+		PathPrefix("/owner").
+		Subrouter()
 	myJewelsRouter := apiRouter.
 		PathPrefix("/my-jewels").
+		Subrouter()
+	otpRouter := apiRouter.
+		PathPrefix("/one-time-password").
+		Subrouter()
+	iconsRouter := apiRouter.
+		PathPrefix("/icons").
 		Subrouter()
 
 	apiRouter.
@@ -43,6 +52,49 @@ func SetupApiRouter(router *mux.Router) {
 		Methods(http.MethodGet).
 		Path("/{jewel}/vpn-config").
 		HandlerFunc(getVpnConfig)
+
+	ownerRouter.
+		Methods(http.MethodGet).
+		Path("").
+		HandlerFunc(getOwners)
+	ownerRouter.
+		Methods(http.MethodGet).
+		Path("/other").
+		HandlerFunc(getOwnersExceptMe)
+
+	otpRouter.
+		Methods(http.MethodGet).
+		Path("").
+		HandlerFunc(getMyOneTimePasswords)
+	otpRouter.
+		Methods(http.MethodPost).
+		Path("").
+		HandlerFunc(createOneTimePassword)
+	otpRouter.
+		Methods(http.MethodPut).
+		Path("/{id}").
+		HandlerFunc(updateOneTimePassword)
+	otpRouter.
+		Methods(http.MethodDelete).
+		Path("/{id}").
+		HandlerFunc(deleteOneTimePassword)
+	otpRouter.
+		Methods(http.MethodPost).
+		Path("/{id}/share").
+		HandlerFunc(oneTimePasswordShare)
+	otpRouter.
+		Methods(http.MethodPost).
+		Path("/{id}/share/{shareWith}").
+		HandlerFunc(shareOneTimePassword)
+	otpRouter.
+		Methods(http.MethodDelete).
+		Path("/{id}/share/{shareWith}").
+		HandlerFunc(unshareOneTimePassword)
+
+	iconsRouter.
+		Methods(http.MethodGet).
+		PathPrefix("/{brand}").
+		HandlerFunc(getIcon)
 
 	adminRouter.
 		Methods(http.MethodGet).
@@ -88,7 +140,9 @@ func SetupApiRouter(router *mux.Router) {
 		Path("/{type:(?:watch|computer|phone)}").
 		HandlerFunc(pushDeviceData)
 
-	myJewelsRouter.Use(login(false), createOrFindUser, contentTypeJson)
-	adminRouter.Use(login(true), createOrFindUser, contentTypeJson)
-	devicesRouter.Use(login(false), createOrFindUser, contentTypeJson)
+	otpRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	ownerRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	myJewelsRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	adminRouter.Use(login(true), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	devicesRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 }

@@ -37,6 +37,12 @@ func SetupDatabase() {
 		AddTableWithName[Kernel]("kernels")
 		AddTableWithName[OperatingSystem]("operating_systems")
 		AddTableWithName[Device]("devices")
+		AddTableWithName[OwnerEncryptionKey]("owner_encryption_key")
+		AddTableWithName[OneTimePassword]("one_time_passwords")
+		AddTableWithName[OneTimePasswordShare]("one_time_password_shares").
+			SetUniqueTogether("one_time_password_id", "shared_to_owner_id")
+		AddTableWithName[BrandIcon]("brand_icons")
+		AddTableWithName[SimpleIcon]("simple_icons")
 
 		err = GetDbMap().CreateTablesIfNotExists()
 		if err != nil {
@@ -86,6 +92,19 @@ alter table devices
 	add column if not exists relay_server_id bigint null;
 alter table devices
 	add column if not exists relay_client_id bigint null;
+`)
+		if err != nil {
+			panic(err)
+		}
+
+		// Introduced: JWLS-15
+		_, err = conn.Exec(`
+create extension if not exists pg_trgm;
+
+select add_foreign_key_if_not_exists('one_time_passwords', 'owner_id', 'owners', 'id');
+
+select add_foreign_key_if_not_exists('one_time_password_shares', 'shared_to_owner_id', 'owners', 'id');
+select add_foreign_key_if_not_exists('one_time_password_shares', 'one_time_password_id', 'one_time_passwords', 'id');
 `)
 		if err != nil {
 			panic(err)

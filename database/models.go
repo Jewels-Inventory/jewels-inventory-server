@@ -103,3 +103,56 @@ type RelayClient struct {
 	RelayServerId int64  `json:"relayServerId"`
 	AllocatedIp   string `json:"allocatedIp"`
 }
+
+type OwnerEncryptionKey struct {
+	OwnerId      int64  `db:"owner_id"`
+	EncryptedKey string `db:"encrypted_key"`
+}
+
+type OneTimePassword struct {
+	Id                 int64  `json:"id" db:"id,autoincrement,primarykey"`
+	OwnerId            int64  `json:"-" db:"owner_id"`
+	AccountName        string `json:"accountName" db:"account_name"`
+	AccountIssuer      string `json:"accountIssuer" db:"account_issuer"`
+	EncryptedSecretKey []byte `json:"encryptedSecretKey,omitempty" db:"secret_key"`
+	SecretKey          string `json:"secretKey" db:"-"`
+	CanEdit            bool   `json:"canEdit" db:"-"`
+}
+
+type OneTimePasswordShare struct {
+	OneTimePasswordId int64 `db:"one_time_password_id"`
+	SharedToOwnerId   int64 `db:"shared_to_owner_id"`
+}
+
+type OneTimePasswordWithIcon struct {
+	OneTimePassword
+	BrandIcon            string  `json:"brandIcon" db:"brand_icon"`
+	SimpleIcon           string  `json:"simpleIcon" db:"simple_icon"`
+	BrandIconSimilarity  float64 `json:"brandIconSimilarity" db:"brand_icon_similarity"`
+	SimpleIconSimilarity float64 `json:"simpleIconSimilarity" db:"simple_icon_similarity"`
+}
+
+type OneTimePasswordWithShare struct {
+	OneTimePasswordWithIcon
+	SharedWith []Owner `json:"sharedWith" db:"-"`
+}
+
+type SharedOneTimePassword struct {
+	OneTimePasswordWithIcon
+	SharedBy *Owner `json:"sharedBy" db:"-"`
+}
+
+type BrandIcon struct {
+	Name      string `json:"Name" db:"name"`
+	Reference string `json:"Reference" db:"reference"`
+	SVG       string `json:"SVG" db:"svg"`
+	PNG       string `json:"PNG" db:"png"`
+	WebP      string `json:"WebP" db:"webp"`
+}
+
+type SimpleIcon struct {
+	Title string `json:"title" db:"title"`
+	Slug  string `json:"slug" db:"slug"`
+	Code  string `json:"code" db:"code"`
+	Hex   string `json:"hex" db:"hex"`
+}

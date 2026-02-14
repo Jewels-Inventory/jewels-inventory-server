@@ -3,25 +3,25 @@ package eol
 import (
 	"jewels/database"
 	"jewels/mailing"
-	"log"
+	"log/slog"
 )
 
 func CheckEol() {
 	devices, err := database.FindNextMonthEolDevices()
 	if err != nil {
-		log.Printf("ERROR: Failed to find next month eol devices %v", err)
+		slog.Error("Failed to find next month eol devices", "error", err)
 		return
 	}
 
 	for _, device := range devices {
 		owner, err := database.FindOwnerById(device.OwnerId)
 		if err != nil {
-			log.Printf("ERROR: Failed to find owner by owner id %s: %v", device.OwnerId, err)
+			slog.Error("Failed to find owner by owner id", "ownerId", device.OwnerId, "error", err)
 			continue
 		}
 
 		if err := mailing.SendEolMail(device, *owner); err != nil {
-			log.Printf("ERROR: Failed to send eol mail: %v", err)
+			slog.Error("Failed to send eol mail", "error", err)
 			continue
 		}
 	}
