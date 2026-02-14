@@ -40,8 +40,7 @@ func downloadAndUpdateDeviceEol(device database.Device) {
 						return
 					}
 
-					device.Eol = &eol
-					err = database.UpdateJewel(device.OwnerId, &device)
+					err = database.UpdateJewelEol(device.OwnerId, device.Id, eol)
 					if err != nil {
 						slog.Error("Failed to download and update device EOL", "error", err)
 						return
