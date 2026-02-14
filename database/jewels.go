@@ -312,7 +312,7 @@ func UpdateJewelEol(ownerId, deviceId int64, eol time.Time) error {
 update devices
 set eol = $1
 where owner_id = $2
-  and device_id = $3`, eol, ownerId, deviceId)
+  and id = $3`, eol, ownerId, deviceId)
 
 	return err
 }
