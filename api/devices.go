@@ -181,3 +181,44 @@ func pushDeviceData(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func getEolDevices(w http.ResponseWriter, r *http.Request) {
+	currentUser := getUserFromRequest(r)
+
+	var devices []database.Device
+	var err error
+	if currentUser.IsAdmin {
+		devices, err = database.FindNextMonthEolDevices()
+	} else {
+		devices, err = database.FindNextMonthEolDevicesByUser(currentUser.Id)
+	}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	owners, err := database.FindAllOwners()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	ownerIdName := map[int64]string{}
+	for _, owner := range owners {
+		ownerIdName[owner.Id] = owner.Name
+	}
+
+	encoder := json.NewEncoder(w)
+	devicesByUser := map[string][]database.Device{}
+	for _, device := range devices {
+		if device.OwnerId == currentUser.Id {
+			devicesByUser["me"] = append(devicesByUser["me"], device)
+		} else {
+			devicesByUser[ownerIdName[device.OwnerId]] = append(devicesByUser[ownerIdName[device.OwnerId]], device)
+		}
+	}
+
+	encoder.Encode(devicesByUser)
+}
