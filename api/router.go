@@ -28,6 +28,9 @@ func SetupApiRouter(router *mux.Router) {
 	iconsRouter := apiRouter.
 		PathPrefix("/icons").
 		Subrouter()
+	eolRouter := apiRouter.
+		PathPrefix("/eol").
+		Subrouter()
 
 	apiRouter.
 		Methods(http.MethodGet).
@@ -140,9 +143,14 @@ func SetupApiRouter(router *mux.Router) {
 		Path("/{type:(?:watch|computer|phone)}").
 		HandlerFunc(pushDeviceData)
 
+	eolRouter.
+		Methods(http.MethodGet).
+		HandlerFunc(getEolDevices)
+
 	otpRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	ownerRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	myJewelsRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	adminRouter.Use(login(true), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 	devicesRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
+	eolRouter.Use(login(false), createOrFindUser, createOrFindOwnerEncryptionKey, contentTypeJson)
 }
