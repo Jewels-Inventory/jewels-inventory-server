@@ -88,7 +88,7 @@ export default function jewelData(name, additionalData = {}) {
           },
           image: `${this.automatic.host}/static/img/qrlogo.svg`,
           data: JSON.stringify({
-            host: 'http://192.168.178.39:8090', //this.automatic.host,
+            host: this.automatic.host,
             token: this.automatic.token,
           }),
         });
