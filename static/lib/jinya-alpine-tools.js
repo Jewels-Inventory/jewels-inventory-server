@@ -3,6 +3,7 @@ import PineconeRouter from './plugins/pinecone-router.js';
 import Collapse from './plugins/collapse.js';
 import Anchor from './plugins/anchor.js';
 import { UserManager } from './openid-client/index.js';
+import { post } from './jinya-http.js';
 
 let authenticationConfiguration = {};
 /** @type UserManager */
