@@ -12,9 +12,10 @@ var InfisicalClient infisical.InfisicalClientInterface
 
 func SetupEncryption() {
 	slog.Info("Connecting to Infisical service")
+	autoRefreshToken := true
 	client := infisical.NewInfisicalClient(context.Background(), infisical.Config{
 		SiteUrl:          os.Getenv("INFISICAL_URL"),
-		AutoTokenRefresh: true,
+		AutoTokenRefresh: &autoRefreshToken,
 	})
 
 	_, err := client.Auth().UniversalAuthLogin(os.Getenv("INFISICAL_CLIENT_ID"), os.Getenv("INFISICAL_CLIENT_SECRET"))
