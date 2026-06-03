@@ -8,7 +8,7 @@ require (
 	github.com/bamzi/jobrunner v1.0.0
 	github.com/gorilla/mux v1.8.1
 	github.com/infisical/go-sdk v0.8.0
-	github.com/jackc/pgx/v5 v5.9.2
+	github.com/jackc/pgx/v5 v5.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.10.2
 	github.com/wneessen/go-mail v0.7.3
