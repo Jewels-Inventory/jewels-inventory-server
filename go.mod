@@ -15,7 +15,7 @@ require (
 	github.com/zitadel/zitadel-go/v3 v3.29.1
 	go-simpler.org/env v0.12.0
 	golang.org/x/crypto v0.53.0
-	golang.org/x/text v0.38.0
+	golang.org/x/text v0.39.0
 )
 
 require (
