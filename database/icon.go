@@ -51,14 +51,14 @@ from simple_icons`)
 }
 
 func GetBrandIcon(icon string) (*BrandIcon, error) {
-	return SelectOne[BrandIcon](`
+	return dbMap.SelectOneType[BrandIcon](`
 select *
 from brand_icons
 where reference = $1`, icon)
 }
 
 func GetSimpleIcon(icon string) (*SimpleIcon, error) {
-	return SelectOne[SimpleIcon](`
+	return dbMap.SelectOneType[SimpleIcon](`
 select *
 from simple_icons
 where slug = $1`, icon)

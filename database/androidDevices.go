@@ -57,7 +57,7 @@ values ($1, $2, $3, $4)`, record[0], record[1], record[2], record[3])
 }
 
 func SetAndroidDevice(device *Device) error {
-	androidDevice, err := SelectOne[AndroidDevice](`
+	androidDevice, err := dbMap.SelectOneType[AndroidDevice](`
 select *
 from android_devices
 where model ilike $1`, device.Model)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/DerKnerd/gorp"
+	"github.com/DerKnerd/gorp/v4"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 )
@@ -28,22 +28,22 @@ func SetupDatabase() {
 
 		dbMap = &gorp.DbMap{Db: conn, Dialect: dialect}
 
-		AddTableWithName[Owner]("owners")
-		AddTableWithName[OwnerAuthToken]("owner_auth_tokens")
-		AddTableWithName[Drive]("drives")
-		AddTableWithName[Cpu]("cpus")
-		AddTableWithName[Bios]("bios")
-		AddTableWithName[Mainboard]("mainboards")
-		AddTableWithName[Kernel]("kernels")
-		AddTableWithName[OperatingSystem]("operating_systems")
-		AddTableWithName[Device]("devices")
-		AddTableWithName[OwnerEncryptionKey]("owner_encryption_key")
-		AddTableWithName[OneTimePassword]("one_time_passwords")
-		AddTableWithName[OneTimePasswordShare]("one_time_password_shares").
+		dbMap.AddTableWithName[Owner]("owners")
+		dbMap.AddTableWithName[OwnerAuthToken]("owner_auth_tokens")
+		dbMap.AddTableWithName[Drive]("drives")
+		dbMap.AddTableWithName[Cpu]("cpus")
+		dbMap.AddTableWithName[Bios]("bios")
+		dbMap.AddTableWithName[Mainboard]("mainboards")
+		dbMap.AddTableWithName[Kernel]("kernels")
+		dbMap.AddTableWithName[OperatingSystem]("operating_systems")
+		dbMap.AddTableWithName[Device]("devices")
+		dbMap.AddTableWithName[OwnerEncryptionKey]("owner_encryption_key")
+		dbMap.AddTableWithName[OneTimePassword]("one_time_passwords")
+		dbMap.AddTableWithName[OneTimePasswordShare]("one_time_password_shares").
 			SetUniqueTogether("one_time_password_id", "shared_to_owner_id")
-		AddTableWithName[BrandIcon]("brand_icons")
-		AddTableWithName[SimpleIcon]("simple_icons")
-		AddTableWithName[AndroidDevice]("android_devices")
+		dbMap.AddTableWithName[BrandIcon]("brand_icons")
+		dbMap.AddTableWithName[SimpleIcon]("simple_icons")
+		dbMap.AddTableWithName[AndroidDevice]("android_devices")
 
 		err = GetDbMap().CreateTablesIfNotExists()
 		if err != nil {

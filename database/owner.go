@@ -29,18 +29,18 @@ func CreateOwnerIfNotExists(email, name, profilePicture string, roles []string) 
 }
 
 func FindOwnerById(id int64) (*Owner, error) {
-	return Get[Owner](id)
+	return dbMap.GetType[Owner](id)
 }
 
 func FindOwnerByEmail(email string) (*Owner, error) {
-	return SelectOne[Owner](`
+	return dbMap.SelectOneType[Owner](`
 select *
 from owners
 where email = $1`, email)
 }
 
 func FindOwnerByToken(token string) (*Owner, error) {
-	return SelectOne[Owner](`
+	return dbMap.SelectOneType[Owner](`
 select o.*
 from owners o
          inner join owner_auth_tokens oat on oat.owner_id = o.id
@@ -48,14 +48,14 @@ where oat.token = $1`, token)
 }
 
 func FindAllOwners() ([]Owner, error) {
-	return Select[Owner](`
+	return dbMap.SelectType[Owner](`
 select *
 from owners
 order by name`)
 }
 
 func FindAllAdmins() ([]Owner, error) {
-	return Select[Owner](`
+	return dbMap.SelectType[Owner](`
 select *
 from owners
 where is_admin = true
@@ -89,7 +89,7 @@ func CreateOwnerEncryptionKeyIfNotExists(owner *Owner) (*OwnerEncryptionKey, err
 }
 
 func FindOwnerEncryptionKeyByOwner(owner *Owner) (*OwnerEncryptionKey, error) {
-	return SelectOne[OwnerEncryptionKey](`
+	return dbMap.SelectOneType[OwnerEncryptionKey](`
 select *
 from owner_encryption_key
 where owner_id = $1`, owner.Id)

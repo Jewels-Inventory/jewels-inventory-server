@@ -8,32 +8,32 @@ import (
 )
 
 func fillJewel(device *Device) (*Device, error) {
-	drives, err := Select[Drive](`select * from drives where device_id = $1 order by id`, device.Id)
+	drives, err := dbMap.SelectType[Drive](`select * from drives where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	cpu, err := SelectOne[Cpu](`select * from cpus where device_id = $1 order by id`, device.Id)
+	cpu, err := dbMap.SelectOneType[Cpu](`select * from cpus where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	bios, err := SelectOne[Bios](`select * from bios where device_id = $1 order by id`, device.Id)
+	bios, err := dbMap.SelectOneType[Bios](`select * from bios where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	mainboard, err := SelectOne[Mainboard](`select * from mainboards where device_id = $1 order by id`, device.Id)
+	mainboard, err := dbMap.SelectOneType[Mainboard](`select * from mainboards where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	kernel, err := SelectOne[Kernel](`select * from kernels where device_id = $1 order by id`, device.Id)
+	kernel, err := dbMap.SelectOneType[Kernel](`select * from kernels where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
 
-	operatingSystem, err := SelectOne[OperatingSystem](`select * from operating_systems where device_id = $1 order by id`, device.Id)
+	operatingSystem, err := dbMap.SelectOneType[OperatingSystem](`select * from operating_systems where device_id = $1 order by id`, device.Id)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func fillJewel(device *Device) (*Device, error) {
 }
 
 func FindJewels(owner int64) ([]Device, error) {
-	jewels, err := Select[Device](`select * from devices where owner_id = $1 order by id`, owner)
+	jewels, err := dbMap.SelectType[Device](`select * from devices where owner_id = $1 order by id`, owner)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, err
 	}
@@ -67,11 +67,11 @@ func FindJewels(owner int64) ([]Device, error) {
 }
 
 func FindAllJewels() ([]Device, error) {
-	return Select[Device](`select * from devices order by owner_id, type, manufacturer, model`)
+	return dbMap.SelectType[Device](`select * from devices order by owner_id, type, manufacturer, model`)
 }
 
 func FindJewelByOwnerAndDeviceId(ownerId int64, deviceId string) (*Device, error) {
-	jewel, err := SelectOne[Device](`select * from devices where owner_id = $1 and device_id = $2 order by owner_id, type, manufacturer, model`, ownerId, deviceId)
+	jewel, err := dbMap.SelectOneType[Device](`select * from devices where owner_id = $1 and device_id = $2 order by owner_id, type, manufacturer, model`, ownerId, deviceId)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func FindJewelByOwnerAndDeviceId(ownerId int64, deviceId string) (*Device, error
 }
 
 func FindJewelByDeviceId(deviceId string) (*Device, error) {
-	jewel, err := SelectOne[Device](`select * from devices where device_id = $1`, deviceId)
+	jewel, err := dbMap.SelectOneType[Device](`select * from devices where device_id = $1`, deviceId)
 	if err != nil {
 		return nil, err
 	}

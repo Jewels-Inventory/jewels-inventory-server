@@ -89,7 +89,7 @@ func FindSharedOneTimePasswords(owner *Owner) ([]SharedOneTimePassword, error) {
 		SharedToOwnerId int64 `db:"shared_to_owner_id"`
 	}
 
-	sharedOtps, err := Select[sharedOneTimePassword](`
+	sharedOtps, err := dbMap.SelectType[sharedOneTimePassword](`
 select otp.*,
        otps.shared_to_owner_id,
        coalesce(bi.reference, '') as brand_icon,
