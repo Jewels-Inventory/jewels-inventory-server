@@ -1,8 +1,8 @@
 {
-  "name": "relay-vpn-server",
-  "version": "1.0.2",
+  "name": "jewels-server",
+  "version": "4.0.5",
   "private": true,
-  "description": "A simple wireguard management ui",
+  "description": "A simple device inventory system",
   "scripts": {
     "lint": "bun run prettier && bun run eslint && bun run stylelint",
     "prettier": "prettier static/js --check",
@@ -13,7 +13,7 @@
   "author": "Imanuel Ulbricht",
   "repository": {
     "type": "git",
-    "url": "ssh://git@gitlab.imanuel.dev:2289/telescope/telescope-server.git"
+    "url": "ssh://gitlab.imanuel.dev:2289/jewels-inventory/server.git"
   },
   "type": "module",
   "devDependencies": {
