@@ -47,9 +47,6 @@ func GetServeCmd(openapi, static embed.FS) *cobra.Command {
 			slog.Info("Starting server")
 			router := mux.NewRouter()
 
-			api.SetupApiRouter(router)
-			web.SetupWebRouter(router)
-
 			slog.Info("Setting up job runner")
 			jobrunner.Start()
 
@@ -87,6 +84,9 @@ func GetServeCmd(openapi, static embed.FS) *cobra.Command {
 				indexPath:    "openapi/index.html",
 				fsPrefixPath: "",
 			})
+
+			api.SetupApiRouter(router)
+			web.SetupWebRouter(router)
 
 			slog.Info("Serving at localhost:8090...")
 			err := http.ListenAndServe(":8090", router)
