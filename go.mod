@@ -7,7 +7,7 @@ require (
 	github.com/DerKnerd/gorp/v4 v4.0.0
 	github.com/bamzi/jobrunner v1.0.0
 	github.com/gorilla/mux v1.8.1
-	github.com/infisical/go-sdk v0.9.0
+	github.com/infisical/go-sdk v0.9.1
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.10.2
