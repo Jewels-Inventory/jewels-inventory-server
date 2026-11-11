@@ -11,7 +11,7 @@ require (
 	github.com/jackc/pgx/v5 v5.12.0
 	github.com/joho/godotenv v1.5.1
 	github.com/spf13/cobra v1.10.2
-	github.com/wneessen/go-mail v0.8.1
+	github.com/wneessen/go-mail v0.8.2
 	github.com/zitadel/zitadel-go/v3 v3.30.0
 	go-simpler.org/env v0.12.0
 	golang.org/x/crypto v0.58.0
